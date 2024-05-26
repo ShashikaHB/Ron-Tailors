@@ -1,0 +1,278 @@
+:root{
+	.dark{
+    --client-primary-color:	#004A77;
+	
+	--login-bg-color:linear-gradient(156deg, rgb(0 24 37) 10%, rgb(0 25 45) 43%, rgb(2 6 53) 59%, rgba(76,20,57,1) 100%);
+	--footer-color: #0D1117;
+	--header-color: #0D1117;
+
+	--sidenav-bg-color:#161b22;
+	--sidenav-hover-color:rgba(177,186,196,0.12);
+
+	--login-card-text-color:#c1c7cd;
+	--login-card-border-color: var(--transparent);
+	--login-card-bg-color:#070520;
+
+	--footer-border-color:#202637;
+	--footer-text-color:#8193b2;
+
+	--form-control-bg-color:#0d1117;
+	--form-control-border-color: #30363d;
+	--form-control-text-color: #60708D;
+
+	--card-bg-color-1: #0D1117;
+	--card-bg-color-2:#161B22;
+	--card-border-color-1:#30363d;
+	--card-border-color-2:#30363d;
+
+	--header-icon-btn-text-color:#60708D;
+	--header-icon-btn-bg-color:#0d1117;
+	--header-icon-btn-border-color:#30363d;
+
+	--active-tab-bg-color:#161b22;
+	--active-tab-border-color:#30363d;
+	--active-tab-text-color:#eeeeee;
+
+	--tab-bg-color:var(--transparent);
+	--tab-border-color:#303030;
+	--tab-text-color:#6f6f6f;
+
+	--header-title-color:#e6edf3;
+
+	--icon-color:#848d97;
+
+	--side-nav-text-color-1:#e6edf3;
+	--side-nav-text-color-2:#848d97;
+
+	--notifications-bg-color:#010409;
+	--notifications-btn-hover-color:var(--gray-color-90);
+	--notifications-border-color:#30363d;
+
+	--grid-row-bg-color:var(--coolgray-color-100);
+	--grid-row-text-color:var(--coolgray-color-20);
+	--grid-column-resize-handle-color:var(--coolgray-color-50);
+
+	--menu-bg-color:#161B22;
+	--menu-text-color:var(--coolgray-color-20);
+	--menu-hover-color:rgba(177,186,196,0.12);
+
+	--icon-btn-text-color:#60708D;
+	--icon-btn-border-color:#30363d;
+	--icon-btn-bg-color:#0d1117;
+
+	--modal-bg-color:#0d1117;
+
+	--input-bg-color:#161b22;
+
+	--fix-button-container-bg-color:#161b22;
+
+	/*Primary Buttons */
+	--primary-button-bg-color: var(--client-primary-color);
+	--primary-button-text-color: var(--white-color);
+	--primary-button-border-color: var(--client-primary-color);
+
+	--primary-hover-button-bg-color: var(--client-primary-color);
+	--primary-hover-button-text-color: var(--white-color);
+	--primary-hover-button-border-color: var(--client-primary-color);
+
+	--primary-disabled-button-bg-color: var(--gray-color-20);
+	--primary-disabled-button-text-color: var(--gray-color-60);
+	--primary-disabled-button-border-color: var(--gray-color-20);
+
+	/*Secondary Buttons*/
+	--secondary-button-bg-color: var(--white-color);
+	--secondary-button-text-color: var(--client-primary-color);
+	--secondary-button-border-color: var(--client-primary-color);
+
+	--secondary-hover-button-bg-color: var(--client-primary-color);
+	--secondary-hover-button-text-color: var(--client-primary-color);
+	--secondary-hover-button-border-color: var(--client-primary-color);
+
+	--secondary-disabled-button-bg-color: var(--gray-color-10);
+	--secondary-disabled-button-text-color: var(--gray-color-60);
+	--secondary-disabled-button-border-color: var(--gray-color-60);
+
+	/*Tertiary Buttons*/
+	--outlined-button-bg-color: var(--white-color);
+	--outlined-button-text-color: var(--client-primary-color);
+	--outlined-button-border-color: var(--client-primary-color); 
+
+	/*Background Color Platte*/
+	--bg-color-1:		#010409; /*Dark #343434*/
+	--bg-color-2:		#161B22; /*Dark #000000*/
+	--bg-color-3:		#f7f7f7; /*Dark #181818*/
+	--bg-color-4:		var(--client-primary-color);
+	--bg-color-5:		#eeeeee; /*Dark #1e1e1e*/
+	--bg-color-6:		#000000; /*Dark #ffffff*/
+	--bg-color-7:		#cce5ff; /*Dark #1e1e1e*/
+	--bg-color-8:		var(--client-secondary-color);
+	--bg-color-9:		#ffffff; /*Only used for client secondary btn bg color*/
+
+	--primary-bg-color-1:#161b22;
+
+	/*Border Color Platte*/
+	--border-color-1:	var(--coolgray-color-10); /*Dark #5b5b5b*/
+	--border-color-2:	var(--coolgray-color-20);
+	--border-color-3:	var(--coolgray-color-30); /*Dark #5b5b5b, Used for default border color*/
+	--border-color-4:	var(--coolgray-color-40);
+	--border-color-5:	var(--coolgray-color-50) /*Dark #ffffff*/
+	--border-color-6:	var(--coolgray-color-60);
+	--border-color-7:	var(--coolgray-color-70); /*Dark #1e1e1e*/
+	--border-color-8:	var(--coolgray-color-80);
+	--border-color-9:	var(--coolgray-color-90);
+	--border-color-10:	var(--coolgray-color-100);
+
+	/*Text Color Platte*/
+	--text-color-1:		var(--gray-color-100);
+	--text-color-2:		var(--gray-color-90);
+	--text-color-3:		var(--gray-color-80);
+	--text-color-4:		var(--gray-color-70);
+	--text-color-5:		var(--gray-color-60);
+	--text-color-6:		var(--gray-color-50);
+	--text-color-7:		var(--gray-color-40);
+	--text-color-8:		var(--gray-color-30);
+	--text-color-9:		var(--gray-color-20);
+	--text-color-10:	var(--gray-color-10);
+
+	--blue-text-color: var(--cyan-color-40);
+
+	/*Blue Palette*/
+	--blue-color-10: #edf5ff;
+	--blue-color-20: #d0e2ff;
+	--blue-color-30: #a6c8ff;
+	--blue-color-40: #78a9ff;
+	--blue-color-50: #4589ff;
+	--blue-color-60: #0f62fe;
+	--blue-color-70: #0043ce;
+	--blue-color-80: #002d9c;
+	--blue-color-90: #001d6c;
+	--blue-color-100: #001141;
+
+	/*Gray Paletter*/
+	--gray-color-10: #f4f4f4;
+	--gray-color-20: #e0e0e0;
+	--gray-color-30: #c6c6c6;
+	--gray-color-40: #a8a8a8;
+	--gray-color-50: #8d8d8d;
+	--gray-color-60: #6f6f6f;
+	--gray-color-70: #525252;
+	--gray-color-80: #393939;
+	--gray-color-90: #262626;
+	--gray-color-100: #161616;
+
+	/*Cool Gray Palette*/
+	--coolgray-color-10: #f2f4f8;
+	--coolgray-color-20: #dde1e6;
+	--coolgray-color-30: #c1c7cd;
+	--coolgray-color-40: #a2a9b0;
+	--coolgray-color-50: #878d96;
+	--coolgray-color-60: #697077;
+	--coolgray-color-70: #4d5358;
+	--coolgray-color-80: #343a3f;
+	--coolgray-color-90: #21272a;
+	--coolgray-color-100: #121619; 
+
+	/*Cyan Platte*/
+	--cyan-color-10: #e5f6ff;
+	--cyan-color-20: #bae6ff;
+	--cyan-color-30: #82cfff;
+	--cyan-color-40: #33b1ff;
+	--cyan-color-50: #1192e8;
+	--cyan-color-60: #0072c3;
+	--cyan-color-70: #00539a;
+	--cyan-color-80: #003a6d;
+	--cyan-color-90: #012749;
+	--cyan-color-100: #061727; 
+
+	/*Green Platte*/
+	--green-color-10: #defbe6;
+	--green-color-20: #a7f0ba;
+	--green-color-30: #6fdc8c;
+	--green-color-40: #42be65;
+	--green-color-50: #24a148;
+	--green-color-60: #198038;
+	--green-color-70: #0e6027;
+	--green-color-80: #044317;
+	--green-color-90: #022d0d;
+	--green-color-100: #071908;
+
+	/*Red Platte*/
+	--red-color-10: #fff1f1;
+	--red-color-20: #ffd7d9;
+	--red-color-30: #ffb3b8;
+	--red-color-40: #ff8389;
+	--red-color-50: #fa4d56;
+	--red-color-60: #da1e28;
+	--red-color-70: #a2191f;
+	--red-color-80: #750e13;
+	--red-color-90: #520408;
+	--red-color-100: #2d0709;
+
+	/*Yellow Platte*/
+	--yellow-color-10: #fcf4d6;
+	--yellow-color-20: #fddc69;
+	--yellow-color-30: #f1c21b;
+	--yellow-color-40: #d2a106;
+	--yellow-color-50: #b28600;
+	--yellow-color-60: #8e6a00;
+	--yellow-color-70: #684e00;
+	--yellow-color-80: #483700;
+	--yellow-color-90: #302400;
+	--yellow-color-100: #1c1500;
+
+	/*Other Colors*/
+	--white-color: #ffffff;
+	--black-color: #000000;
+	--transparent: transparent;
+	--yellow-color-30: #f1c21b;
+	--orange-color-40: #ff832b;
+	
+	--bg-gray-1: #0D1117;
+
+	--box-shadow-1:0px 0px 8px 0px rgba(0, 0, 0, 0.10);
+
+	--overlay-bg-color:rgba(175,184,193,0.2);
+
+	--card-text-color: var(--cyan-color-60);
+
+	--status-color-pending: #f1c21b;
+	--status-color-approved: #28a745;
+	--status-color-rejected: #dc3545;
+	--status-color-mark-as-deleted: #f54444;
+	--status-color-deleted: #4d4d4d;
+	--status-color-approved-l1: #4caf50;
+	--status-color-approved-l2: #388e3c;
+	--status-color-suspended: #fbc02d;
+	--status-color-pending-reverse: #f5f5f5;
+	--status-color-dormant-to-be-close: #f54444;
+	--status-color-dormant: #808080;
+	--status-color-replaced: #4d4d4d;
+	--status-color-matured: #2196f3;
+
+	::-webkit-scrollbar {
+		width: 6px;
+		height: 6px;
+	}
+	::-webkit-scrollbar-track {
+		border-radius: 10px;
+		background: rgba(0, 0, 0, 0.1);
+	}
+	::-webkit-scrollbar-thumb {
+		border-radius: 10px;
+		background: rgba(0, 0, 0, 0.2);
+	}
+	::-webkit-scrollbar-thumb:hover {
+		background: rgba(0, 0, 0, 0.4);
+	}
+	::-webkit-scrollbar-thumb:active {
+		background: rgba(0, 0, 0, 0.9);
+	}
+    }
+}
+	
+.dark{
+	color: var(--gray-color-10);
+	.login-container{
+		background: linear-gradient(179.4deg, rgb(7 12 44) -16.9%, rgb(45 18 53) 119.9%);
+	}
+}

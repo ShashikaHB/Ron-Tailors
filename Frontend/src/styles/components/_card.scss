@@ -1,0 +1,20 @@
+.select-card{
+    border: 1px solid #E8E8E8;
+    border-radius: 12px;
+    padding: 16px;
+    .select-card-body{
+        width: 100%;
+        gap: 8px;
+        .select-card-header{
+            font-size: 20px;
+            font-weight: 600
+        }
+        .select-card-body-text{
+            font-size: 14px;
+        }
+        .primary-button{
+            background-color: #0E8345;
+            width: fit-content;
+        }
+    }
+}
