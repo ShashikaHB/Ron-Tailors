@@ -1,17 +1,15 @@
 import React from 'react'
-
+import clientLogo from '../../assets/images/rt-logo.svg'
+import ProfileIcon from '../../assets/images/profile-icon.svg';
 const Header = () => {
   return (
     <>
-    <header className='d-flex align-items-center'>
-        <div className="container-fluid">
-            <div className="row d-flex align-items-center">
-                <div className="col-xs-3">
-                    <h3>Logo Here</h3>
-                </div>
-            </div>
+        <div className='row mx-0'>
+          <div className="col-12 header d-flex justify-content-between">
+            <	img className="top-bar-logo" src={clientLogo} alt="react logo" />
+            <	img className="top-bar-icon" src={ProfileIcon} alt="react logo" />
+          </div>
         </div>
-    </header>
     </>
   )
 }

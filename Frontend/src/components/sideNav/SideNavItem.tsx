@@ -15,7 +15,7 @@ const SideNavItem: React.FC<SideBarConfig> = (item) => {
     return (
       <div className={open ? "sideNav-item open" : "sideNav-item"}>
         <div className="sideNav-title" onClick={handleClick}>
-          <button className="w-100" onClick={handleClick}>
+          <button className="side-nav-btn w-100" onClick={handleClick}>
             <span className="icon">
               <MdDashboard />
             </span>
@@ -41,7 +41,7 @@ const SideNavItem: React.FC<SideBarConfig> = (item) => {
       <div className="sideNav-item">
         {item.path && (
           <Link to={item.path}>
-            <button className="w-100" onClick={handleClick}>
+            <button className="side-nav-btn w-100" onClick={handleClick}>
               <span className="icon">
                 <MdDashboard />
               </span>

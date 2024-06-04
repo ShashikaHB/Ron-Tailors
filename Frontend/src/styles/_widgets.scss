@@ -18,22 +18,36 @@ body {
             height: 24px;
         }
     }
-
-    .side-nav{
-        .side-nav-level-1{
-            height: 42px;
-            color: var(--bg-color-1);
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 8px;
-            border: none;
-            outline: none;
-            padding: 16px 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            &.active{
-                background-color: #E8E8E8;
+    .sidebar{
+        ul{
+            list-style: none;
+            padding: 0;
+            margin: 8px 0px;
+            li{
+                margin: 8px 0px; 
+                .sideNav-item{
+                    a{
+                        text-decoration: none;
+                    }
+                }
+            }
+            .side-nav-btn{
+                height: 42px;
+                background-color: transparent;
+                color: var(--bg-color-1);
+                font-size: 16px;
+                font-weight: 600;
+                border-radius: 8px;
+                border: none;
+                outline: none;
+                padding: 16px 14px;
+                display: flex;
+                align-items: center;
+                justify-content: start;
+                gap: 8px;
+                &:hover{
+                    background-color: #E8E8E8;
+                }
             }
         }
     }
