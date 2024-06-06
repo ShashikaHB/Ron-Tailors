@@ -12,7 +12,6 @@ const RootLayout = () => {
           <div className="col-12 col-12 flex-grow-1 overflow-hidden d-flex flex-column h-100">
             <div className="row h-100 flex-grow-1 overflow-hidden d-flex flex-column h-100">
               <div className="col-3 flex-grow-1 overflow-hidden d-flex flex-column h-100">
-                <button className='primary-button w-100'>New Order</button>
                 <SideNav></SideNav>
               </div>
               <div className="col-9 flex-grow-1 overflow-hidden d-flex flex-column h-100">
