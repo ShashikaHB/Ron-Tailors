@@ -72,7 +72,7 @@ export const sideBarConfig: SideBarConfig[] = [
 function SideNav() {
   return (
     <div className="sidebar">
-      <Link to="/secured/newOrder">
+      <Link className="primary-button w-100" to="/secured/newOrder">
         <button className="primary-button w-100">+ New Order</button>
       </Link>
       <ul>

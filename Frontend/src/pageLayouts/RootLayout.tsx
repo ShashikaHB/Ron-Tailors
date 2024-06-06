@@ -11,11 +11,11 @@ const RootLayout = () => {
         <div className="row flex-grow-1 overflow-hidden mx-0">
           <div className="col-12 col-12 flex-grow-1 overflow-hidden d-flex flex-column h-100">
             <div className="row h-100 flex-grow-1 overflow-hidden d-flex flex-column h-100">
-              <div className="col-3 flex-grow-1 overflow-hidden d-flex flex-column h-100">
+              <div className="col-3 flex-grow-1 overflow-hidden d-flex flex-column h-100 py-3">
                 <SideNav></SideNav>
               </div>
-              <div className="col-9 flex-grow-1 overflow-hidden d-flex flex-column h-100">
-                <Outlet />
+              <div className="col-9 flex-grow-1 overflow-hidden d-flex flex-column h-100 main-body-container py-3">
+                <Outlet/>
               </div>
             </div>
           </div>

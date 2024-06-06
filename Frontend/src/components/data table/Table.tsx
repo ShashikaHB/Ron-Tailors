@@ -59,58 +59,62 @@ const Table = () => {
     columnResizeMode: "onChange",
   });
   return (
-    <div>
+    <div className="h-100 d-flex flex-column">
       <Filters
         columnFilters={columnFilters}
         setColumnfilters={setColumnfilters}
       ></Filters>
-      <table className="table">
-        <thead className="tableHeading">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th key={header.id} className="th">
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                  {header.column.getCanSort() && (
-                    <ImSortAlphaAsc
-                      onClick={header.column.getToggleSortingHandler()}
-                    />
-                  )}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <br />
-      <p>
-        page {table.getState().pagination.pageIndex + 1} of{" "}
-        {table.getPageCount()}
-      </p>
-      <ButtonGroup>
-        <Button onClick={()=> table.previousPage()} disabled={!table.getCanPreviousPage()}> 
-          <BsArrowLeft />
-        </Button>
-        <Button onClick={()=> table.nextPage()} disabled={!table.getCanNextPage()}>
-          <BsArrowRight/>
-        </Button>
-      </ButtonGroup>
+      <div className="flex-grow-1 overflow-hidden d-flex flex-column">
+        <table className="table overflow-y-auto h-100 d-block">
+          <thead className="">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th key={header.id} className="" scope="col">
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                    {header.column.getCanSort() && (
+                      <ImSortAlphaAsc
+                        onClick={header.column.getToggleSortingHandler()}
+                      />
+                    )}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody className="overflow-y-auto">
+            {table.getRowModel().rows.map((row) => (
+              <tr key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="d-flex gap-2 align-items-center mb-2 justify-content-center">
+          <div>
+            page {table.getState().pagination.pageIndex + 1} of{" "}
+            {table.getPageCount()}
+          </div>
+          <ButtonGroup>
+            <Button onClick={()=> table.previousPage()} disabled={!table.getCanPreviousPage()}> 
+              <BsArrowLeft />
+            </Button>
+            <Button onClick={()=> table.nextPage()} disabled={!table.getCanNextPage()}>
+              <BsArrowRight/>
+            </Button>
+          </ButtonGroup>
+      </div>
     </div>
   );
 };

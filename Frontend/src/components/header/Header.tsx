@@ -29,7 +29,7 @@ const Header = () => {
           <SearchBar />
           <CiLight />
 
-          <div className="profileWrapper">
+          <div className="profileWrapper d-flex flex-column">
             <Button
               className="profile d-flex align-items-center"
               onClick={handleClick}
