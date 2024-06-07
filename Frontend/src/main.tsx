@@ -3,7 +3,11 @@ import ReactDOM from "react-dom/client";
 import "./styles/main.scss";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from "react-router-dom";
 import LandingPage from "./pages/LandingPage.tsx";
 import RootLayout from "./pageLayouts/RootLayout.tsx";
 import { Profile } from "./pages/Profile.tsx";
@@ -12,6 +16,9 @@ import RegisterPage from "./pages/RegisterPage.tsx";
 import SIgnInSignUpLayout from "./pageLayouts/SIgnInSignUpLayout.tsx";
 import NewOrder from "./pages/NewOrder.tsx";
 import ViewUnderConstruction from "./pages/ViewUnderConstruction.tsx";
+import SalesOrderPage from "./pages/SalesOrderPage.tsx";
+import StockPage from "./pages/StockPage.tsx";
+import UsersPage from "./pages/UsersPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -33,7 +40,7 @@ const router = createBrowserRouter([
       },
       {
         path: "sales",
-        element: <Profile></Profile>,
+        element: <SalesOrderPage></SalesOrderPage>,
       },
       {
         path: "newOrder",
@@ -45,11 +52,11 @@ const router = createBrowserRouter([
       },
       {
         path: "stock",
-        element: <ViewUnderConstruction></ViewUnderConstruction>,
+        element: <StockPage></StockPage>,
       },
       {
         path: "users",
-        element: <ViewUnderConstruction></ViewUnderConstruction>,
+        element: <UsersPage></UsersPage>,
       },
       {
         path: "cashBook",
@@ -69,6 +76,10 @@ const router = createBrowserRouter([
       { path: "signUp", element: <RegisterPage /> },
       { path: "signIn", element: <LoginPage /> },
     ],
+  },
+  {
+    path: "*",
+    element: <Navigate to="/public/signIn" replace />,
   },
 ]);
 

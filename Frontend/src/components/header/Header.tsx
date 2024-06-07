@@ -26,8 +26,6 @@ const Header = () => {
       <div className="row mx-0">
         <div className="col-12 header d-flex justify-content-between">
           <img className="top-bar-logo" src={clientLogo} alt="react logo" />
-          <SearchBar />
-          <CiLight />
 
           <div className="profileWrapper d-flex flex-column">
             <Button

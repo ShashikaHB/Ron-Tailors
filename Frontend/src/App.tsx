@@ -2,8 +2,7 @@
 // import ProfileIcon from '../src/assets/images/profile-icon.svg';
 // import SideNav from './components/SideNav';
 function App() {
-  return (<></>
-  );
+  return <></>;
 }
 
 export default App;

@@ -128,4 +128,13 @@ body {
   .main-body-container > div{
     height: 100%;
   }
+
+  .inputGroup {
+    display: flex;
+    flex-direction: column;
+
+    .MuiTextField-root {
+        margin-top: 2rem; 
+    }
+  }
 }
