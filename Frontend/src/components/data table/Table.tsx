@@ -47,7 +47,7 @@ const Table = ({ rowData, columns, sortingColumn }: TableProps) => {
       ></Filters>
       <div className="flex-grow-1 overflow-hidden d-flex flex-column">
         {data && data.length > 0 && (
-          <table className="table overflow-y-auto h-100 d-block">
+          <table className="table overflow-y-auto h-100">
             <thead className="">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>

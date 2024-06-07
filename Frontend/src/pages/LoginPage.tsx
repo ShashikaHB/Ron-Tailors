@@ -1,11 +1,10 @@
-import { Avatar, Button, Grid, TextField } from "@mui/material";
+import { Button, Grid, TextField } from "@mui/material";
 import { MdLockOutline } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useState } from "react";
 
 const LoginPage = () => {
-  const avatarStyle = { backgroundColor: "green" };
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -38,10 +37,7 @@ const LoginPage = () => {
   };
   return (
     <>
-      <Grid alignItems={"center"}>
-        <Avatar style={avatarStyle}>
-          <MdLockOutline />
-        </Avatar>
+      <div className="d-flex gap-2 flex-column">
         <h2>Login</h2>
         <form onSubmit={handleSubmit}>
           <div className="inputGroup">
@@ -68,10 +64,10 @@ const LoginPage = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <div>
-            <Button type="submit" variant="contained" color="primary">
-              Login
-            </Button>
+          <div className="w-100 mt-3">
+            <button className="primary-button w-100" type="submit">
+                  Login
+            </button>
           </div>
         </form>
         <div>
@@ -79,7 +75,7 @@ const LoginPage = () => {
             Don't have account? <Link to="/public/signUp">Sign Up</Link>
           </p>
         </div>
-      </Grid>
+      </div>
     </>
   );
 };

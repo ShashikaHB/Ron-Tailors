@@ -82,7 +82,9 @@ const StockPage = () => {
 
   return (
     <div>
-      <Button onClick={handleOpen}>+ new Material</Button>
+      <div className="d-flex justify-content-end">
+          <button className="primary-button" onClick={handleOpen}>+ new Material</button>
+      </div>
       {rowData && (
         <Table
           rowData={rowData}

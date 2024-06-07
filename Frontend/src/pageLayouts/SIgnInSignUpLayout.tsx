@@ -1,23 +1,19 @@
-import { Grid, Paper } from "@mui/material";
 import React from "react";
 import { Outlet } from "react-router-dom";
+import LoginLogo from "../assets/images/Rectangle 1.png";
 
 const SIgnInSignUpLayout = () => {
-  const paperStyle = {
-    padding: 20,
-    height: "75vh",
-    width: "40vw",
-    margin: "20px auto",
-  };
   return (
-    <>
-      <div>LOGO</div>
-      <Grid>
-        <Paper elevation={10} style={paperStyle}>
+    <div className="login-container">
+      <div className="login-body">
+        <div className="d-flex justify-content-center">
+          <img className="top-bar-icon" src={LoginLogo} alt="react logo" />
+        </div>
+        <div>
           <Outlet></Outlet>
-        </Paper>
-      </Grid>
-    </>
+        </div>
+      </div>
+    </div>
   );
 };
 
