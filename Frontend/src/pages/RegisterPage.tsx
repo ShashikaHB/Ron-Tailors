@@ -1,12 +1,10 @@
-import { Avatar, Grid, MenuItem, TextField } from "@mui/material";
+import { Grid, MenuItem, TextField } from "@mui/material";
 import axios from "axios";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { Button } from "react-bootstrap";
-import { MdLockOutline } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
 
 const RegisterPage = () => {
-  const avatarStyle = { backgroundColor: "green" };
   const roles = [
     {
       value: "Admin",
@@ -31,7 +29,7 @@ const RegisterPage = () => {
   const [role, setRole] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: Event) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
@@ -62,10 +60,7 @@ const RegisterPage = () => {
   return (
     <>
       <Grid alignItems={"center"}>
-        <Avatar style={avatarStyle}>
-          <MdLockOutline />
-        </Avatar>
-        <h2>Login</h2>
+        <h2>Sign Up</h2>
         <form onSubmit={handleSubmit}>
           <div className="inputGroup">
             <TextField
@@ -104,9 +99,9 @@ const RegisterPage = () => {
             <TextField
               id="outlined-select-currency"
               select
-              label="Select"
-              defaultValue="EUR"
-              helperText="Please select your currency"
+              label="Please Select your role"
+              defaultValue="Sales Person"
+              helperText="Please select your Role"
               value={role}
               onChange={(e) => setRole(e.target.value)}
             >
@@ -129,7 +124,7 @@ const RegisterPage = () => {
         </form>
         <div>
           <p>
-            Already Have an account? <Link to="/public/signIn">Sign In</Link>
+            Already Have an account? <Link to="/login">Sign In</Link>
           </p>
         </div>
       </Grid>

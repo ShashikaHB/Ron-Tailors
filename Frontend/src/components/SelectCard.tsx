@@ -1,4 +1,4 @@
-import React from "react";
+import React, {memo} from "react";
 import { Link } from "react-router-dom";
 interface SelectCardProps {
   title: string;
@@ -28,4 +28,4 @@ function SelectCard({ title, subtitle, image, link }: SelectCardProps) {
   );
 }
 
-export default SelectCard;
+export default memo(SelectCard);

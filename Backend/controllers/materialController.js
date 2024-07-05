@@ -1,4 +1,3 @@
-import { generateToken } from "../config/jwtToken.js";
 import { Material } from "../models/materialModel.js";
 import asyncHandler from "express-async-handler";
 

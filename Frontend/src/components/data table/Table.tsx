@@ -52,7 +52,7 @@ const Table = ({ rowData, columns, sortingColumn }: TableProps) => {
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <th key={header.id} className="" scope="col">
+                    <th key={header.id} scope="col">
                       {header.isPlaceholder
                         ? null
                         : flexRender(

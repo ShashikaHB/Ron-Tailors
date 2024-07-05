@@ -16,6 +16,7 @@ const NewOrder = () => {
       subtitle:
         "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur",
       image: sales,
+      link: "/secured/sales",
     },
   ];
   return (

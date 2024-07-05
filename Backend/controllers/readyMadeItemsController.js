@@ -1,4 +1,3 @@
-import { generateToken } from "../config/jwtToken.js";
 import { ReadyMadeItem } from "../models/readyMadeItemModel.js";
 import asyncHandler from "express-async-handler";
 

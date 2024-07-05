@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 
+import mongooseSequence from "mongoose-sequence";
+
+const AutoIncrement = mongooseSequence(mongoose);
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -9,10 +12,10 @@ const userSchema = new mongoose.Schema(
     },
     mobile: {
       type: String,
-      required: [true, "Name is required"],
-      unique: [true, "Email is already taken"],
-      minLength: [10, "password length should be greater than 6 characters"],
-      maxLength: [10, "password length should be greater than 6 characters"],
+      required: [true, "Mobile is required"],
+      unique: [true, "Mobile is already taken"],
+      minLength: [10, "Mobile number should be 10 digits"],
+      maxLength: [10, "Mobile number should be 10 digits"],
     },
     password: {
       type: String,
@@ -22,19 +25,31 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       enum: ["Cutter", "Tailor", "Sales Person", "Admin"],
-      required: [true, "Name is required"],
-      // minLength:[6, 'password length should be greater than 6 characters'],
+      default: "Sales Person",
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
     },
     salary: {
       type: String,
-      // minLength:[6, 'password length should be greater than 6 characters'],
+    },
+    refreshToken: {
+      type: String,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
+  { versionKey: false }
 );
 
+userSchema.plugin(AutoIncrement, {
+  inc_field: "userId",
+  id: "userIds",
+  start_seq: 100,
+});
+
 userSchema.pre("save", async function (next) {
-  const salt = await bcrypt.genSaltSync(10);
+  const salt = bcrypt.genSaltSync(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
 
