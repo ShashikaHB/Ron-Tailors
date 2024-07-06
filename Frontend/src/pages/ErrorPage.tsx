@@ -1,4 +1,3 @@
-<h1>OOPS Error</h1>;
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -7,7 +6,7 @@ const ErrorPage: React.FC = () => {
   return (
     <div>
       <h1>OOPS Error</h1>
-      <button onClick={() => navigate("/login")}></button>
+      <button onClick={() => navigate("/dashboard")}>Back To Home</button>
     </div>
   );
 };

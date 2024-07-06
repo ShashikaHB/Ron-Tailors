@@ -5,8 +5,8 @@ import { Outlet } from "react-router-dom";
 
 const RootLayout = () => {
   return (
-    <div className='d-flex flex-grow-1'>
-      <div className='d-flex flex-column h-100 w-100'>
+    <div className="d-flex flex-grow-1">
+      <div className="d-flex flex-column h-100 w-100">
         <Header></Header>
         <div className="row flex-grow-1 overflow-hidden mx-0">
           <div className="col-12 col-12 flex-grow-1 overflow-hidden d-flex flex-column h-100">
@@ -15,7 +15,7 @@ const RootLayout = () => {
                 <SideNav></SideNav>
               </div>
               <div className="col-10 flex-grow-1 overflow-hidden d-flex flex-column h-100 main-body-container py-3">
-                <Outlet/>
+                <Outlet />
               </div>
             </div>
           </div>

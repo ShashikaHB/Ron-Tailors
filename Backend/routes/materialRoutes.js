@@ -11,8 +11,8 @@ const router = express.Router();
 
 router.post("/", createMaterial);
 router.get("/", getAllMaterials);
-router.get("/:id", getSingleMaterial);
-router.patch("/:id", updateMaterial);
-router.delete("/:id", deleteMaterial);
+router.get("/:materialId", getSingleMaterial);
+router.patch("/:materialId", updateMaterial);
+router.delete("/:materialId", deleteMaterial);
 
 export default router;

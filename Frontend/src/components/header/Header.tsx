@@ -1,7 +1,5 @@
 import clientLogo from "../../assets/images/rt-logo.svg";
 import ProfileIcon from "../../assets/images/profile-icon.svg";
-import SearchBar from "../searchBar/SearchBar";
-import { CiLight } from "react-icons/ci";
 import { Avatar, Button } from "@mui/material";
 import React from "react";
 
@@ -11,14 +9,33 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import Divider from "@mui/material/Divider";
 import Settings from "@mui/icons-material/Settings";
 import Logout from "@mui/icons-material/Logout";
+import { useLazyLogoutQuery } from "../../redux/features/auth/authApiSlice";
+import { toast } from "sonner";
+import { logOut } from "../../redux/features/auth/authSlice";
+import { useAppDispatch } from "../../redux/reduxHooks/reduxHooks";
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const dispatch = useAppDispatch();
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
-  const handleProfileMenuClose = () => {
+  const [logout] = useLazyLogoutQuery({});
+
+  const handleProfileMenuClose = async (eventType: String = "") => {
+    if (eventType === "logOut") {
+      try {
+        await logout({})
+          .unwrap()
+          .then(() => {
+            toast.success("Logged out Successfully!");
+            dispatch(logOut());
+          });
+      } catch (error) {
+        toast.error(error.data.message || "Error Occurred");
+      }
+    }
     setAnchorEl(null);
   };
   return (
@@ -57,8 +74,8 @@ const Header = () => {
         anchorEl={anchorEl}
         id="account-menu"
         open={open}
-        onClose={handleProfileMenuClose}
-        onClick={handleProfileMenuClose}
+        onClose={() => handleProfileMenuClose()}
+        onClick={() => handleProfileMenuClose()}
         PaperProps={{
           elevation: 0,
           sx: {
@@ -88,17 +105,17 @@ const Header = () => {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={handleProfileMenuClose}>
+        <MenuItem onClick={() => handleProfileMenuClose()}>
           <Avatar /> My account
         </MenuItem>
         <Divider />
-        <MenuItem onClick={handleProfileMenuClose}>
+        <MenuItem onClick={() => handleProfileMenuClose()}>
           <ListItemIcon>
             <Settings fontSize="small" />
           </ListItemIcon>
           Settings
         </MenuItem>
-        <MenuItem onClick={handleProfileMenuClose}>
+        <MenuItem onClick={() => handleProfileMenuClose("logOut")}>
           <ListItemIcon>
             <Logout fontSize="small" />
           </ListItemIcon>

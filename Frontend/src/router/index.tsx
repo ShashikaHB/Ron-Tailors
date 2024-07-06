@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { Navigate, createBrowserRouter } from "react-router-dom";
 import ErrorPage from "../pages/ErrorPage";
 import SIgnInSignUpLayout from "../pageLayouts/SIgnInSignUpLayout";
 import RegisterPage from "../pages/RegisterPage";
@@ -19,6 +19,7 @@ export const router = createBrowserRouter([
     element: <SIgnInSignUpLayout />,
     errorElement: <ErrorPage />,
     children: [
+      { path: "/", element: <Navigate to="/login" replace /> },
       { path: "register", element: <RegisterPage /> },
       { path: "login", element: <LoginPage /> },
     ],
@@ -26,7 +27,7 @@ export const router = createBrowserRouter([
   {
     path: "/secured",
     element: <RootLayout />,
-    errorElement: <div>404 NOT FOUND</div>,
+    errorElement: <ErrorPage />,
     children: [
       {
         element: <RequireAuth />,
@@ -75,4 +76,5 @@ export const router = createBrowserRouter([
       },
     ],
   },
+  { path: "*", element: <Navigate to="/secured/dashboard" replace /> },
 ]);

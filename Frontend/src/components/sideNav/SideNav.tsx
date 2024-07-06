@@ -17,7 +17,7 @@ export const sideBarConfig: SideBarConfig[] = [
   {
     title: "Home",
     icon: <MdDashboard />,
-    path: "/secured",
+    path: "/secured/dashboard",
   },
   {
     title: "Rent out",
@@ -66,7 +66,6 @@ export const sideBarConfig: SideBarConfig[] = [
     icon: <MdDashboard />,
     path: "/secured/reports",
   },
-  
 ];
 
 function SideNav() {

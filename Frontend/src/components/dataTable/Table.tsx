@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -20,8 +20,13 @@ interface TableProps {
 
 const Table = ({ rowData, columns, sortingColumn }: TableProps) => {
   const [data, setData] = useState(rowData);
+  console.log("table drawing started.");
 
   const [columnFilters, setColumnfilters] = useState([]);
+
+  useEffect(() => {
+    setData(rowData);
+  }, [rowData]);
 
   const table = useReactTable({
     data,
@@ -111,4 +116,4 @@ const Table = ({ rowData, columns, sortingColumn }: TableProps) => {
   );
 };
 
-export default Table;
+export default memo(Table);

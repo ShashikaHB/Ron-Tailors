@@ -1,14 +1,22 @@
 import mongoose from "mongoose";
+import mongooseSequence from "mongoose-sequence";
 
-// Declare the Schema of the Mongo model
+const AutoIncrement = mongooseSequence(mongoose);
+
+// Declare the Schema of the Materials
 const materialSchema = new mongoose.Schema(
   {
+    name: {
+      type: String,
+      required: [true, "Material name is required."],
+    },
     color: {
       type: String,
+      required: [true, "Material color is required."],
     },
     unitPrice: {
       type: Number,
-      required: [true, "Unit price is required."],
+      required: [true, "Material unit price is required."],
     },
     noOfUnits: {
       type: Number,
@@ -16,10 +24,11 @@ const materialSchema = new mongoose.Schema(
     },
     marginPercentage: {
       type: Number,
-      required: [true, "Margin Percentage is required."],
+      required: [true, "Margin percentage is required."],
     },
     brand: {
       type: String,
+      required: [true, "Brand is required."],
     },
     type: {
       type: String,
@@ -27,5 +36,12 @@ const materialSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+materialSchema.plugin(AutoIncrement, {
+  inc_field: "materialId",
+  id: "materials",
+  start_seq: 100,
+});
+
 //Export the model
 export const Material = mongoose.model("Material", materialSchema);

@@ -1,11 +1,11 @@
 import { Button } from "@mui/material";
 import { createColumnHelper } from "@tanstack/react-table";
 import React, { useEffect, useState } from "react";
-import StatusCell from "../components/data table/table components/StatusCell";
+import StatusCell from "../components/dataTable/table components/StatusCell";
 import fakeData from "../data.json";
-import Table from "../components/data table/Table";
+import Table from "../components/dataTable/Table";
 import axios from "axios";
-import OrderDetails from "../components/data table/table components/OrderDetails";
+import OrderDetails from "../components/dataTable/table components/OrderDetails";
 
 const SalesOrderPage = () => {
   const columnHelper = createColumnHelper<any>();

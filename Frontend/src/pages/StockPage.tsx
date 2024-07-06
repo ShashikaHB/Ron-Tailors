@@ -1,96 +1,106 @@
 import { createColumnHelper } from "@tanstack/react-table";
-import { useEffect, useState } from "react";
-import Table from "../components/data table/Table";
-import axios from "axios";
-
-import * as React from "react";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
+import { useState, useEffect, memo, useCallback } from "react";
+import Table from "../components/agGridTable/Table";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { DevTool } from "@hookform/devtools";
 import Modal from "@mui/material/Modal";
-import AddMaterialForm from "../components/forms/AddMaterialForm";
+import AddMaterialForm from "../components/forms/addeditMaterials/AddMaterialForm";
+import {
+  MaterialSchema,
+  defaultMaterialValues,
+  materialSchema,
+} from "../components/forms/formSchemas/materialsSchema";
+import { FormProvider, useForm } from "react-hook-form";
+import { useGetAllMaterialsQuery } from "../redux/features/material/materialApiSlice";
+import { GetMaterial, Material, MaterialTableScheme } from "../types/material";
+import { ColDef } from "ag-grid-community";
+import ActionButtons from "../components/agGridTable/customComponents/ActionButtons";
+import { CustomCellRendererProps } from "ag-grid-react";
 
 const StockPage = () => {
-  const columnHelper = createColumnHelper<any>();
+  console.log("stock page rendered");
 
-  const columns = [
-    columnHelper.accessor("brand", {
-      header: () => <span>Brand</span>,
-      cell: (props) => props.getValue(),
-    }),
-    columnHelper.accessor("color", {
-      header: () => <span>Color</span>,
-      cell: (props) => props.getValue(),
-    }),
-    columnHelper.accessor("noOfUnits", {
-      header: () => "Available Units",
-      cell: (props) => props.renderValue(),
-    }),
-    columnHelper.accessor("unitPrice", {
-      header: "Unit Price",
-    }),
-    columnHelper.accessor("type", {
-      header: () => <span>Type</span>,
-    }),
-    columnHelper.accessor("marginPercentage", {
-      header: () => <span>Profit Margin</span>,
-    }),
+  const methods = useForm<MaterialSchema>({
+    mode: "all",
+    resolver: zodResolver(materialSchema),
+    defaultValues: defaultMaterialValues,
+  });
+
+  const lg = () => {
+    console.log("hellooo");
+  };
+
+  const handleOpen = useCallback((materialId: number | null) => {
+    setOpen(true);
+    setSelectedMaterialId(materialId);
+  }, []);
+
+  const colDefs: ColDef<MaterialTableScheme>[] = [
+    { headerName: "Id", field: "materialId" },
+    { headerName: "Name", field: "name" },
+    { headerName: "Brand", field: "brand" },
+    { headerName: "Color", field: "color" },
+    { headerName: "Available Units", field: "noOfUnits" },
+    { headerName: "Unit Price", field: "unitPrice" },
+    { headerName: "Margin", field: "marginPercentage" },
+    { headerName: "Type", field: "type" },
+    {
+      headerName: "Actions",
+      field: "action",
+      cellRenderer: ActionButtons,
+      cellRendererParams: (params: CustomCellRendererProps) => ({
+        materialId: params.data?.materialId,
+        handleOpen: handleOpen,
+        lg: lg,
+      }),
+    },
   ];
 
-  const [rowData, setRowData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshTable, setRefreshTable] = useState(false);
+  const defaultColDef: ColDef = {
+    flex: 1,
+    resizable: true,
+  };
+
+  const {
+    data: materials,
+    isError,
+    isLoading,
+    error,
+  } = useGetAllMaterialsQuery();
+
+  const [rowData, setRowData] = useState<any[]>([]);
+  const [open, setOpen] = useState(false);
+  const [selectedMaterialId, setSelectedMaterialId] = useState<number | null>(
+    null
+  );
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:8000/api/v1/material/"
-        );
-        setRowData(response.data.data);
-        setLoading(false);
-      } catch (err) {
-        setLoading(false);
-        console.log(err);
-      }
-    };
+    if (materials) {
+      setRowData(materials);
+    }
+  }, [materials]);
 
-    fetchData();
-  }, [refreshTable]);
-
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
-  const style = {
-    position: "absolute" as const,
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 400,
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    boxShadow: 24,
-    p: 4,
-  };
-
-  const handleAddMaterial = async () => {
-    setRefreshTable(false); // Reset refreshTable state
-    setOpen(false); // Close modal
-    setRefreshTable(true); // Trigger table refresh
-  };
+  const handleClose = useCallback(() => setOpen(false), []);
 
   return (
     <div>
       <div className="d-flex justify-content-end">
-          <button className="primary-button" onClick={handleOpen}>+ new Material</button>
+        <button className="primary-button" onClick={() => handleOpen(null)}>
+          + New Material
+        </button>
       </div>
-      {rowData && (
-        <Table
-          rowData={rowData}
-          columns={columns}
-          sortingColumn="brand"
-        ></Table>
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : isError ? (
+        <p>Error loading data: errror</p>
+      ) : (
+        rowData && (
+          <Table<MaterialTableScheme>
+            rowData={rowData}
+            colDefs={colDefs}
+            defaultColDef={defaultColDef}
+          ></Table>
+        )
       )}
       <Modal
         open={open}
@@ -98,13 +108,20 @@ const StockPage = () => {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <AddMaterialForm
-          handleClose={handleClose}
-          handleAddMaterial={handleAddMaterial}
-        ></AddMaterialForm>
+        <div>
+          <FormProvider {...methods}>
+            <div>
+              <AddMaterialForm
+                handleClose={handleClose}
+                materialId={selectedMaterialId}
+              />
+              <DevTool control={methods.control} />
+            </div>
+          </FormProvider>
+        </div>
       </Modal>
     </div>
   );
 };
 
-export default StockPage;
+export default memo(StockPage);

@@ -2,7 +2,7 @@ import { Button } from "@mui/material";
 import { createColumnHelper } from "@tanstack/react-table";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import Table from "../components/data table/Table";
+import Table from "../components/dataTable/Table";
 
 const UsersPage = () => {
   const columnHelper = createColumnHelper<any>();
