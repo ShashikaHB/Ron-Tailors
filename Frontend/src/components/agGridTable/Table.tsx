@@ -19,13 +19,12 @@ const Table = <T,>({ rowData, colDefs, defaultColDef }: TableProps<T>) => {
   const gridRef = useRef<AgGridReact<T>>(null);
 
   return (
-    <div className={"ag-theme-quartz"} style={{ width: "95%", height: "95%" }}>
+    <div className="ag-theme-quartz h-100">
       <AgGridReact<T>
         ref={gridRef}
         rowData={rowData}
         columnDefs={colDefs}
         defaultColDef={defaultColDef}
-        domLayout="autoHeight"
         pagination={true}
       />
     </div>

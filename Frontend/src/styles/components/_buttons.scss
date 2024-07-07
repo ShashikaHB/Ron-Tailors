@@ -28,3 +28,11 @@
     align-items: center;
     justify-content: center;
 }
+
+.primary-button-sm{
+   @extend .primary-button;
+    height: 32px;
+    padding: 8px 7px;
+    font-size: 14px;
+    font-weight: 500;
+}

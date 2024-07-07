@@ -84,7 +84,7 @@ const StockPage = () => {
 
   return (
     <div>
-      <div className="d-flex justify-content-end">
+      <div className="d-flex justify-content-end mb-2">
         <button className="primary-button" onClick={() => handleOpen(null)}>
           + New Material
         </button>

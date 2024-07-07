@@ -9,7 +9,7 @@ const ActionButtons = ({ materialId, handleOpen }: ActionButtonProps) => {
   console.log(materialId);
   return (
     <>
-      <button onClick={() => handleOpen(materialId)}>Edit</button>
+      <button className="primary-button-sm" onClick={() => handleOpen(materialId)}>Edit</button>
     </>
   );
 };

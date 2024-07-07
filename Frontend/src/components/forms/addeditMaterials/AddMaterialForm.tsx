@@ -1,6 +1,5 @@
-import Box from "@mui/material/Box";
+
 import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
 import { SubmitHandler, useFormContext, useWatch } from "react-hook-form";
 import { MdOutlineClose } from "react-icons/md";
 import { MaterialSchema } from "../formSchemas/materialsSchema";
@@ -92,80 +91,56 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
   };
 
   return (
-    <Box
-      sx={{
-        ...style,
-        maxWidth: 400,
-        display: "flex",
-      }}
-    >
-      <Stack sx={{ gap: 2 }}>
-        <Typography variant="h6" component="h2" gutterBottom>
-          Add New Material
-        </Typography>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <RHFTextField<MaterialSchema> label="Name" name="name"></RHFTextField>
-          <RHFTextField<MaterialSchema>
-            label="Color"
-            name="color"
-          ></RHFTextField>
-          <RHFTextField<MaterialSchema>
-            label="Unit Price"
-            name="unitPrice"
-            type="number"
-          ></RHFTextField>
-          <RHFTextField<MaterialSchema>
-            label="Available Units"
-            name="noOfUnits"
-            type="number"
-          ></RHFTextField>
-          <RHFTextField<MaterialSchema>
-            label="Margin"
-            name="marginPercentage"
-            type="number"
-          ></RHFTextField>
-          <RHFTextField<MaterialSchema>
-            label="Brand"
-            name="brand"
-          ></RHFTextField>
-          <RHFTextField<MaterialSchema> label="Type" name="type"></RHFTextField>
-          <Stack sx={{ flexDirection: "row" }}>
-            <Button
-              type="submit"
-              variant="contained"
-              sx={{ mt: 2 }}
-              //   onClick={handleSubmit(onSubmit)}
-            >
-              {variant === "create" ? "Add " : "Edit "}
-            </Button>
-            <Button
-              type="submit"
-              variant="contained"
-              sx={{ mt: 2 }}
-              onClick={handleClear}
-            >
-              Clear
-            </Button>
-          </Stack>
-        </form>
-      </Stack>
-      <Stack>
-        <MdOutlineClose onClick={handleFormClose} />
-      </Stack>
-    </Box>
+    <div className="modal-dialog modal-dialog-centered">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h5 className="modal-title"> Add New Material</h5>
+          <button onClick={handleFormClose}>X</button>
+        </div>
+        <div className="modal-body">
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="inputGroup">
+              <RHFTextField<MaterialSchema> label="Name" name="name"></RHFTextField>
+              <RHFTextField<MaterialSchema>
+                label="Color"
+                name="color"
+              ></RHFTextField>
+              <RHFTextField<MaterialSchema>
+                label="Unit Price"
+                name="unitPrice"
+                type="number"
+              ></RHFTextField>
+              <RHFTextField<MaterialSchema>
+                label="Available Units"
+                name="noOfUnits"
+                type="number"
+              ></RHFTextField>
+              <RHFTextField<MaterialSchema>
+                label="Margin"
+                name="marginPercentage"
+                type="number"
+              ></RHFTextField>
+              <RHFTextField<MaterialSchema>
+                label="Brand"
+                name="brand"
+              ></RHFTextField>
+              <RHFTextField<MaterialSchema> label="Type" name="type"></RHFTextField>
+            </div>
+          </form>
+        </div>
+        <div className="modal-footer">
+          <button className="secondary-button" type="submit" onClick={handleClear}>
+            Clear
+          </button>
+          <button className="primary-button" type="submit"
+          //   onClick={handleSubmit(onSubmit)}
+          >
+            {variant === "create" ? "Add " : "Edit "}
+          </button>
+        </div>
+      </div>
+    </div>
   );
-};
-
-const style = {
-  position: "absolute" as const,
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 400,
-  bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
 };
 
 export default AddMaterialForm;
