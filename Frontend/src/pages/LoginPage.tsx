@@ -34,7 +34,7 @@ const LoginPage = () => {
       <div className="d-flex gap-2 flex-column">
         <h2>Login</h2>
         <form onSubmit={handleSubmit}>
-          <div className="inputGroup">
+          <div className="inputGroup gap-4 d-flex flex-column mt-4">
             <TextField
               id="mobile"
               label="Mobile"

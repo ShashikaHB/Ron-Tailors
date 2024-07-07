@@ -1,7 +1,6 @@
-import { Grid, MenuItem, TextField } from "@mui/material";
+import { MenuItem, TextField } from "@mui/material";
 import axios from "axios";
 import { FormEvent, useState } from "react";
-import { Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 
 const RegisterPage = () => {
@@ -59,10 +58,10 @@ const RegisterPage = () => {
   };
   return (
     <>
-      <Grid alignItems={"center"}>
+      <div className="d-flex gap-2 flex-column">
         <h2>Sign Up</h2>
         <form onSubmit={handleSubmit}>
-          <div className="inputGroup">
+          <div className="inputGroup gap-4 d-flex flex-column mt-4">
             <TextField
               id="filled-basic"
               label="Mobile"
@@ -116,10 +115,10 @@ const RegisterPage = () => {
               ))}
             </TextField>
           </div>
-          <div>
-            <Button type="submit" variant="primary">
+          <div className="w-100 mt-4 mb-4">
+            <button className="primary-button w-100" type="submit">
               Sign Up
-            </Button>
+            </button>
           </div>
         </form>
         <div>
@@ -127,7 +126,7 @@ const RegisterPage = () => {
             Already Have an account? <Link to="/login">Sign In</Link>
           </p>
         </div>
-      </Grid>
+      </div>
     </>
   );
 };
