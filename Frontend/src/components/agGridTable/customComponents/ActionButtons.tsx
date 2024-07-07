@@ -1,3 +1,4 @@
+import { Button } from "@mui/material";
 import { memo } from "react";
 type ActionButtonProps = {
   materialId: number;
@@ -9,7 +10,12 @@ const ActionButtons = ({ materialId, handleOpen }: ActionButtonProps) => {
   console.log(materialId);
   return (
     <>
-      <button className="primary-button-sm" onClick={() => handleOpen(materialId)}>Edit</button>
+      <button
+        className="primary-button-sm"
+        onClick={() => handleOpen(materialId)}
+      >
+        Edit
+      </button>
     </>
   );
 };

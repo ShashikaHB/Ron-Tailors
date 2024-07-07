@@ -4,12 +4,12 @@ import Table from "../components/agGridTable/Table";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DevTool } from "@hookform/devtools";
 import Modal from "@mui/material/Modal";
-import AddMaterialForm from "../components/forms/addeditMaterials/AddMaterialForm";
+import AddMaterialForm from "../forms/materialAddEdit/AddMaterialForm";
 import {
   MaterialSchema,
   defaultMaterialValues,
   materialSchema,
-} from "../components/forms/formSchemas/materialsSchema";
+} from "../forms/formSchemas/materialsSchema";
 import { FormProvider, useForm } from "react-hook-form";
 import { useGetAllMaterialsQuery } from "../redux/features/material/materialApiSlice";
 import { GetMaterial, Material, MaterialTableScheme } from "../types/material";

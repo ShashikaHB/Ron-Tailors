@@ -5,7 +5,8 @@ export const getAllUsers = asyncHandler(async (req, res) => {
   try {
     const users = await User.find()
       .select("-password -_id -__v -createdAt -updatedAt -refreshToken")
-      .lean();
+      .lean()
+      .exec();
 
     if (!users) {
       return res.status(404).json({
@@ -29,18 +30,18 @@ export const getSingleUser = asyncHandler(async (req, res) => {
     throw new Error("User id is required.");
   }
 
-  try {
-    const user = await User.findOne({ userId: id })
-      .select("-password -_id -__v -refreshToken")
-      .lean();
-    res.json({
-      message: "Users fetched.",
-      success: true,
-      user,
-    });
-  } catch (error) {
-    throw new Error(error);
+  const user = await User.findOne({ userId: id })
+    .select("-password -_id -__v -refreshToken")
+    .lean();
+  if (!user) {
+    res.status(404);
+    throw new Error("User not Found!");
   }
+  res.json({
+    message: "Users fetched.",
+    success: true,
+    user,
+  });
 });
 
 export const updateUser = asyncHandler(async (req, res) => {

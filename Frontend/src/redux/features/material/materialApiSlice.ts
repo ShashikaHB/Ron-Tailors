@@ -3,7 +3,7 @@ import { apiSlice } from "../../api/apiSlice";
 import { ApiResponse } from "../../../types/common";
 import { toast } from "sonner";
 import { omit } from "lodash";
-import { MaterialSchema } from "../../../components/forms/formSchemas/materialsSchema";
+import { MaterialSchema } from "../../../forms/formSchemas/materialsSchema";
 
 export const materialApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -42,24 +42,30 @@ export const materialApiSlice = apiSlice.injectEndpoints({
         return { ...res.data, variant: "edit" };
       },
     }),
-    updateSingleMaterial: builder.mutation<ApiResponse<String>, GetMaterial>({
-      query: (material: GetMaterial) => {
-        if (material.variant === "edit") {
-          const materialData = omit(material, ["variant", "materialId"]);
-          return {
-            url: `/material/${material.materialId}`,
-            method: "PATCH",
-            body: materialData,
-          };
-        } else {
-          throw new Error("Unsupported variant type for update.");
-        }
-      },
-      invalidatesTags: (result, error, args) => [
-        { type: "Materials", id: args?.materialId.toString() },
-        { type: "Materials" },
-      ],
-    }),
+    updateSingleMaterial: builder.mutation<ApiResponse<String>, MaterialSchema>(
+      {
+        query: (material: MaterialSchema) => {
+          if (material.variant === "edit") {
+            const materialData = omit(material, ["variant", "materialId"]);
+            return {
+              url: `/material/${material.materialId}`,
+              method: "PATCH",
+              body: materialData,
+            };
+          } else {
+            throw new Error("Unsupported variant type for update.");
+          }
+        },
+        invalidatesTags: (result, error, args) => [
+          {
+            type: "Materials",
+            id:
+              args?.variant === "edit" ? args.materialId.toString() : "unknown",
+          },
+          { type: "Materials" },
+        ],
+      }
+    ),
   }),
 });
 

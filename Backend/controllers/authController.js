@@ -20,9 +20,54 @@ export const registerUser = asyncHandler(async (req, res) => {
 
   if (!duplicates) {
     const newUser = await User.create(req.body);
+    if (newUser) {
+      const userObject = newUser.toObject();
+
+      // Filter out the fields which needs to be send to the frontend.
+      const {
+        _id,
+        __v,
+        createdAt,
+        updatedAt,
+        password,
+        refreshToken,
+        ...filteredUser
+      } = userObject;
+
+      const newRefreshToken = generateRefreshToken(newUser?.userId);
+
+      const updateUser = await User.findByIdAndUpdate(
+        newUser._id, // MongoDb Object Id should be used when using findById and Update
+        {
+          refreshToken: newRefreshToken, // Save refresh token
+        },
+        { new: true }
+      );
+
+      if (!updateUser) {
+        throw new Error("Update user failed to save refresh token.");
+      }
+
+      // Refresh token should be stored in http only cookie as it does not have js access which is secure.
+      res.cookie("refreshToken", newRefreshToken, {
+        httpOnly: true, // Served only on http. Therefore, secured.
+        maxAge: 24 * 60 * 60 * 1000,
+      });
+      res.json({
+        message: "User registration successful.",
+        success: true,
+        user: filteredUser,
+        accessToken: generateAccessToken(newUser?.userId),
+      });
+    } else {
+      throw new Error("Invalid Credentials");
+    }
+
     res.status(200).json({
       message: `New user created for ${newUser.name} - ${newUser.mobile} ${newUser.userId}`,
       success: true,
+      user: filteredUser,
+      accessToken: generateAccessToken(newUser?.userId),
     });
   } else {
     throw new Error(`Mobile number already exists for ${duplicates.name}.`);

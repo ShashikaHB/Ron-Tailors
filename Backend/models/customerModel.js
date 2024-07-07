@@ -1,4 +1,7 @@
 import mongoose from "mongoose";
+import mongooseSequence from "mongoose-sequence";
+
+const AutoIncrement = mongooseSequence(mongoose);
 
 // Declare the Schema of the Mongo model
 const customerSchema = new mongoose.Schema(
@@ -15,5 +18,16 @@ const customerSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+customerSchema.plugin(AutoIncrement, {
+  inc_field: "customerId",
+  id: "customers",
+  start_seq: 100,
+});
+
+// Create a virtual field to access customerId directly
+customerSchema.virtual("id").get(function () {
+  return this.customerId;
+});
 //Export the model
 export const Customer = mongoose.model("Customer", customerSchema);

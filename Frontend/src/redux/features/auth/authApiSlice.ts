@@ -1,4 +1,7 @@
-import { apiSlice } from "../../api/apiSlice";
+import { UserRegistrationSchema } from "../../../forms/formSchemas/userRegistrationSchema";
+import { ApiResponse, AuthResponse } from "../../../types/common";
+import { User } from "../../../types/user.ts";
+import { apiSlice } from "../../api/apiSlice.ts";
 
 export const authApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -9,8 +12,8 @@ export const authApiSlice = apiSlice.injectEndpoints({
         body: { ...credentials },
       }),
     }),
-    register: builder.mutation({
-      query: (registerData) => ({
+    register: builder.mutation<AuthResponse, UserRegistrationSchema>({
+      query: (registerData: UserRegistrationSchema) => ({
         url: "/auth/register",
         method: "POST",
         body: { ...registerData },

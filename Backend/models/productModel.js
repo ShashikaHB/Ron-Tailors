@@ -1,31 +1,34 @@
 import mongoose from "mongoose";
+import mongooseSequence from "mongoose-sequence";
+
+const AutoIncrement = mongooseSequence(mongoose);
 
 // Declare the Schema of the Mongo model
 const productSchema = new mongoose.Schema(
   {
-    color: {
-      type: String,
-    },
     materials: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Material",
+        material: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Material",
+        },
+        unitsNeeded: {
+          type: Number,
+        },
       },
     ],
     style: {
       type: String,
-      required: [true, "Style is required."],
+    },
+    color: {
+      type: String,
     },
     type: {
       type: String,
-      enum: ["Shirt", "Trouser", "Coat"],
+      enum: ["Shirt", "Trouser", "Coat", "West Coat", "Cravat", "Bow", "Tie"],
       required: [true, "Item Type is required."],
     },
-    measurements: [
-      {
-        type: String,
-      },
-    ],
+    measurements: { type: mongoose.Schema.Types.ObjectId, ref: "MeasureMents" },
     cost: {
       type: Number,
       required: [true, "Cost is required."],
@@ -46,7 +49,7 @@ const productSchema = new mongoose.Schema(
         "Tailoring Started",
         "Tailoring Done",
       ],
-      required: [true, "Item Type is required."],
+      required: [true, "Status is required."],
     },
     fitOnRounds: [
       {
@@ -68,8 +71,18 @@ const productSchema = new mongoose.Schema(
     rentPrice: {
       type: Number,
     },
+    isNewRentOut: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
+
+productSchema.plugin(AutoIncrement, {
+  inc_field: "productId",
+  id: "products",
+  start_seq: 100,
+});
 //Export the model
 export const Product = mongoose.model("Product", productSchema);
