@@ -29,7 +29,7 @@ const LoginPage = () => {
   };
 
   const content = isLoading ? (
-    <div>
+    <div className="d-flex justify-content-center">
       <img src={loader} alt="loader" />
     </div>
   ) : (
