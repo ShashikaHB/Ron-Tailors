@@ -56,17 +56,15 @@ const cardConfig: cardConfig[] = [
 
 function LandingPage() {
   return (
-    <div className="container-fluid">
-      <div className="row overflow-y-auto p-3 gap-3 justify-content-center">
-        {cardConfig.map((card, index) => {
-          return (
-            <div key={index} className="col-5">
-              <SelectCard {...card}></SelectCard>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+    <div className="row p-3 gap-3 justify-content-center">
+    {cardConfig.map((card, index) => {
+      return (
+        <div key={index} className="col-5">
+          <SelectCard {...card}></SelectCard>
+        </div>
+      );
+    })}
+  </div>
   );
 }
 

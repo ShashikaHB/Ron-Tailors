@@ -34,7 +34,7 @@ export const Profile = () => {
   };
 
   return (
-    <div>
+    <div className="h-100">
       <Table<IRow>
         rowData={rowData}
         colDefs={colDefs}

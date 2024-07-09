@@ -129,7 +129,7 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
                 name="type"
               ></RHFTextField>
             </div>
-            <div className="modal-footer">
+            <div className="modal-footer mt-3">
               {variant === "create" && (
                 <button
                   className="secondary-button"

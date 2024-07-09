@@ -103,33 +103,6 @@ body {
       }
     }
   }
-  .table {
-    border: "1px solid #424242";
-    tr {
-      display: "flex";
-      width: "fit-content";
-    }
-    th td {
-        box-shadow: "inset 0 0 0 1px #424242"
-    }
-  }
-  .th {
-    position: relative;
-    justify-content: center;
-    align-items: center;
-    color: gray.400;
-    padding: 0.5rem;
-    font-weight: bold;
-    font-size: xs;
-    text-transform: uppercase;
-    text-align: center;
-  }
-
-  .main-body-container > div{
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
 
   .inputGroup {
     display: flex;
@@ -147,7 +120,17 @@ body {
       font-weight: 500;
     }
   }
-
+  .MuiInputBase-root{
+    height: 42px !important;
+    .MuiInputBase-input {
+      padding: 9.5px 14px;
+    }
+  }
+  .MuiFormLabel-root{
+    top: -4px;
+    font-size: 14px;
+    font-weight: 500;
+  }
   .login-container{
      width: 100%;
      display: flex;
@@ -180,6 +163,15 @@ body {
       .modal-footer{
         display: flex;
         gap: 8px;
+      }
+    }
+  }
+
+  .main-body-container{
+    .container-fluid{
+      max-width: 1256px;
+      .MuiFormControl-root{
+        width: 100%;
       }
     }
   }

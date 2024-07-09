@@ -17,7 +17,7 @@ const RegisterPage = () => {
   });
   return (
     <>
-      <div className="d-flex gap-2 flex-column">
+      <div className="d-flex gap-4 flex-column">
         <h2>Sign Up</h2>
         <div>
           <FormProvider {...methods}>

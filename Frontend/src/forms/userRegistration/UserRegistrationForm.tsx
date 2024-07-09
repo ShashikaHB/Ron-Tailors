@@ -57,7 +57,7 @@ const UserRegistrationForm = () => {
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="inputGroup">
+        <div className="inputGroup gap-4 d-flex flex-column mt-4">
           <RHFTextField<UserRegistrationSchema>
             label="Name"
             name="name"
@@ -80,10 +80,10 @@ const UserRegistrationForm = () => {
             options={roles}
           />
         </div>
-        <div>
-          <Button type="submit" variant="contained">
+        <div className="w-100 mt-3">
+          <button className="primary-button w-100">
             Sign Up
-          </Button>
+          </button>
         </div>
       </form>
     </>

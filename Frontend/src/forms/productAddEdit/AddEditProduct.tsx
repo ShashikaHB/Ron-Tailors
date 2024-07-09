@@ -35,7 +35,7 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
                 name="color"
               ></RHFTextField>
             </div>
-            <div className="modal-footer">
+            <div className="modal-footer mt-3">
               <button className="secondary-button" type="button">
                 Clear
               </button>

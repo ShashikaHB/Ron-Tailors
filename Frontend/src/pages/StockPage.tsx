@@ -83,7 +83,7 @@ const StockPage = () => {
   const handleClose = useCallback(() => setOpen(false), []);
 
   return (
-    <div>
+    <div className="h-100">
       <div className="d-flex justify-content-end mb-2">
         <button className="primary-button" onClick={() => handleOpen(null)}>
           + New Material

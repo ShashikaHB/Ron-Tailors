@@ -123,142 +123,184 @@ const AddEditOrder = () => {
   ];
 
   return (
-    <>
-      <div>
-        <form style={{ display: "flex", flexDirection: "column" }}>
-          <div style={{ display: "flex" }}>
-            <div>
-              <h3>Customer info</h3>
-              <div>
-                <TextField
-                  label="Search Customer"
-                  placeholder="Search the customer by mobile or name"
-                  value={customerSearchQuery}
-                  onChange={(e) => setCustomerSearchQuery(e.target.value)}
-                />
-                <button onClick={() => handleSearchCustomer()}>
-                  <span>
-                    <FaSearch></FaSearch>
-                  </span>
-                </button>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <div style={{ display: "flex", flexDirection: "row" }}>
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    <RHFTextField<OrderSchema>
-                      label="Mobile"
-                      name="customer.mobile"
-                    ></RHFTextField>
-                    <RHFTextField<OrderSchema>
-                      label="Name"
-                      name="customer.name"
-                    ></RHFTextField>
-                    <RHFDropDown<OrderSchema>
-                      options={salesPeople}
-                      name="salesPerson"
-                      label="Sales Person"
-                    ></RHFDropDown>
+    <div className="row">
+      <div className="col-12 mb-3">
+        <form>
+          <div className="row">
+            <div className="col-6">
+              <div className="card">
+                <div className="card-header">
+                  <h5>Customer info</h5>
+                </div>
+                <div className="card-body">
+                  <div className="row">
+                    <div className="col-12 d-flex gap-2 mb-2">
+                      <TextField
+                        label="Search Customer"
+                        placeholder="Search the customer by mobile or name"
+                        value={customerSearchQuery}
+                        onChange={(e) => setCustomerSearchQuery(e.target.value)}
+                      />
+                      <button onClick={() => handleSearchCustomer()}>
+                        <span>
+                          <FaSearch></FaSearch>
+                        </span>
+                      </button>
+                    </div>
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    <RHFDatePicker<OrderSchema> name="orderDate"></RHFDatePicker>
-                    <RHFDatePicker<OrderSchema> name="deliveryDate"></RHFDatePicker>
-                    <RHFDatePicker<OrderSchema> name="weddingDate"></RHFDatePicker>
+                  <div className="row">
+                    <div className="col-6 mb-3">
+                      <RHFTextField<OrderSchema>
+                        label="Mobile"
+                        name="customer.mobile"
+                      ></RHFTextField>
+                    </div>
+                    <div className="col-6 mb-3">
+                      <RHFTextField<OrderSchema>
+                        label="Name"
+                        name="customer.name"
+                      ></RHFTextField>
+                    </div>
+                    <div className="col-6 mb-3">
+                      <RHFDropDown<OrderSchema>
+                        options={salesPeople}
+                        name="salesPerson"
+                        label="Sales Person"
+                      ></RHFDropDown>
+                    </div>
+                    <div className="col-6 mb-3">
+                      <RHFDatePicker<OrderSchema> name="orderDate"></RHFDatePicker>
+                    </div>
+                    <div className="col-6 mb-3">
+                      <RHFDatePicker<OrderSchema> name="deliveryDate"></RHFDatePicker>
+                    </div>
+                    <div className="col-6 mb-3">
+                      <RHFDatePicker<OrderSchema> name="weddingDate"></RHFDatePicker>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div>
-              <h3>billing</h3>
-              <div style={{ display: "flex", flexDirection: "row" }}>
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  <RHFTextField<OrderSchema>
-                    label="Total"
-                    name="totalPrice"
-                    disabled
-                  ></RHFTextField>
-                  <RHFDropDown<OrderSchema>
-                    options={paymentOptions}
-                    name="paymentType"
-                  ></RHFDropDown>
-                  <RHFTextField<OrderSchema>
-                    label="Advance"
-                    name="advPayment"
-                  ></RHFTextField>
+            <div className="col-6">
+              <div className="card">
+                <div className="card-header">
+                  <h5>billing</h5>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  <RHFTextField<OrderSchema>
-                    label="Discount"
-                    name="discount"
-                  ></RHFTextField>
-                  <RHFTextField<OrderSchema>
-                    label="SubTotal"
-                    name="subTotal"
-                    disabled
-                  ></RHFTextField>
-                  <RHFTextField<OrderSchema>
-                    label="Balance"
-                    name="balance"
-                    disabled
-                  ></RHFTextField>
+                <div className="card-body">
+                  <div className="row">
+                    <div className="col-6 mb-3">
+                      <RHFTextField<OrderSchema>
+                        label="Total"
+                        name="totalPrice"
+                        disabled
+                      ></RHFTextField>
+                    </div>
+                    <div className="col-6 mb-3">
+                      <RHFDropDown<OrderSchema>
+                        options={paymentOptions}
+                        name="paymentType"
+                      ></RHFDropDown>
+                    </div>
+                    <div className="col-6 mb-3">
+                      <RHFTextField<OrderSchema>
+                        label="Advance"
+                        name="advPayment"
+                      ></RHFTextField>
+                    </div>
+                    <div className="col-6 mb-3">
+                      <RHFTextField<OrderSchema>
+                        label="Discount"
+                        name="discount"
+                      ></RHFTextField>
+                    </div>
+                    <div className="col-6 mb-3">
+                      <RHFTextField<OrderSchema>
+                        label="SubTotal"
+                        name="subTotal"
+                        disabled
+                      ></RHFTextField>
+                    </div>
+                    <div className="col-6 mb-3">
+                      <RHFTextField<OrderSchema>
+                        label="Balance"
+                        name="balance"
+                        disabled
+                      ></RHFTextField>
+                    </div>
+                  </div>
+                  <div className="d-flex justify-content-end gap-2">
+                    <button
+                      className="secondary-button"
+                      type="submit"
+                      onClick={() => console.log("btn clicked")}
+                    >
+                      Cancel Order
+                    </button>
+                    <button
+                      className="primary-button"
+                      type="submit"
+                      onClick={() => console.log("btn clicked")}
+                    >
+                      {variant === "create" ? "Create Order " : "Edit Order "}
+                    </button>
+                  </div>
                 </div>
-              </div>
-              <div style={{ display: "flex" }}>
-                <button
-                  className="primary-button"
-                  type="submit"
-                  onClick={() => console.log("btn clicked")}
-                >
-                  Cancel Order
-                </button>
-                <button
-                  className="primary-button"
-                  type="submit"
-                  onClick={() => console.log("btn clicked")}
-                >
-                  {variant === "create" ? "Create Order " : "Edit Order "}
-                </button>
               </div>
             </div>
           </div>
         </form>
-        <div style={{ display: "flex" }}>
-          <div>
-            <h2>Add order Items</h2>
-            <TextField label="Description"></TextField>
-            <CheckBoxGroup></CheckBoxGroup>
-            <div style={{ display: "flex" }}>
-              <button
-                className="primary-button"
-                type="submit"
-                onClick={() => console.log("btn clicked")}
-              >
-                Add Item
-              </button>
+      </div>
+
+      <div className="col-12">
+        <div className="row">
+          <div className="col-6">
+            <div className="card">
+              <div className="card-header"><h5>Add order Items</h5></div>
+              <div className="card-body">
+                <div className="row">
+                  <div className="col-12 mb-3">
+                    <TextField label="Description"></TextField>
+                  </div>
+                </div>
+                <CheckBoxGroup></CheckBoxGroup>
+                <div className="d-flex justify-content-end">
+                  <button
+                    className="primary-button"
+                    type="submit"
+                    onClick={() => console.log("btn clicked")}
+                  >
+                    Add Item
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-          <div>
-            <h2></h2>
-            <Table rowData={rowData} colDefs={colDefs}></Table>
+          <div className="col-6">
+            <div className="card  h-100">
+              <div className="card-body">
+                <Table rowData={rowData} colDefs={colDefs}></Table>
+              </div>
+            </div>
           </div>
         </div>
-        {/* <button onClick={() => setOpen(true)}>Add products to Order</button> */}
-        <Modal
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <div>
-            <FormProvider {...methods}>
-              <div>
-                <AddEditProduct handleClose={handleClose}></AddEditProduct>
-                <DevTool control={methods.control} />
-              </div>
-            </FormProvider>
-          </div>
-        </Modal>
       </div>
-    </>
+      {/* <button onClick={() => setOpen(true)}>Add products to Order</button> */}
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <div>
+          <FormProvider {...methods}>
+            <div>
+              <AddEditProduct handleClose={handleClose}></AddEditProduct>
+              <DevTool control={methods.control} />
+            </div>
+          </FormProvider>
+        </div>
+      </Modal>
+    </div>
   );
 };
 

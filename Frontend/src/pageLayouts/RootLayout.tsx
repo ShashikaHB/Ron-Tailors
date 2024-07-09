@@ -15,7 +15,9 @@ const RootLayout = () => {
                 <SideNav></SideNav>
               </div>
               <div className="col-10 flex-grow-1 overflow-hidden d-flex flex-column h-100 main-body-container py-3">
-                <Outlet />
+                <div className="container-fluid h-100 overflow-y-auto ">
+                  <Outlet />
+                </div>
               </div>
             </div>
           </div>

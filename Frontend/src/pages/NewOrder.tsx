@@ -20,12 +20,12 @@ const NewOrder = () => {
     },
   ];
   return (
-    <div className="d-flex align-item-center justify-content-center gap-3">
+    <div className="row overflow-y-auto p-3 gap-3 justify-content-center">
       {cardConfig.map((card, index) => {
         return (
           <div
             key={index}
-            className="d-flex align-items-center justify-content-center"
+            className="col-5"
           >
             <SelectCard {...card}></SelectCard>
           </div>

@@ -34,7 +34,7 @@ const LoginPage = () => {
     </div>
   ) : (
     <>
-      <div className="d-flex gap-2 flex-column">
+      <div className="d-flex gap-4 flex-column">
         <h2>Login</h2>
         <form onSubmit={handleSubmit}>
           <div className="inputGroup gap-4 d-flex flex-column mt-4">
