@@ -11,6 +11,7 @@ import readyMadeItemRouter from "./routes/readyMadeItemRoutes.js";
 import customerRouter from "./routes/customerRoutes.js";
 import orderRouter from "./routes/orderRoutes.js";
 import productRouter from "./routes/productRoutes.js";
+import invoiceRouter from "./routes/invoiceRoutes.js";
 import connectDB from "./database/dbConnection.js";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
@@ -18,6 +19,7 @@ import { notFound, errorHandler } from "./middleware/errorHandler.js";
 import { authMiddleWare } from "./middleware/authMiddleWare.js";
 import { logger } from "./middleware/logger.js";
 import { corsOptions } from "./config/cors/corsOptions.js";
+import { sendSMS } from "./notificationSMS/smsNotification.js";
 
 // Initialize app instance
 const app = express();
@@ -40,6 +42,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // Routers
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/invoice", invoiceRouter);
 
 // Auth middleware is used to authenticate the token for each of the following request.
 app.use(authMiddleWare);
@@ -59,6 +62,10 @@ app.get("/", (req, res) => {
 // Error handling middleware
 app.use(notFound);
 app.use(errorHandler);
+
+// sendSMS("hello from nodejs", "+94713116161")
+//   .then((body) => console.log(body))
+//   .catch((error) => console.log(error));
 
 // Port is defined in .env file
 const port = process.env.PORT;

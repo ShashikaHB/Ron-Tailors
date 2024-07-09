@@ -5,6 +5,7 @@ import { setCredentials } from "../redux/features/auth/authSlice";
 import { useLoginMutation } from "../redux/features/auth/authApiSlice";
 import { toast } from "sonner";
 import { useAppDispatch } from "../redux/reduxHooks/reduxHooks";
+import loader from "../../public/loader.svg";
 
 const LoginPage = () => {
   const [mobile, setMobile] = useState("");
@@ -28,7 +29,9 @@ const LoginPage = () => {
   };
 
   const content = isLoading ? (
-    <h1>Loading ....</h1>
+    <div>
+      <img src={loader} alt="loader" />
+    </div>
   ) : (
     <>
       <div className="d-flex gap-2 flex-column">

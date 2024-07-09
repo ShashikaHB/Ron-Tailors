@@ -4,33 +4,31 @@ import mongooseSequence from "mongoose-sequence";
 const AutoIncrement = mongooseSequence(mongoose);
 
 // Declare the Schema of the Materials
-const measurementSchema = new mongoose.Schema(
-  {
-    customer: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Customer",
-    },
-    style: {
-      type: String,
-    },
-    remarks: {
-      type: String,
-    },
-    isNecessary: {
-      type: Boolean,
-      required: [true, "Material unit price is required."],
-    },
-    estimatedReleaseDate: {
-      type: Date,
-    },
-    itemType: {
-      type: String,
-      enum: ["Shirt", "Trouser", "Coat", "West Coat", "Cravat", "Bow", "Tie"],
-      required: [true, "Item Type is required."],
-    },
+const measurementSchema = new mongoose.Schema({
+  customer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Customer",
   },
-  { timestamps: true }
-);
+  style: {
+    type: String,
+  },
+  remarks: {
+    type: String,
+  },
+  isNecessary: {
+    type: Boolean,
+    required: [true, "Material unit price is required."],
+  },
+  estimatedReleaseDate: {
+    type: Date,
+  },
+  itemType: {
+    type: String,
+    enum: ["Shirt", "Trouser", "Coat", "West Coat", "Cravat", "Bow", "Tie"],
+    required: [true, "Item Type is required."],
+  },
+  measurements: [{ type: String }],
+});
 
 measurementSchema.plugin(AutoIncrement, {
   inc_field: "measurementId",

@@ -4,7 +4,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
 import {
   UserRegistrationSchema,
-  defaultUserValues,
+  defaultUserRegValues,
   userRegistrationSchema,
 } from "../forms/formSchemas/userRegistrationSchema.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,7 +13,7 @@ const RegisterPage = () => {
   const methods = useForm<UserRegistrationSchema>({
     mode: "all",
     resolver: zodResolver(userRegistrationSchema),
-    defaultValues: defaultUserValues,
+    defaultValues: defaultUserRegValues,
   });
   return (
     <>

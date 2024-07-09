@@ -12,6 +12,7 @@ import ViewUnderConstruction from "../pages/ViewUnderConstruction";
 import StockPage from "../pages/StockPage";
 import UsersPage from "../pages/UsersPage";
 import RequireAuth from "../components/authHandlerComponent/RequireAuth";
+import NewSalesOrder from "../pages/NewSalesOrder";
 
 export const router = createBrowserRouter([
   {
@@ -47,6 +48,10 @@ export const router = createBrowserRouter([
           {
             element: <SalesOrderPage></SalesOrderPage>,
             path: "sales",
+          },
+          {
+            element: <NewSalesOrder></NewSalesOrder>,
+            path: "addSalesOrder",
           },
           {
             path: "newOrder",

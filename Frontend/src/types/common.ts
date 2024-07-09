@@ -18,3 +18,13 @@ export type Option = {
   label: string;
   value: any;
 };
+
+export type OptionCheckBox = { id: string; label: string };
+
+export type ApiResonseError = {
+  status: number;
+  data: {
+    error: string;
+    success: boolean;
+  };
+};

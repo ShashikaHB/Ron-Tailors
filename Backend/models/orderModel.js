@@ -28,7 +28,7 @@ const orderSchema = new mongoose.Schema(
     },
     orderDetails: [
       {
-        type: {
+        description: {
           type: String,
           required: [true, "Type is required"],
         },
@@ -38,6 +38,11 @@ const orderSchema = new mongoose.Schema(
             ref: "Product",
           },
         ],
+      },
+    ],
+    fitOnRounds: [
+      {
+        type: Date,
       },
     ],
     totalPrice: {
@@ -60,7 +65,11 @@ const orderSchema = new mongoose.Schema(
     paymentType: {
       type: String,
       enum: ["Cash", "Card"],
-      required: [true, "Item Type is required."],
+      required: [true, "Payment Type is required."],
+    },
+    orderStatus: {
+      type: String,
+      enum: ["Pending", "Completed"],
     },
   },
   { timestamps: true }

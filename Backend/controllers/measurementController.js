@@ -1,8 +1,24 @@
+import { Customer } from "../models/customerModel.js";
 import { Measurement } from "../models/measurementModel.js";
 import asyncHandler from "express-async-handler";
+import { getDocId } from "../utils/docIds.js";
 
 export const createMeasurement = asyncHandler(async (req, res) => {
-  const newMeasurement = await Measurement.create(req.body);
+  const customerId = req.body.customer.customerId;
+
+  if (!customerId) {
+    throw new Error("Customer ID is required.");
+  }
+  //   const customer = await Customer.findOne({ customerId }).lean().exec();
+  const customer = await getDocId(Customer, "customerId", customerId);
+
+  if (!customer) {
+    throw new Error(`No customer found for ${customerId}`);
+  }
+
+  const measurementData = { ...req.body, customer: customer };
+
+  const newMeasurement = await Measurement.create(measurementData);
   if (!newMeasurement) {
     res.status(500);
     throw new Error("Internal server Error");
@@ -10,11 +26,19 @@ export const createMeasurement = asyncHandler(async (req, res) => {
   res.json({
     message: "New Measurement created",
     success: true,
+    data: newMeasurement,
   });
 });
 
 export const getAllMeasurements = asyncHandler(async (req, res) => {
-  const allMeasurements = await Measurement.find().lean();
+  const allMeasurements = await Measurement.find()
+    .populate({
+      path: "customer", // Field name in Measurement schema
+      model: "Customer", // Name of the Customer model
+      select: "name mobile -_id customerId", // Optional: Specify fields to select from Customer // Specify fields to include from the Customer model
+    })
+    .lean()
+    .select("-createdAt -updatedAt -_id -__v");
   if (!allMeasurements) {
     res.status(500);
     throw new Error("Internal server error.");

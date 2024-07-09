@@ -20,7 +20,7 @@ export const userRegistrationSchema = z
 
 export type UserRegistrationSchema = z.infer<typeof userRegistrationSchema>;
 
-export const defaultUserValues: UserRegistrationSchema = {
+export const defaultUserRegValues: UserRegistrationSchema = {
   name: "",
   mobile: "",
   role: Roles.SalesPerson, // Default role set to "Admin"
