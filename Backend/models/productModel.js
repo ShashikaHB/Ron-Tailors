@@ -4,80 +4,71 @@ import mongooseSequence from "mongoose-sequence";
 const AutoIncrement = mongooseSequence(mongoose);
 
 // Declare the Schema of the Mongo model
-const productSchema = new mongoose.Schema(
-  {
-    materials: [
-      {
-        material: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Material",
-        },
-        unitsNeeded: {
-          type: Number,
-        },
+const productSchema = new mongoose.Schema({
+  materials: [
+    {
+      material: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Material",
       },
-    ],
-    style: {
-      type: String,
-    },
-    color: {
-      type: String,
-    },
-    type: {
-      type: String,
-      enum: ["Shirt", "Trouser", "Coat", "West Coat", "Cravat", "Bow", "Tie"],
-      required: [true, "Item Type is required."],
-    },
-    measurements: { type: mongoose.Schema.Types.ObjectId, ref: "MeasureMents" },
-    cost: {
-      type: Number,
-      required: [true, "Cost is required."],
-    },
-    price: {
-      type: Number,
-      required: [true, "Price is required."],
-    },
-    noOfUnits: {
-      type: Number,
-      required: [true, "Number of units is required."],
-    },
-    status: {
-      type: String,
-      enum: [
-        "Cutting Started",
-        "Cutting Done",
-        "Tailoring Started",
-        "Tailoring Done",
-      ],
-      required: [true, "Status is required."],
-    },
-    fitOnRounds: [
-      {
-        type: Date,
+      unitsNeeded: {
+        type: Number,
       },
-    ],
-    cutter: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
     },
-    tailor: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-    measurer: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-    rentPrice: {
-      type: Number,
-    },
-    isNewRentOut: {
-      type: Boolean,
-      default: false,
-    },
+  ],
+  style: {
+    type: String,
   },
-  { timestamps: true }
-);
+  color: {
+    type: String,
+  },
+  type: {
+    type: String,
+    enum: ["Shirt", "Trouser", "Coat", "West Coat", "Cravat", "Bow", "Tie"],
+    required: [true, "Item Type is required."],
+  },
+  measurement: { type: mongoose.Schema.Types.ObjectId, ref: "Measurements" },
+  cost: {
+    type: Number,
+  },
+  price: {
+    type: Number,
+    required: [true, "Price is required."],
+  },
+  noOfUnits: {
+    type: Number,
+  },
+  status: {
+    type: String,
+    enum: [
+      "Not Started",
+      "Cutting Started",
+      "Cutting Done",
+      "Tailoring Started",
+      "Tailoring Done",
+      "Ready Made",
+    ],
+    required: [true, "Status is required."],
+  },
+  cutter: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  tailor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  measurer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  rentPrice: {
+    type: Number,
+  },
+  isNewRentOut: {
+    type: Boolean,
+  },
+});
 
 productSchema.plugin(AutoIncrement, {
   inc_field: "productId",

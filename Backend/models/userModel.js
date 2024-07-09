@@ -4,43 +4,39 @@ import bcrypt from "bcrypt";
 import mongooseSequence from "mongoose-sequence";
 
 const AutoIncrement = mongooseSequence(mongoose);
-const userSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: [true, "Name is required"],
-    },
-    mobile: {
-      type: String,
-      required: [true, "Mobile is required"],
-      unique: [true, "Mobile is already taken"],
-      minLength: [10, "Mobile number should be 10 digits"],
-      maxLength: [10, "Mobile number should be 10 digits"],
-    },
-    password: {
-      type: String,
-      required: [true, "Password is required"],
-      // minLength:[6, 'password length should be greater than 6 characters'],
-    },
-    role: {
-      type: String,
-      enum: ["Cutter", "Tailor", "Sales Person", "Admin"],
-      default: "Sales Person",
-    },
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
-    salary: {
-      type: String,
-    },
-    refreshToken: {
-      type: String,
-    },
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, "Name is required"],
   },
-  { timestamps: true },
-  { versionKey: false }
-);
+  mobile: {
+    type: String,
+    required: [true, "Mobile is required"],
+    unique: [true, "Mobile is already taken"],
+    minLength: [10, "Mobile number should be 10 digits"],
+    maxLength: [10, "Mobile number should be 10 digits"],
+  },
+  password: {
+    type: String,
+    required: [true, "Password is required"],
+    // minLength:[6, 'password length should be greater than 6 characters'],
+  },
+  role: {
+    type: String,
+    enum: ["Cutter", "Tailor", "Sales Person", "Admin"],
+    default: "Sales Person",
+  },
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
+  salary: {
+    type: String,
+  },
+  refreshToken: {
+    type: String,
+  },
+});
 
 userSchema.plugin(AutoIncrement, {
   inc_field: "userId",

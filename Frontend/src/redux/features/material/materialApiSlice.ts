@@ -25,7 +25,7 @@ export const materialApiSlice = apiSlice.injectEndpoints({
         if (!res.success) {
           toast.error("Material data fetching failed!");
         }
-        return res.data;
+        return res.data as Material[];
       },
     }),
     getSingleMaterial: builder.query<GetMaterial, Number>({
