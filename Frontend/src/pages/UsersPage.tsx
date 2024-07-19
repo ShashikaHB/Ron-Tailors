@@ -2,7 +2,6 @@ import { Button } from "@mui/material";
 import { createColumnHelper } from "@tanstack/react-table";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import Table from "../components/dataTable/Table";
 
 const UsersPage = () => {
   const columnHelper = createColumnHelper<any>();
@@ -46,9 +45,9 @@ const UsersPage = () => {
   return (
     <div>
       <Button>+ new User</Button>
-      {rowData && (
+      {/* {rowData && (
         <Table rowData={rowData} columns={columns} sortingColumn="name"></Table>
-      )}
+      )} */}
     </div>
   );
 };

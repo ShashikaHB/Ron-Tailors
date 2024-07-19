@@ -4,19 +4,20 @@ import asyncHandler from "express-async-handler";
 import { getDocId } from "../utils/docIds.js";
 
 export const createMeasurement = asyncHandler(async (req, res) => {
-  const customerId = req.body.customer.customerId;
+  //   const customerId = req.body.customer.customerId;
 
-  if (!customerId) {
-    throw new Error("Customer ID is required.");
-  }
-  //   const customer = await Customer.findOne({ customerId }).lean().exec();
-  const customer = await getDocId(Customer, "customerId", customerId);
+  //   if (!customerId) {
+  //     throw new Error("Customer ID is required.");
+  //   }
+  //   //   const customer = await Customer.findOne({ customerId }).lean().exec();
+  //   const customer = await getDocId(Customer, "customerId", customerId);
 
-  if (!customer) {
-    throw new Error(`No customer found for ${customerId}`);
-  }
+  //   if (!customer) {
+  //     throw new Error(`No customer found for ${customerId}`);
+  //   }
 
-  const measurementData = { ...req.body, customer: customer };
+  //   const measurementData = { ...req.body, customer: customer };
+  const measurementData = { ...req.body };
 
   const newMeasurement = await Measurement.create(measurementData);
   if (!newMeasurement) {
@@ -32,11 +33,11 @@ export const createMeasurement = asyncHandler(async (req, res) => {
 
 export const getAllMeasurements = asyncHandler(async (req, res) => {
   const allMeasurements = await Measurement.find()
-    .populate({
-      path: "customer", // Field name in Measurement schema
-      model: "Customer", // Name of the Customer model
-      select: "name mobile -_id customerId", // Optional: Specify fields to select from Customer // Specify fields to include from the Customer model
-    })
+    // .populate({
+    //   path: "customer", // Field name in Measurement schema
+    //   model: "Customer", // Name of the Customer model
+    //   select: "name mobile -_id customerId", // Optional: Specify fields to select from Customer // Specify fields to include from the Customer model
+    // })
     .lean()
     .select("-createdAt -updatedAt -_id -__v");
   if (!allMeasurements) {
@@ -77,17 +78,17 @@ export const getSingleMeasurement = asyncHandler(async (req, res) => {
 export const updateMeasurement = asyncHandler(async (req, res) => {
   const { MeasurementId } = req.params;
 
-  const Measurement = await Measurement.findOne({ MeasurementId })
+  const measurement = await Measurement.findOne({ MeasurementId })
     .lean()
     .exec();
 
-  if (!Measurement) {
+  if (!measurement) {
     res.status(404);
     throw new Error("No Measurement found to update.");
   }
 
   const updatedMeasurement = await Measurement.findByIdAndUpdate(
-    Measurement._id,
+    measurement._id,
     {
       style: req?.body?.style,
       remarks: req?.body?.remarks,

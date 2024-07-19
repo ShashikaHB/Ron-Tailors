@@ -6,17 +6,31 @@ import "ag-grid-community/styles/ag-grid.css";
 // Core CSS
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import { useState, memo, useRef } from "react";
+import { boolean } from "zod";
+import ProductRenderer from "./customComponents/ProductRenderer";
+import ActionButtons from "./customComponents/ActionButtons";
 
 type TableProps<T> = {
   rowData: T[];
   colDefs: ColDef<T>[];
   defaultColDef?: ColDef;
+  pagination?: boolean;
 };
 
 // Create new GridExample component
-const Table = <T,>({ rowData, colDefs, defaultColDef }: TableProps<T>) => {
+const Table = <T,>({
+  rowData,
+  colDefs,
+  defaultColDef,
+  pagination,
+}: TableProps<T>) => {
   // Container: Defines the grid's theme & dimensions.
   const gridRef = useRef<AgGridReact<T>>(null);
+
+  const components = {
+    productRenderer: ProductRenderer,
+    actionButtons: ActionButtons,
+  };
 
   return (
     <div className="ag-theme-quartz h-100">
@@ -25,7 +39,8 @@ const Table = <T,>({ rowData, colDefs, defaultColDef }: TableProps<T>) => {
         rowData={rowData}
         columnDefs={colDefs}
         defaultColDef={defaultColDef}
-        pagination={true}
+        pagination={pagination ?? true}
+        components={components}
       />
     </div>
   );

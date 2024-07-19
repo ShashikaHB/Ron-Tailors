@@ -4,7 +4,7 @@ import { ProductType } from "../../enums/ProductType";
 
 export const measurementSchema = z.intersection(
   z.object({
-    customer: customerSchema,
+    // customer: z.number(),
     style: z.string().optional(),
     remarks: z.string().optional(),
     isNecessary: z.boolean().default(false),
@@ -22,11 +22,11 @@ export type MeasurementSchema = z.infer<typeof measurementSchema>;
 
 export const defaultMeasurementValues: MeasurementSchema = {
   variant: "create",
-  customer: defaultCustomerValues,
+  //   customer: 0,
   style: "",
   remarks: "",
   isNecessary: false,
   estimatedReleaseDate: new Date(),
   itemType: ProductType.Coat,
-  measurements: [],
+  measurements: Array(10).fill(""),
 };

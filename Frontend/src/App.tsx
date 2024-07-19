@@ -5,7 +5,7 @@ import { router } from "./router";
 function App() {
   return (
     <>
-      <Toaster position="top-right" richColors={true} duration={2000} />
+      <Toaster position="top-right" richColors={true} duration={1000} />
       <RouterProvider router={router}></RouterProvider>
     </>
   );

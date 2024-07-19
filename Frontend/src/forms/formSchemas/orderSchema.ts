@@ -1,51 +1,48 @@
 import z from "zod";
-import { customerSchema, defaultCustomerValues } from "./customerSchema";
-import { defaultUserValues, userSchema } from "./userSchema";
-import { productSchema } from "./productSchema";
 import { PaymentType } from "../../enums/PaymentType";
-import { ProductType } from "../../enums/ProductType";
 
 // Create a base schema without the conditional fields
 const baseOrderSchema = z.object({
-  style: z.string().optional(),
-  remarks: z.string().optional(),
-  isNecessary: z.boolean().default(false),
-  orderDate: z.date(),
-  deliveryDate: z.date(),
-  weddingDate: z.date().optional(),
-  itemType: z.nativeEnum(ProductType),
-  measurements: z.array(z.string()).min(1, "Measurements required."),
-  orderDetails: z.array(
-    z.object({
-      description: z.string().optional(),
-      products: z.array(productSchema),
-    })
-  ),
-  fitOnRounds: z.array(z.date()).min(1, "Fit on rounds are required."),
-  totalPrice: z.number().min(1, "Total price is required."),
-  subTotal: z.number().min(1, "Sub Total is required."),
-  discount: z.number().optional(),
-  advPayment: z.number().optional(),
-  balance: z.number().optional(),
-  paymentType: z.nativeEnum(PaymentType).default(PaymentType.Cash),
-});
-
-// Define the create schema with customer and salesPerson as numbers
-const createOrderSchema = baseOrderSchema.extend({
   customer: z.object({
     name: z.string().min(1, "Name is required"),
     mobile: z.string().refine((value) => /^\d{10}$/.test(value), {
       message: "Mobile number should be exactly 10 digits",
     }),
   }),
-  salesPerson: z.number(),
+  salesPerson: z.number().min(1, "Sales person is required."),
+  orderDate: z
+    .date()
+    .refine((date) => date instanceof Date && !isNaN(date.getTime()), {
+      message: "Order date is required and must be a valid date.",
+    }),
+  deliveryDate: z
+    .date()
+    .refine((date) => date instanceof Date && !isNaN(date.getTime()), {
+      message: "Delivery date is required and must be a valid date.",
+    }),
+  weddingDate: z.date().optional(),
+  orderDetails: z.array(
+    z.object({
+      description: z.string().optional(),
+      products: z.array(z.number()),
+    })
+  ),
+  fitOnRounds: z.array(z.date()).optional(),
+  totalPrice: z.coerce.number().min(1, "Total price is required."),
+  subTotal: z.coerce.number().min(1, "Sub Total is required."),
+  discount: z.coerce.number().optional(),
+  advPayment: z.coerce.number().optional(),
+  balance: z.coerce.number().optional(),
+  paymentType: z.nativeEnum(PaymentType).default(PaymentType.Cash),
+});
+
+// Define the create schema with customer and salesPerson as numbers
+const createOrderSchema = baseOrderSchema.extend({
   variant: z.literal("create"),
 });
 
 // Define the edit schema with customer and salesPerson as respective schemas
 const editOrderSchema = baseOrderSchema.extend({
-  customer: customerSchema,
-  salesPerson: userSchema,
   variant: z.literal("edit"),
   orderId: z.number().min(1),
 });
@@ -65,15 +62,10 @@ export const defaultOrderValues: OrderSchema = {
     name: "",
     mobile: "",
   },
-  style: "",
-  remarks: "",
-  isNecessary: false,
   orderDate: new Date(),
   deliveryDate: new Date(),
   weddingDate: undefined,
-  itemType: ProductType.Coat,
-  measurements: [],
-  salesPerson: 112,
+  salesPerson: 0,
   orderDetails: [],
   fitOnRounds: [new Date()],
   totalPrice: 0,

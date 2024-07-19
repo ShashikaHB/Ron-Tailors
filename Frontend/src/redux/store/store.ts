@@ -1,14 +1,16 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
-import authReducer from "../features/auth/authSlice.js";
-import orderReducer from "../features/orders/orderSlice.js";
+import authReducer from "../features/auth/authSlice.ts";
+import orderReducer from "../features/orders/orderSlice.ts";
+import productReducer from "../features/product/productSlice.ts";
 import { apiSlice } from "../api/apiSlice.js";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     [apiSlice.reducerPath]: apiSlice.reducer,
-    order: orderReducer,
+    orders: orderReducer,
+    product: productReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiSlice.middleware),

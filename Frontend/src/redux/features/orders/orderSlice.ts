@@ -2,21 +2,33 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../store/store";
 
-const initialState: Order = {
-  orderProducts: [{ description: "", products: [] }],
+const initialState: OrderItems = {
+  orderProducts: [],
+  createdProducts: [],
 };
 
 const orderSlice = createSlice({
-  name: "products",
+  name: "orders",
   initialState,
   reducers: {
-    setOrderProducts: (state, action: PayloadAction<Products>) => {},
-    removeOrderProducts: (state, action: PayloadAction<Number>) => {},
+    setOrderProducts: (state, action: PayloadAction<string>) => {
+      state.orderProducts.push({
+        description: action.payload,
+        products: state.createdProducts,
+      });
+      state.createdProducts = [];
+    },
+    removeOrderProducts: (state, action: PayloadAction<number>) => {},
+    setCreatedProducts: (state, action: PayloadAction<number>) => {
+      state.createdProducts.push(action.payload);
+    },
   },
 });
 
-export const selectUser = (state: RootState) => state.order.orderProducts;
+export const selectOrderItems = (state: RootState) =>
+  state.orders.orderProducts;
 
-export const { setOrderProducts, removeOrderProducts } = orderSlice.actions;
+export const { setOrderProducts, removeOrderProducts, setCreatedProducts } =
+  orderSlice.actions;
 
 export default orderSlice.reducer;

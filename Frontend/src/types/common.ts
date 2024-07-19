@@ -19,7 +19,7 @@ export type Option = {
   value: any;
 };
 
-export type OptionCheckBox = { id: string; label: string };
+export type OptionCheckBox = { id: string; label: string; checked?: boolean };
 
 export type ApiResonseError = {
   status: number;

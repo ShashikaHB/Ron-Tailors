@@ -5,40 +5,17 @@ import {
   FormGroup,
   FormLabel,
 } from "@mui/material";
-import React from "react";
-import { ProductType } from "../../../enums/ProductType";
+import { OptionCheckBox } from "../../../types/common";
 
-const CheckBoxGroup = () => {
-  const options = [
-    {
-      id: ProductType.Shirt,
-      label: "Shirt",
-    },
-    {
-      id: ProductType.Coat,
-      label: "Coat",
-    },
-    {
-      id: ProductType.Trouser,
-      label: "Trouser",
-    },
-    {
-      id: ProductType.WestCoat,
-      label: "West Coat",
-    },
-    {
-      id: ProductType.Cravat,
-      label: "Cravat",
-    },
-    {
-      id: ProductType.Bow,
-      label: "Bow",
-    },
-    {
-      id: ProductType.Tie,
-      label: "Tie",
-    },
-  ];
+type CheckBoxGroupProps = {
+  options: OptionCheckBox[];
+  handleCheckBoxSelect: (id: string) => void;
+};
+
+const CheckBoxGroup = ({
+  options,
+  handleCheckBoxSelect,
+}: CheckBoxGroupProps) => {
   return (
     <div>
       <FormControl>
@@ -48,7 +25,12 @@ const CheckBoxGroup = () => {
             <FormControlLabel
               label={option.label}
               key={option.id}
-              control={<Checkbox />}
+              control={
+                <Checkbox
+                  checked={option.checked}
+                  onChange={() => handleCheckBoxSelect(option.id)}
+                />
+              }
             />
           ))}
         </FormGroup>

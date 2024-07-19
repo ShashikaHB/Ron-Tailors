@@ -12,7 +12,7 @@ import { Material } from "../models/materialModel.js";
 
 export const createOrder = asyncHandler(async (req, res) => {
   const {
-    customer,
+    customer: { name, mobile },
     orderDate,
     deliveryDate,
     salesPerson,
@@ -24,7 +24,8 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   // Check for required fields
   if (
-    !customer ||
+    !mobile ||
+    !name ||
     !orderDate ||
     !deliveryDate ||
     !salesPerson ||
@@ -36,11 +37,10 @@ export const createOrder = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Required fields are not provided.");
   }
-
-  const customerDoc = await getDocId(Customer, "customerId", customer);
-  if (!customerDoc) {
-    res.status(404);
-    throw new Error(`No customer found for ID ${customer}`);
+  let customer = undefined;
+  customer = await Customer.findOne({ mobile }).lean().exec();
+  if (!customer) {
+    customer = await Customer.create({ name, mobile });
   }
 
   const salesPersonDoc = await getDocId(User, "userId", salesPerson);
@@ -71,7 +71,7 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   const orderData = {
     ...req.body,
-    customer: customerDoc,
+    customer: customer._id,
     salesPerson: salesPersonDoc,
     orderDetails: orderDetailsData,
   };
@@ -81,6 +81,7 @@ export const createOrder = asyncHandler(async (req, res) => {
   res.json({
     message: "New order created successfully.",
     success: true,
+    data: newOrder,
   });
 });
 

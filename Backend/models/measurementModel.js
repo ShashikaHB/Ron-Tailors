@@ -5,10 +5,10 @@ const AutoIncrement = mongooseSequence(mongoose);
 
 // Declare the Schema of the Materials
 const measurementSchema = new mongoose.Schema({
-  customer: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Customer",
-  },
+  //   customer: {
+  //     type: mongoose.Schema.Types.ObjectId,
+  //     ref: "Customer",
+  //   },
   style: {
     type: String,
   },

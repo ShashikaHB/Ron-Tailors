@@ -3,8 +3,9 @@ import { ReactElement } from "react";
 // import { FaAngleRight } from "react-icons/fa";
 // import { Link } from 'react-router-dom';
 import SideNavItem from "./SideNavItem";
-import { MdDashboard } from "react-icons/md";
 import { Link } from "react-router-dom";
+import HomeIcon from "../imageComponents/HomeIcon";
+import SaleOrderIcon from "../imageComponents/SalesOrderIcon";
 
 export type SideBarConfig = {
   title: string;
@@ -16,54 +17,54 @@ export type SideBarConfig = {
 export const sideBarConfig: SideBarConfig[] = [
   {
     title: "Home",
-    icon: <MdDashboard />,
+    icon: <HomeIcon />,
     path: "/secured/dashboard",
   },
   {
     title: "Rent out",
-    icon: <MdDashboard />,
+    icon: <HomeIcon />,
     path: "/secured/profile",
   },
   {
     title: "Sales Order",
-    icon: <MdDashboard />,
+    icon: <SaleOrderIcon />,
     children: [
       {
         title: "Order Book",
-        icon: <MdDashboard />,
+        icon: <HomeIcon />,
 
         path: "/secured/orderBook",
       },
       {
         title: "Sales",
-        icon: <MdDashboard />,
+        icon: <SaleOrderIcon />,
         path: "/secured/sales",
       },
     ],
   },
   {
     title: "Payments",
-    icon: <MdDashboard />,
+    icon: <HomeIcon />,
     path: "/secured/payments",
   },
   {
     title: "Cash Book",
-    icon: <MdDashboard />,
+    icon: <HomeIcon />,
     path: "/secured/cashBook",
   },
   {
     title: "Stock",
-    icon: <MdDashboard />,
+    icon: <HomeIcon />,
     path: "/secured/stock",
   },
   {
     title: "Users",
-    icon: <MdDashboard />,
+    icon: <HomeIcon />,
     path: "/secured/users",
   },
   {
     title: "Reports",
-    icon: <MdDashboard />,
+    icon: <HomeIcon />,
     path: "/secured/reports",
   },
 ];

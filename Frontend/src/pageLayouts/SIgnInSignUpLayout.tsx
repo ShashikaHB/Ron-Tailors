@@ -2,7 +2,7 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import LoginLogo from "../assets/images/Rectangle 1.png";
 
-const SIgnInSignUpLayout = () => {
+const SignInSignUpLayout = () => {
   return (
     <div className="login-container">
       <div className="login-body">
@@ -17,4 +17,4 @@ const SIgnInSignUpLayout = () => {
   );
 };
 
-export default SIgnInSignUpLayout;
+export default SignInSignUpLayout;

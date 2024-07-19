@@ -10,6 +10,7 @@ const NewOrder = () => {
       subtitle:
         "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur",
       image: rentOut,
+      link: "/secured/addRentOutOrder",
     },
     {
       title: "Sales Order",

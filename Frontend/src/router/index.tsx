@@ -1,6 +1,6 @@
 import { Navigate, createBrowserRouter } from "react-router-dom";
 import ErrorPage from "../pages/ErrorPage";
-import SIgnInSignUpLayout from "../pageLayouts/SIgnInSignUpLayout";
+import SignInSignUpLayout from "../pageLayouts/SignInSignUpLayout"
 import RegisterPage from "../pages/RegisterPage";
 import LoginPage from "../pages/LoginPage";
 import RootLayout from "../pageLayouts/RootLayout";
@@ -13,11 +13,12 @@ import StockPage from "../pages/StockPage";
 import UsersPage from "../pages/UsersPage";
 import RequireAuth from "../components/authHandlerComponent/RequireAuth";
 import NewSalesOrder from "../pages/NewSalesOrder";
+import NewRentOutOrder from "../pages/NewRentOutOrder";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <SIgnInSignUpLayout />,
+    element: <SignInSignUpLayout />,
     errorElement: <ErrorPage />,
     children: [
       { path: "/", element: <Navigate to="/login" replace /> },
@@ -52,6 +53,10 @@ export const router = createBrowserRouter([
           {
             element: <NewSalesOrder></NewSalesOrder>,
             path: "addSalesOrder",
+          },
+          {
+            element: <NewRentOutOrder></NewRentOutOrder>,
+            path: "addRentOutOrder",
           },
           {
             path: "newOrder",

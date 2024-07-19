@@ -20,3 +20,8 @@ export type EditMaterial = {
 export type GetMaterial = Material & EditMaterial;
 
 export type MaterialTableScheme = GetMaterial & { action: string };
+
+export type MaterialNeededforProduct = {
+  material: number;
+  unitsNeeded: number;
+};

@@ -5,7 +5,7 @@ import { setCredentials } from "../redux/features/auth/authSlice";
 import { useLoginMutation } from "../redux/features/auth/authApiSlice";
 import { toast } from "sonner";
 import { useAppDispatch } from "../redux/reduxHooks/reduxHooks";
-import loader from "../../public/loader.svg";
+import Loader from "../components/loderComponent/Loader";
 
 const LoginPage = () => {
   const [mobile, setMobile] = useState("");
@@ -30,7 +30,7 @@ const LoginPage = () => {
 
   const content = isLoading ? (
     <div className="d-flex justify-content-center">
-      <img src={loader} alt="loader" />
+      <Loader />
     </div>
   ) : (
     <>

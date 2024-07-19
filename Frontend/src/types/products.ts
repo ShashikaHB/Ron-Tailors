@@ -1,6 +1,7 @@
-type Products = {
-  description: string;
-  products: number[];
-};
+import { MaterialNeededforProduct } from "./material";
 
-type Order = { orderProducts: Products[] };
+export type Product = {
+  type: string;
+  materials: MaterialNeededforProduct[];
+  selectedProduct: number;
+};

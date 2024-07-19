@@ -14,10 +14,9 @@ export const getAllUsers = asyncHandler(async (req, res) => {
         success: false,
       });
     }
-
     res
       .status(200)
-      .json({ message: "All users fetched.", success: true, users });
+      .json({ message: "All users fetched.", success: true, data: users });
   } catch (error) {
     throw new Error(error);
   }

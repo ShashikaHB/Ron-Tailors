@@ -9,13 +9,21 @@ import { CustomerSearch } from "../../../types/customer";
 
 export const orderApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    addNewMaterial: builder.mutation<ApiResponse<String>, MaterialSchema>({
-      query: (newMaterial) => ({
-        url: "/material",
+    addNewOrder: builder.mutation({
+      query: (newOrder) => ({
+        url: "/order",
         method: "POST",
-        body: { ...newMaterial },
+        body: { ...newOrder },
       }),
-      invalidatesTags: ["Materials"],
+      transformResponse: (res: ApiResponse<any>) => {
+        if (!res.success) {
+          toast.error("Order creation failed.");
+        } else {
+          return { ...res.data };
+          toast.success("New order Created.");
+        }
+      },
+      invalidatesTags: ["Orders"],
     }),
     searchCustomer: builder.query<CustomerSchema, String>({
       query: (customerQuery) => ({
@@ -71,4 +79,5 @@ export const orderApiSlice = apiSlice.injectEndpoints({
   }),
 });
 
-export const { useLazySearchCustomerQuery } = orderApiSlice;
+export const { useLazySearchCustomerQuery, useAddNewOrderMutation } =
+  orderApiSlice;

@@ -4,9 +4,14 @@ type ActionButtonProps = {
   materialId: number;
   handleOpen: (id: number | null) => void;
   lg: () => void;
+  action?: string;
 };
 
-const ActionButtons = ({ materialId, handleOpen }: ActionButtonProps) => {
+const ActionButtons = ({
+  materialId,
+  handleOpen,
+  action,
+}: ActionButtonProps) => {
   console.log(materialId);
   return (
     <>
@@ -14,7 +19,7 @@ const ActionButtons = ({ materialId, handleOpen }: ActionButtonProps) => {
         className="primary-button-sm"
         onClick={() => handleOpen(materialId)}
       >
-        Edit
+        {action ? `${action}` : "Edit"}
       </button>
     </>
   );

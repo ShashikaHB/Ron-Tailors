@@ -9,21 +9,22 @@ import { getDocId } from "../utils/docIds.js";
 // @route   POST /api/products
 // @access  Public
 export const createProduct = asyncHandler(async (req, res) => {
-  const measurementId = req.body?.measurement?.measurementId;
-  const cutterId = req.body?.cutter?.userId;
-  const tailorId = req.body?.tailor?.userId;
-  const measurerId = req.body?.measurer?.userId;
+  const measurementId = req.body?.measurement;
+  const cutterId = req.body?.cutter;
+  const tailorId = req.body?.tailor;
+  const measurerId = req.body?.measurer;
   const materials = req.body?.materials;
 
-  if (!measurementId | !cutterId | !tailorId | !measurerId | !materials) {
+  if (!cutterId | !tailorId | !measurerId | !materials) {
     res.status(400);
     throw new Error("Required fields are not provided.");
   }
-  const measurement = await Measurement.findOne({ measurementId })
-    .lean()
-    .exec();
+  let measurement;
+  if (measurementId) {
+    measurement = await Measurement.findOne({ measurementId }).lean().exec();
+  }
 
-  if (!measurement) {
+  if (measurementId && !measurement) {
     res.status(404);
     throw new Error(`No measurement found for ID ${measurementId}`);
   }
@@ -50,12 +51,12 @@ export const createProduct = asyncHandler(async (req, res) => {
   const materialsData = await Promise.all(
     materials.map(async (materialEntry) => {
       const material = await Material.findOne({
-        materialId: materialEntry.materialId,
+        materialId: materialEntry.material,
       })
         .lean()
         .exec();
       if (!material) {
-        throw new Error(`No material found for ID ${materialEntry.materialId}`);
+        throw new Error(`No material found for ID ${materialEntry.material}`);
       }
       return {
         material: material._id,
@@ -69,7 +70,7 @@ export const createProduct = asyncHandler(async (req, res) => {
     cutter: cutter._id,
     tailor: tailor._id,
     measurer: measurer._id,
-    measurement: measurement._id,
+    measurement: measurement?._id,
     materials: materialsData,
   };
 
@@ -79,7 +80,6 @@ export const createProduct = asyncHandler(async (req, res) => {
     .populate("cutter", "name") // Replace 'name' with the fields you want to populate
     .populate("tailor", "name")
     .populate("measurer", "name")
-    .populate("measurement")
     .populate("materials.material")
     .lean()
     .exec();
@@ -111,10 +111,10 @@ export const getAllProducts = asyncHandler(async (req, res) => {
     .populate({
       path: "measurement",
       select: "-_id -createdAt -updatedAt -__v",
-      populate: {
-        path: "customer",
-        select: "-_id -createdAt -updatedAt -__v",
-      },
+      //   populate: {
+      //     path: "customer",
+      //     select: "-_id -createdAt -updatedAt -__v",
+      //   },
     })
     .populate({
       path: "materials.material",
@@ -179,12 +179,12 @@ export const getSingleProduct = asyncHandler(async (req, res) => {
 });
 
 export const updateProduct = asyncHandler(async (req, res) => {
-  const productId = req.params.id;
-  const { status } = req.body;
+  const { productId } = req?.params;
+  const { status, measurement } = req.body;
 
-  if (!status) {
+  if (!status && !measurement) {
     res.status(400);
-    throw new Error("Status is required.");
+    throw new Error("Status or measurement required.");
   }
 
   const product = await Product.findById(productId);
@@ -194,8 +194,12 @@ export const updateProduct = asyncHandler(async (req, res) => {
     throw new Error("Product not found.");
   }
 
-  // Update the status field only
-  product.status = status;
+  if (status) {
+    // Update the status field only
+    product.status = status;
+  } else if (measurement) {
+    product.measurement = measurement;
+  }
 
   const updatedProduct = await product.save();
 
