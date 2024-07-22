@@ -348,7 +348,7 @@ const AddEditOrder = () => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="row">
             <div className="col-6">
-              <div className="card">
+              <div className="card h-100">
                 <div className="card-header">
                   <h5>Customer info</h5>
                 </div>
@@ -357,6 +357,7 @@ const AddEditOrder = () => {
                     <div className="col-12 d-flex gap-2 mb-3">
                       <TextField
                         label="Search Customer"
+                        size="small"
                         placeholder="Search the customer by mobile or name"
                         value={customerSearchQuery}
                         onChange={(e) => setCustomerSearchQuery(e.target.value)}
@@ -414,7 +415,7 @@ const AddEditOrder = () => {
               </div>
             </div>
             <div className="col-6">
-              <div className="card">
+              <div className="card h-100">
                 <div className="card-header">
                   <h5>Billing info</h5>
                 </div>
@@ -526,15 +527,11 @@ const AddEditOrder = () => {
             </div>
           </div>
           <div className="col-6">
-            <div className="card  h-100">
-              <div className="card-body">
-                <Table
-                  rowData={rowData}
-                  colDefs={colDefs}
-                  pagination={false}
-                ></Table>
-              </div>
-            </div>
+            <Table
+              rowData={rowData}
+              colDefs={colDefs}
+              pagination={false}
+            ></Table>
           </div>
         </div>
       </div>

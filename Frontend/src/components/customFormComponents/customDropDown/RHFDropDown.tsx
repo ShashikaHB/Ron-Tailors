@@ -6,7 +6,7 @@ import { capitalize } from "lodash";
 type Props<T extends FieldValues> = {
   name: Path<T>;
   options: Option[];
-} & Pick<TextFieldProps, "label" | "disabled" | "type">;
+} & Pick<TextFieldProps, "label" | "disabled" | "type" | "size">;
 
 const RHFDropDown = <T extends FieldValues>({
   name,
@@ -26,6 +26,7 @@ const RHFDropDown = <T extends FieldValues>({
           select
           helperText={error?.message}
           error={!!error}
+          size="small"
         >
           {options?.map((option, index) => (
             <MenuItem

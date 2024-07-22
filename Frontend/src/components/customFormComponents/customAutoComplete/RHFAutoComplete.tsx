@@ -42,6 +42,7 @@ const RHFAutoComplete = <T extends FieldValues>({
               label={label}
               helperText={error?.message}
               inputRef={ref}
+              size="small"
             ></TextField>
           )}
           renderOption={(props, option, { selected }) => {

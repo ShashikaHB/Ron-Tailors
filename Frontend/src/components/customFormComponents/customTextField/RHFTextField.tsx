@@ -18,6 +18,7 @@ const RHFTextField = <T extends FieldValues>({ name, ...props }: Props<T>) => {
           {...props}
           helperText={error?.message}
           error={!!error}
+          size="small"
         ></TextField>
       )}
     />

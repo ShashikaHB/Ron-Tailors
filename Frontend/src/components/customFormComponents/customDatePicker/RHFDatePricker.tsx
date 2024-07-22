@@ -26,6 +26,7 @@ const RHFDatePicker = <T extends FieldValues>({
             value={value ?? null} // Handle null values for controlled component
             {...rest}
             {...props}
+            slotProps={{textField:{size:"small"}}}
           />
         </LocalizationProvider>
       )}
