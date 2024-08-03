@@ -5,44 +5,37 @@ import mongooseSequence from "mongoose-sequence";
 const AutoIncrement = mongooseSequence(mongoose);
 
 // Declare the Schema of the Mongo model
-const orderSchema = new mongoose.Schema(
+const rentOrderSchema = new mongoose.Schema(
   {
     customer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Customer",
     },
-    orderDate: {
+    rentDate: {
       type: Date,
-      required: [true, "Order Date is required."],
+      required: [true, "Rent Date is required."],
     },
-    deliveryDate: {
+    returnDate: {
       type: Date,
-      required: [true, "Delivery Date is required."],
-    },
-    weddingDate: {
-      type: Date,
+      required: [true, "Return Date is required."],
     },
     salesPerson: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    orderDetails: [
+    rentOrderDetails: [
       {
         description: {
           type: String,
           required: [true, "Type is required"],
         },
-        products: [
-          {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Product",
-          },
-        ],
-      },
-    ],
-    fitOnRounds: [
-      {
-        type: Date,
+        productId: { type: Number },
+        color: { type: String },
+        size: { type: Number },
+        description: { type: String },
+        handLength: { type: String },
+        notes: { type: String },
+        amount: { type: Number, required: [true, "Amount is required"] },
       },
     ],
     totalPrice: {
@@ -67,19 +60,19 @@ const orderSchema = new mongoose.Schema(
       enum: ["Cash", "Card"],
       required: [true, "Payment Type is required."],
     },
-    orderStatus: {
+    StakeOptions: {
       type: String,
-      enum: ["Pending", "Completed"],
+      enum: ["NIC", "Deposit"],
     },
   },
   { timestamps: true }
 );
 
-orderSchema.plugin(AutoIncrement, {
-  inc_field: "orderId",
-  id: "orders",
+rentOrderSchema.plugin(AutoIncrement, {
+  inc_field: "rentOrderId",
+  id: "rentOrders",
   start_seq: 10,
 });
 
 //Export the model
-export const Order = mongoose.model("Order", orderSchema);
+export const SalesOrder = mongoose.model("RentOrder", rentOrderSchema);

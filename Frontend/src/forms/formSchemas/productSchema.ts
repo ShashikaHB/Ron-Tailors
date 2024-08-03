@@ -1,32 +1,42 @@
-import { z } from "zod";
-import { ProductType } from "../../enums/ProductType";
-import { ProductStatus } from "../../enums/ProductStatus";
+/* *
+ * Copyright 2024 Shark Dev (Pvt) Ltd. All rights reserved.
+ *
+ * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
+ * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
+ */
+import { z } from 'zod';
+import ProductType from '../../enums/ProductType';
+import { ProductStatus } from '../../enums/ProductStatus';
 
 export const productSchema = z.intersection(
   z.object({
     materials: z.array(
       z.object({
         material: z.number(),
-        unitsNeeded: z.number().min(1, "Number of units required."),
+        unitsNeeded: z.number().min(1, 'Number of units required.'),
       })
     ),
     style: z.string().optional(),
     color: z.string().optional(),
     type: z.nativeEnum(ProductType),
-    measurement: z.number(),
-    cost: z.number().optional(),
-    price: z.coerce.number().min(1, "Price is required."),
+    measurement: z.union([z.number(), z.undefined()]),
+    cost: z.coerce.number().optional(),
+    size: z.coerce.number().optional(),
+    price: z.coerce.number().min(1, 'Price is required.'),
     noOfUnits: z.number().optional(),
     status: z.nativeEnum(ProductStatus),
-    cutter: z.number().min(1, "Cutter is required"),
-    tailor: z.number().min(1, "Tailor is required"),
-    measurer: z.number().min(1, "Measurer is required"),
+    cutter: z.number().min(1, 'Cutter is required'),
+    tailor: z.number().min(1, 'Tailor is required'),
+    measurer: z.number().min(1, 'Measurer is required'),
     rentPrice: z.coerce.number().optional(),
     isNewRentOut: z.boolean(),
   }),
-  z.discriminatedUnion("variant", [
-    z.object({ variant: z.literal("create") }),
-    z.object({ variant: z.literal("edit"), productId: z.number().min(1) }),
+  z.discriminatedUnion('variant', [
+    z.object({ variant: z.literal('create') }),
+    z.object({
+      variant: z.literal('edit'),
+      productId: z.number().min(1),
+    }),
   ])
 );
 
@@ -71,10 +81,10 @@ export const productSchema = z.intersection(
 export type ProductSchema = z.infer<typeof productSchema>;
 
 export const defaultProductValues: ProductSchema = {
-  variant: "create",
+  variant: 'create',
   materials: [],
-  color: "",
-  style: "",
+  color: '',
+  style: '',
   type: ProductType.Coat,
   measurement: 0,
   cost: 0,

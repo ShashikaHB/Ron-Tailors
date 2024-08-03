@@ -1,5 +1,10 @@
-// Function to map input products to the required format
-export const mapProducts = (inputProducts, productsData) => {
+/* *
+ * Copyright 2024 Shark Dev (Pvt) Ltd. All rights reserved.
+ *
+ * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
+ * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
+ */
+const mapProducts = (inputProducts, productsData) => {
   return inputProducts.map((input) => {
     const mappedProducts = input.products.map((productId) => {
       const product = productsData.find((p) => p.productId === productId);
@@ -10,10 +15,7 @@ export const mapProducts = (inputProducts, productsData) => {
       };
     });
 
-    const amount = mappedProducts.reduce(
-      (sum, product) => sum + product.price,
-      0
-    );
+    const amount = mappedProducts.reduce((sum, product) => sum + product.price, 0);
 
     return {
       description: input.description,
@@ -22,3 +24,5 @@ export const mapProducts = (inputProducts, productsData) => {
     };
   });
 };
+
+export default mapProducts;

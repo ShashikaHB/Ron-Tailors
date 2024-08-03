@@ -112,7 +112,7 @@ export const getAllProducts = asyncHandler(async (req, res) => {
       path: "measurement",
       select: "-_id -createdAt -updatedAt -__v",
       //   populate: {
-      //     path: "customer",
+      //     path: "product",
       //     select: "-_id -createdAt -updatedAt -__v",
       //   },
     })
@@ -154,7 +154,7 @@ export const getSingleProduct = asyncHandler(async (req, res) => {
       path: "measurement",
       select: "-_id -createdAt -updatedAt -__v",
       populate: {
-        path: "customer",
+        path: "product",
         select: "-_id -createdAt -updatedAt -__v",
       },
     })
@@ -241,4 +241,38 @@ export const deleteProduct = asyncHandler(async (req, res) => {
     message: `Product deleted`,
     success: true,
   });
+});
+
+export const searchProduct = asyncHandler(async (req, res) => {
+  const searchQuery = req.query.searchQuery;
+
+  if (!searchQuery) {
+    res.status(400);
+    throw new Error("Search query parameter not provided.");
+  }
+
+  try {
+    // Construct the query to find customers by mobile or name
+    const product = await Product.findOne({ productId: Number(searchQuery) })
+      .populate("measurement")
+      .lean()
+      .select("-_id -__v")
+      .exec();
+
+    if (!product) {
+      res.status(404);
+      throw new Error("Product not found.");
+    }
+
+    res.json({
+      message: "Product data fetched successfully.",
+      success: true,
+      data: product,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
 });

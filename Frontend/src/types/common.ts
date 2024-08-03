@@ -1,4 +1,10 @@
-import { User } from "./user";
+/* *
+ * Copyright 2024 Shark Dev (Pvt) Ltd. All rights reserved.
+ *
+ * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
+ * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
+ */
+import { User } from './user';
 
 export type ApiResponse<T = undefined> = {
   data?: T;
@@ -19,9 +25,13 @@ export type Option = {
   value: any;
 };
 
-export type OptionCheckBox = { id: string; label: string; checked?: boolean };
+export type OptionCheckBox = {
+  id: string;
+  label: string;
+  checked?: boolean;
+};
 
-export type ApiResonseError = {
+export type ApiResponseError = {
   status: number;
   data: {
     error: string;

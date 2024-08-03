@@ -1,9 +1,15 @@
-import { configureStore } from "@reduxjs/toolkit";
-import { setupListeners } from "@reduxjs/toolkit/query";
-import authReducer from "../features/auth/authSlice.ts";
-import orderReducer from "../features/orders/orderSlice.ts";
-import productReducer from "../features/product/productSlice.ts";
-import { apiSlice } from "../api/apiSlice.js";
+/* *
+ * Copyright 2024 Shark Dev (Pvt) Ltd. All rights reserved.
+ *
+ * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
+ * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
+ */
+import { configureStore } from '@reduxjs/toolkit';
+import { setupListeners } from '@reduxjs/toolkit/query';
+import authReducer from '../features/auth/authSlice.ts';
+import orderReducer from '../features/orders/orderSlice.ts';
+import productReducer from '../features/product/productSlice.ts';
+import { apiSlice } from '../api/apiSlice.js';
 
 export const store = configureStore({
   reducer: {
@@ -12,8 +18,7 @@ export const store = configureStore({
     orders: orderReducer,
     product: productReducer,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(apiSlice.middleware),
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(apiSlice.middleware),
   devTools: true,
 });
 

@@ -1,6 +1,6 @@
 import asyncHandler from "express-async-handler";
 import { Customer } from "../models/customerModel.js";
-import { Order } from "../models/orderModel.js";
+import { SalesOrder } from "../models/salesOrderModel.js";
 import { Product } from "../models/productModel.js";
 import { User } from "../models/userModel.js";
 import {
@@ -76,7 +76,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     orderDetails: orderDetailsData,
   };
 
-  const newOrder = await Order.create(orderData);
+  const newOrder = await SalesOrder.create(orderData);
 
   res.json({
     message: "New order created successfully.",
@@ -89,7 +89,7 @@ export const createOrder = asyncHandler(async (req, res) => {
 // @route   GET /api/orders
 // @access  Public
 export const getAllOrders = asyncHandler(async (req, res) => {
-  const orders = await Order.find()
+  const orders = await SalesOrder.find()
     .populate({
       path: "customer",
       select: "-_id -createdAt -updatedAt -__v",
@@ -140,7 +140,7 @@ export const updateOrder = asyncHandler(async (req, res) => {
   const updateData = req.body;
 
   try {
-    const updatedOrder = await Order.findByIdAndUpdate(
+    const updatedOrder = await SalesOrder.findByIdAndUpdate(
       orderId,
       { $set: filteredUpdateData },
       { new: true, runValidators: true }
@@ -157,11 +157,11 @@ export const updateOrder = asyncHandler(async (req, res) => {
 
     if (!updatedOrder) {
       res.status(404);
-      throw new Error(`Order with ID ${orderId} not found.`);
+      throw new Error(`SalesOrder with ID ${orderId} not found.`);
     }
 
     res.json({
-      message: "Order updated successfully.",
+      message: "SalesOrder updated successfully.",
       success: true,
       data: updatedOrder,
     });

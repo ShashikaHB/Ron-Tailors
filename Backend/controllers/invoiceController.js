@@ -1,12 +1,12 @@
 import { User } from "../models/userModel.js";
 import asyncHandler from "express-async-handler";
 import { buildPdf } from "../pdf/pdf-service/pdf-service.js";
-import { Order } from "../models/orderModel.js";
+import { SalesOrder } from "../models/salesOrderModel.js";
 
 export const getInvoice = asyncHandler(async (req, res) => {
   const { orderId } = req.params;
 
-  const orderData = await Order.findOne({ orderId })
+  const orderData = await SalesOrder.findOne({ orderId })
     .lean()
     .populate("customer")
     .populate({

@@ -1,6 +1,12 @@
-import { Button } from "@mui/material";
-import { createColumnHelper } from "@tanstack/react-table";
-import React, { useEffect, useState } from "react";
+/* *
+ * Copyright 2024 Shark Dev (Pvt) Ltd. All rights reserved.
+ *
+ * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
+ * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
+ */
+import { Button } from '@mui/material';
+import { createColumnHelper } from '@tanstack/react-table';
+import { useState } from 'react';
 
 const SalesOrderPage = () => {
   const columnHelper = createColumnHelper<any>();

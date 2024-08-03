@@ -9,7 +9,8 @@ import materialRouter from "./routes/materialRoutes.js";
 import measurementRouter from "./routes/measurementRoutes.js";
 import readyMadeItemRouter from "./routes/readyMadeItemRoutes.js";
 import customerRouter from "./routes/customerRoutes.js";
-import orderRouter from "./routes/orderRoutes.js";
+import salesOrderRoutes from "./routes/salesOrderRoutes.js";
+import rentOrderRoutes from "./routes/rentOrderRoutes.js";
 import productRouter from "./routes/productRoutes.js";
 import invoiceRouter from "./routes/invoiceRoutes.js";
 import connectDB from "./database/dbConnection.js";
@@ -52,7 +53,8 @@ app.use("/api/v1/material", materialRouter);
 app.use("/api/v1/readyMade", readyMadeItemRouter);
 app.use("/api/v1/measurement", measurementRouter);
 app.use("/api/v1/customer", customerRouter);
-app.use("/api/v1/order", orderRouter);
+app.use("/api/v1/salesOrder", salesOrderRoutes);
+app.use("/api/v1/rentOrder", rentOrderRoutes);
 app.use("/api/v1/product", productRouter);
 
 app.get("/", (req, res) => {

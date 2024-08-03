@@ -28,6 +28,9 @@ const productSchema = new mongoose.Schema({
     required: [true, "Item Type is required."],
   },
   measurement: { type: mongoose.Schema.Types.ObjectId, ref: "Measurements" },
+  size: {
+    type: Number,
+  },
   cost: {
     type: Number,
   },
