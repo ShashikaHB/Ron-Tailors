@@ -4,18 +4,9 @@
  * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
-export type CustomerSearch = {
-  name: string;
-  mobile: string;
+
+const RentBook = () => {
+  return <div>RentBook</div>;
 };
 
-export type GetCustomer = {
-  name: string;
-  mobile: string;
-  customerId: number;
-};
-
-export type CreateCustomer = {
-  name: string;
-  mobile: string;
-};
+export default RentBook;

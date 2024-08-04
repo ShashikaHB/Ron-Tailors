@@ -13,14 +13,15 @@ import RHFTextField from '../../components/customFormComponents/customTextField/
 import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
 import RHFDatePicker from '../../components/customFormComponents/customDatePicker/RHFDatePricker';
 import PaymentType from '../../enums/PaymentType';
-import { RentOrderSchema } from '../formSchemas/rentOutSchema';
+import { RentOrderSchema } from '../formSchemas/rentOrderSchema';
 import { useAddNewRentOrderMutation, useLazySearchCustomerQuery } from '../../redux/features/orders/orderApiSlice';
 import { ApiResponseError } from '../../types/common';
-import { useLazySearchProductQuery } from '../../redux/features/product/productApiSlice';
-import { RentItemDetails } from '../../types/rentOrder';
+import { useLazySearchRentItemQuery } from '../../redux/features/product/productApiSlice';
+import { RentItemDetails } from '../../types/rentItem';
 import { RentItemDetailTypes } from '../../enums/RentItemDetails';
 import MemoizedTable from '../../components/agGridTable/Table';
 import RentItemDetailsRenderer from '../../components/agGridTable/customComponents/RentItemDetailsRenderer';
+import ProductType from '../../enums/ProductType';
 
 const salesPeople = [
   {
@@ -38,13 +39,14 @@ const salesPeople = [
 ];
 
 const initialRentItemDetails: RentItemDetails = {
+  rentItemId: null,
   color: '',
   size: undefined,
   description: '',
   handLength: '',
   notes: '',
   amount: 0,
-  productId: undefined,
+  type: ProductType.Coat,
 };
 
 const paymentOptions = [
@@ -63,7 +65,7 @@ const NewRentOut = () => {
 
   const [triggerCustomerSearch, { data: customer, error: customerSearchError, isLoading }] = useLazySearchCustomerQuery();
 
-  const [triggerProductSearch, { data: product, error: productSearchError, isLoading: productDataLoading }] = useLazySearchProductQuery();
+  const [triggerProductSearch, { data: rentItem, error: rentItemSearchError, isLoading: rentItemLoading }] = useLazySearchRentItemQuery();
 
   const [addRentOrder] = useAddNewRentOrderMutation();
 
@@ -81,7 +83,7 @@ const NewRentOut = () => {
   const variant = useWatch({ control, name: 'variant' });
 
   const colDefs = [
-    { headerName: 'Barcode', field: 'productId' },
+    { headerName: 'Barcode', field: 'rentItemId' },
     {
       headerName: 'Order Description',
       field: 'description',
@@ -92,6 +94,7 @@ const NewRentOut = () => {
       autoHeight: true,
     },
     { headerName: 'Amount', field: 'amount' },
+    { headerName: '', field: 'action' },
   ];
 
   const handleSearchCustomer = () => {
@@ -109,23 +112,14 @@ const NewRentOut = () => {
 
   const handleRentItemDetailsChange = (key: string, value: string | number) => {
     switch (key) {
-      case RentItemDetailTypes.color:
-        setRentItemDetails({ ...rentItemDetails, color: value as string });
-        break;
-      case RentItemDetailTypes.size:
-        setRentItemDetails({ ...rentItemDetails, size: value as number });
-        break;
-      case RentItemDetailTypes.description:
-        setRentItemDetails({ ...rentItemDetails, description: value as string });
-        break;
       case RentItemDetailTypes.handLength:
-        setRentItemDetails({ ...rentItemDetails, handLength: value as string });
+        setRentItemDetails((prevDetails) => ({ ...prevDetails, handLength: value as string }));
         break;
       case RentItemDetailTypes.notes:
-        setRentItemDetails({ ...rentItemDetails, notes: value as string });
+        setRentItemDetails((prevDetails) => ({ ...prevDetails, notes: value as string }));
         break;
       case RentItemDetailTypes.amount:
-        setRentItemDetails({ ...rentItemDetails, amount: value as number });
+        setRentItemDetails((prevDetails) => ({ ...prevDetails, amount: value as number }));
         break;
       default:
         toast.error(`No key found for ${key} in Rent item details`);
@@ -134,8 +128,18 @@ const NewRentOut = () => {
   };
 
   useEffect(() => {
+    const sub = watch((value) => {
+      console.log(value);
+    });
+
+    return () => {
+      sub.unsubscribe();
+    };
+  }, [watch]);
+
+  useEffect(() => {
     if (rowData) {
-    const totalAmount = rowData.reduce((sum, row) => sum + (row.amount || 0), 0);
+      const totalAmount = rowData.reduce((sum, row) => sum + (row.amount || 0), 0);
       setValue('rentOrderDetails', rowData);
       setValue('totalPrice', totalAmount);
     }
@@ -172,30 +176,31 @@ const NewRentOut = () => {
   }, [customerSearchError, customer, setValue, clearErrors]);
 
   useEffect(() => {
-    if (productSearchError) {
+    if (rentItemSearchError) {
       let errorMessage = 'An unknown error occurred';
-      if ('status' in productSearchError) {
+      if ('status' in rentItemSearchError) {
         // error is FetchBaseQueryError
-        const err = productSearchError as ApiResponseError;
+        const err = rentItemSearchError as ApiResponseError;
         errorMessage = err.data.error ?? 'Something went wrong';
-      } else if (productSearchError instanceof Error) {
+      } else if (rentItemSearchError instanceof Error) {
         // error is SerializedError
-        errorMessage = productSearchError.message;
+        errorMessage = rentItemSearchError.message;
       }
       toast.error(errorMessage);
     }
-    if (product) {
-      toast.success('Product fetched successfully.');
-      setRentItemDetails({
-        ...rentItemDetails,
-        description: product.measurement?.style,
-        color: product.color ?? '',
-        size: product.size,
-        productId: product?.productId,
-      });
+    if (rentItem) {
+      toast.success('Rent Item fetched successfully.');
+      setRentItemDetails((prevDetails) => ({
+        ...prevDetails,
+        description: rentItem.description,
+        color: rentItem.color,
+        size: rentItem.size,
+        type: rentItem.type,
+        rentItemId: rentItem.rentItemId,
+      }));
       clearErrors();
     }
-  }, [productSearchError, product]);
+  }, [rentItemSearchError, rentItem]);
 
   const onSubmit: SubmitHandler<RentOrderSchema> = async (data) => {
     try {
@@ -209,7 +214,7 @@ const NewRentOut = () => {
         //   reset();
         // }
       } else {
-        console.log(data)
+        console.log(data);
         const response = await addRentOrder(data);
         if (response.error) {
           toast.error(`Order Adding Failed`);
@@ -342,28 +347,13 @@ const NewRentOut = () => {
                   </div>
                   <div className="col-12 mb-3 d-flex gap-4">
                     <div className="col-2">
-                      <TextField
-                        label="Color"
-                        value={rentItemDetails.color}
-                        inputProps={{ readOnly: true }}
-                        onChange={(e) => handleRentItemDetailsChange(RentItemDetailTypes.color, e.target.value)}
-                      />
+                      <TextField label="Color" value={rentItemDetails.color} inputProps={{ readOnly: true }} />
                     </div>
                     <div className="col-2">
-                      <TextField
-                        label="Size"
-                        value={rentItemDetails.size}
-                        inputProps={{ readOnly: true }}
-                        onChange={(e) => handleRentItemDetailsChange(RentItemDetailTypes.size, e.target.value)}
-                      />
+                      <TextField label="Size" type="number" value={rentItemDetails.size ?? ''} inputProps={{ readOnly: true }} />
                     </div>
                     <div className="col-3">
-                      <TextField
-                        label="Description"
-                        value={rentItemDetails.description}
-                        inputProps={{ readOnly: true }}
-                        onChange={(e) => handleRentItemDetailsChange(RentItemDetailTypes.size, e.target.value)}
-                      />
+                      <TextField label="Description" value={rentItemDetails.description} inputProps={{ readOnly: true }} />
                     </div>
                     <div className="col-3">
                       <TextField
@@ -396,7 +386,9 @@ const NewRentOut = () => {
                     className="secondary-button mx-2"
                     type="button"
                     // disabled={isAddItemButtonDisabled}
-                    onClick={() => setRentItemDetails(initialRentItemDetails)}
+                    onClick={() => {
+                      setRentItemDetails(initialRentItemDetails);
+                    }}
                   >
                     Clear Item
                   </button>
@@ -415,7 +407,7 @@ const NewRentOut = () => {
           <div className="col-6">
             <div className="card  h-100">
               <div className="card-body">
-                <MemoizedTable rowData={rowData} colDefs={colDefs} pagination={false} />
+                <MemoizedTable<RentItemDetails> rowData={rowData} colDefs={colDefs} pagination={false} />
               </div>
             </div>
           </div>

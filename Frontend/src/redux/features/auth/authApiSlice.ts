@@ -6,7 +6,7 @@
  */
 import { UserRegistrationSchema } from '../../../forms/formSchemas/userRegistrationSchema';
 import { AuthResponse } from '../../../types/common';
-import { apiSlice } from '../../api/apiSlice.ts';
+import apiSlice from '../../api/apiSlice';
 
 export const authApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({

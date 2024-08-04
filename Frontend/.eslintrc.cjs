@@ -73,8 +73,10 @@ module.exports = {
     ],
     'react-hooks/exhaustive-deps': 0,
     'unused-imports/no-unused-imports': 'error',
-    '@typescript-eslint/no-explicit-any': 'false',
     'no-plusplus': ['error', { allowForLoopAfterthoughts: true }],
+    'react/require-default-props': 0,
     'no-console': 'warn', // Added rule to disallow console statements
+    '@typescript-eslint/no-explicit-any': 'off', // Disabled rule for no-explicit-any
+    'react/no-array-index-key': 'off',
   },
 };

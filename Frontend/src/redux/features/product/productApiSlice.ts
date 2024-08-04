@@ -7,7 +7,8 @@
 import { toast } from 'sonner';
 import { ProductSchema } from '../../../forms/formSchemas/productSchema';
 import { ApiResponse } from '../../../types/common';
-import { apiSlice } from '../../api/apiSlice';
+import apiSlice from '../../api/apiSlice';
+import { ApiGetRentItem } from '../../../types/rentItem';
 
 export const productApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -65,21 +66,21 @@ export const productApiSlice = apiSlice.injectEndpoints({
         return res.data;
       },
     }),
-    searchProduct: builder.query<ProductSchema, string>({
-      query: (productId) => ({
-        url: `/product/searchProduct?searchQuery=${productId}`,
+    searchRentItem: builder.query<ApiGetRentItem, string>({
+      query: (rentItemId: string) => ({
+        url: `/rentItem/searchRentItem?searchQuery=${rentItemId}`,
         method: 'GET',
       }),
       providesTags: ['Products'],
-      transformResponse: (res: ApiResponse<ProductSchema>): ProductSchema => {
+      transformResponse: (res: ApiResponse<ApiGetRentItem>): ApiGetRentItem => {
         if (!res.success) {
           toast.error('Product search failed!');
         }
-        return { ...res.data, variant: 'edit' } as ProductSchema;
+        return { ...res.data, variant: 'edit' } as ApiGetRentItem;
       },
     }),
   }),
 });
 
-export const { useAddNewProductMutation, useGetAllProductsQuery, useGetSingleProductQuery, useUpdateSingleProductMutation, useLazySearchProductQuery } =
+export const { useAddNewProductMutation, useGetAllProductsQuery, useGetSingleProductQuery, useUpdateSingleProductMutation, useLazySearchRentItemQuery } =
   productApiSlice;

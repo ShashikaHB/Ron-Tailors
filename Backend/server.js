@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import materialRouter from "./routes/materialRoutes.js";
+import rentItemRouter from "./routes/rentItemRoutes.js";
 import measurementRouter from "./routes/measurementRoutes.js";
 import readyMadeItemRouter from "./routes/readyMadeItemRoutes.js";
 import customerRouter from "./routes/customerRoutes.js";
@@ -50,6 +51,7 @@ app.use(authMiddleWare);
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/material", materialRouter);
+app.use("/api/v1/rentItem", rentItemRouter);
 app.use("/api/v1/readyMade", readyMadeItemRouter);
 app.use("/api/v1/measurement", measurementRouter);
 app.use("/api/v1/customer", customerRouter);

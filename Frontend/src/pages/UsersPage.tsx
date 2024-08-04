@@ -1,53 +1,46 @@
-import { Button } from "@mui/material";
-import { createColumnHelper } from "@tanstack/react-table";
-import axios from "axios";
-import React, { useEffect, useState } from "react";
+/* *
+ * Copyright 2024 Shark Dev (Pvt) Ltd. All rights reserved.
+ *
+ * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
+ * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
+ */
+import { useEffect, useState } from 'react';
+import { ColDef } from 'ag-grid-community';
+import { useGetAllUsersQuery } from '../redux/features/user/userApiSlice';
+import { User } from '../types/user';
+import MemoizedTable from '../components/agGridTable/Table';
 
 const UsersPage = () => {
-  const columnHelper = createColumnHelper<any>();
+  const [rowData, setRowData] = useState<User[]>([]);
+  const { data: users, isLoading, isError } = useGetAllUsersQuery();
 
-  const columns = [
-    columnHelper.accessor("name", {
-      header: () => <span>Name</span>,
-      cell: (props) => props.getValue(),
-    }),
-    columnHelper.accessor("mobile", {
-      header: () => <span>Mobile</span>,
-      cell: (props) => props.getValue(),
-    }),
-    columnHelper.accessor("role", {
-      header: () => "Role",
-      cell: (props) => props.renderValue(),
-    }),
-    columnHelper.accessor("salary", {
-      header: "Salary",
-    }),
+  const defaultColDef: ColDef = {
+    flex: 1,
+    resizable: true,
+  };
+
+  const colDefs: ColDef<User>[] = [
+    { headerName: 'User Id', field: 'userId' },
+    { headerName: 'Name', field: 'name' },
+    { headerName: 'Mobile No', field: 'mobile' },
+    { headerName: 'Role', field: 'role' },
+    { headerName: 'Active Status', field: 'isActive' },
   ];
 
-  const [rowData, setRowData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get("http://localhost:8000/api/v1/auth/");
-        setRowData(response.data.data);
-        setLoading(false);
-      } catch (err) {
-        setLoading(false);
-        console.log(err);
-      }
-    };
-
-    fetchData();
-  }, []);
+    if (users) {
+      setRowData(users);
+    }
+  }, [users]);
 
   return (
-    <div>
-      <Button>+ new User</Button>
-      {/* {rowData && (
-        <Table rowData={rowData} columns={columns} sortingColumn="name"></Table>
-      )} */}
+    <div className="h-100">
+      <div className="d-flex justify-content-end mb-2">
+        {/* <button type="button" className="primary-button" onClick={() => handleOpen(null)}>
+          + New Material
+        </button> */}
+      </div>
+      <MemoizedTable<User> rowData={rowData} colDefs={colDefs} defaultColDef={defaultColDef} />
     </div>
   );
 };

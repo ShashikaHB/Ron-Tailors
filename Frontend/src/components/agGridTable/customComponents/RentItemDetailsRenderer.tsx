@@ -5,7 +5,7 @@
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
 
-import { RentItemDetails } from '../../../types/rentOrder';
+import { RentItemDetails } from '../../../types/rentItem';
 
 type RentItemDetailsRendererProps = {
   data: RentItemDetails;

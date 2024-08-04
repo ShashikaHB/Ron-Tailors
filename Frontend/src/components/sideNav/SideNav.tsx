@@ -1,89 +1,110 @@
-import { ReactElement } from "react";
+/* *
+ * Copyright 2024 Shark Dev (Pvt) Ltd. All rights reserved.
+ *
+ * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
+ * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
+ */
 // import { MdDashboard } from "react-icons/md";
 // import { FaAngleRight } from "react-icons/fa";
 // import { Link } from 'react-router-dom';
-import SideNavItem from "./SideNavItem";
-import { Link } from "react-router-dom";
-import HomeIcon from "../imageComponents/HomeIcon";
-import SaleOrderIcon from "../imageComponents/SalesOrderIcon";
-
-export type SideBarConfig = {
-  title: string;
-  path?: string;
-  icon?: ReactElement;
-  children?: SideBarConfig[];
-};
+import { Link } from 'react-router-dom';
+import SideNavItem from './SideNavItem';
+import HomeIcon from '../imageComponents/HomeIcon';
+import SaleOrderIcon from '../imageComponents/SalesOrderIcon';
+import { SideBarConfig } from '../../types/common';
 
 export const sideBarConfig: SideBarConfig[] = [
   {
-    title: "Home",
+    title: 'Home',
     icon: <HomeIcon />,
-    path: "/secured/dashboard",
+    path: '/secured/dashboard',
   },
   {
-    title: "Rent out",
+    title: 'Rent Out',
     icon: <HomeIcon />,
-    path: "/secured/profile",
-  },
-  {
-    title: "Sales Order",
-    icon: <SaleOrderIcon />,
     children: [
       {
-        title: "Order Book",
+        title: 'New Rent Order',
         icon: <HomeIcon />,
-
-        path: "/secured/orderBook",
+        path: '/secured/addRentOrder',
       },
       {
-        title: "Sales",
+        title: 'Rent Book',
+        icon: <HomeIcon />,
+        path: '/secured/rentBook',
+      },
+      {
+        title: 'Return Rent',
         icon: <SaleOrderIcon />,
-        path: "/secured/sales",
+        path: '/secured/rentReturn',
+      },
+      {
+        title: 'Add Rent Item',
+        icon: <SaleOrderIcon />,
+        path: '/secured/addRentItem',
       },
     ],
   },
   {
-    title: "Payments",
-    icon: <HomeIcon />,
-    path: "/secured/payments",
+    title: 'Sales',
+    icon: <SaleOrderIcon />,
+    children: [
+      {
+        title: 'New Order',
+        icon: <SaleOrderIcon />,
+        path: '/secured/addSalesOrder',
+      },
+      {
+        title: 'Order Book',
+        path: 'salesOrderBook',
+        icon: <HomeIcon />,
+      },
+    ],
   },
   {
-    title: "Cash Book",
+    title: 'Stock',
     icon: <HomeIcon />,
-    path: "/secured/cashBook",
+    path: '/secured/stock',
   },
   {
-    title: "Stock",
+    title: 'Users',
     icon: <HomeIcon />,
-    path: "/secured/stock",
+    path: '/secured/users',
   },
   {
-    title: "Users",
+    title: 'Payments',
     icon: <HomeIcon />,
-    path: "/secured/users",
+    path: '/secured/payments',
   },
   {
-    title: "Reports",
+    title: 'Cash Book',
     icon: <HomeIcon />,
-    path: "/secured/reports",
+    path: '/secured/cashBook',
+  },
+  {
+    title: 'Reports',
+    icon: <HomeIcon />,
+    path: '/secured/reports',
   },
 ];
 
-function SideNav() {
+const SideNav = () => {
   return (
     <div className="sidebar">
       <Link className="primary-button w-100" to="/secured/newOrder">
-        <button className="primary-button w-100">+ New Order</button>
+        <button type="button" className="primary-button w-100">
+          + New Order
+        </button>
       </Link>
       <ul>
         {sideBarConfig.map((item, index) => (
           <li key={index}>
-            <SideNavItem {...item}></SideNavItem>
+            <SideNavItem {...item} />
           </li>
         ))}
       </ul>
     </div>
   );
-}
+};
 
 export default SideNav;

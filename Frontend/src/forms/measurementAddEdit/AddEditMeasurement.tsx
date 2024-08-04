@@ -1,35 +1,29 @@
-import { useEffect } from "react";
-import { SubmitHandler, useFormContext, useWatch } from "react-hook-form";
-import RHFTextField from "../../components/customFormComponents/customTextField/RHFTextField";
-import { MeasurementSchema } from "../formSchemas/measurementSchema";
-import { TextField } from "@mui/material";
-import RHFSwitch from "../../components/customFormComponents/customSwitch/RHFSwitch";
-import RHFDatePicker from "../../components/customFormComponents/customDatePicker/RHFDatePricker";
-import { useAppSelector } from "../../redux/reduxHooks/reduxHooks";
-import { selectSelectedProduct } from "../../redux/features/product/productSlice";
-import {
-  useGetSingleProductQuery,
-  useUpdateSingleProductMutation,
-} from "../../redux/features/product/productApiSlice";
-import { toast } from "sonner";
-import Loader from "../../components/loderComponent/Loader";
-import { useCreateMeasurementMutation } from "../../redux/features/measurement/measurementApiSlice";
+/* *
+ * Copyright 2024 Shark Dev (Pvt) Ltd. All rights reserved.
+ *
+ * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
+ * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
+ */
+import { useEffect } from 'react';
+import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
+import { TextField } from '@mui/material';
+import { toast } from 'sonner';
+import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
+import { MeasurementSchema } from '../formSchemas/measurementSchema';
+import RHFSwitch from '../../components/customFormComponents/customSwitch/RHFSwitch';
+import RHFDatePicker from '../../components/customFormComponents/customDatePicker/RHFDatePricker';
+import { useAppSelector } from '../../redux/reduxHooks/reduxHooks';
+import { selectSelectedProduct } from '../../redux/features/product/productSlice';
+import { useGetSingleProductQuery, useUpdateSingleProductMutation } from '../../redux/features/product/productApiSlice';
+import Loader from '../../components/loderComponent/Loader';
+import { useCreateMeasurementMutation } from '../../redux/features/measurement/measurementApiSlice';
 
 type AddEditProductProps = {
   handleClose: () => void;
 };
 
 const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
-  const {
-    control,
-    unregister,
-    watch,
-    reset,
-    setValue,
-    handleSubmit,
-    getValues,
-    clearErrors,
-  } = useFormContext<MeasurementSchema>();
+  const { control, unregister, watch, reset, setValue, handleSubmit, getValues, clearErrors } = useFormContext<MeasurementSchema>();
 
   useEffect(() => {
     const sub = watch((value) => {
@@ -43,32 +37,26 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
 
   const selectedProductId = useAppSelector(selectSelectedProduct);
 
-  const measurements = useWatch({ control, name: "measurements" }) as string[];
-  const variant = useWatch({ control, name: "variant" });
+  const measurements = useWatch({ control, name: 'measurements' }) as string[];
+  const variant = useWatch({ control, name: 'variant' });
 
-  const [addMeasurement, { data: newMeasurement }] =
-    useCreateMeasurementMutation();
+  const [addMeasurement, { data: newMeasurement }] = useCreateMeasurementMutation();
 
-  const [updateProduct, { data: updatedProduct }] =
-    useUpdateSingleProductMutation();
+  const [updateProduct, { data: updatedProduct }] = useUpdateSingleProductMutation();
 
-  const {
-    data: productData,
-    error,
-    isLoading,
-  } = useGetSingleProductQuery(selectedProductId);
+  const { data: productData, error, isLoading } = useGetSingleProductQuery(selectedProductId);
 
   const addText = (text: string) => {
-    const currentStyle = getValues("style");
+    const currentStyle = getValues('style');
     const newStyle = currentStyle ? `${currentStyle}/ ${text}` : text;
-    setValue("style", newStyle);
+    setValue('style', newStyle);
   };
 
   const addMeasurements = (index: number, measurement: string) => {
-    const currentMeasurements = getValues("measurements");
+    const currentMeasurements = getValues('measurements');
     const updatedMeasurements = [...currentMeasurements];
     updatedMeasurements[index] = measurement;
-    setValue("measurements", updatedMeasurements);
+    setValue('measurements', updatedMeasurements);
   };
 
   const handleClear = () => {
@@ -77,7 +65,7 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
 
   const onSubmit: SubmitHandler<MeasurementSchema> = async (data) => {
     try {
-      if (variant === "edit") {
+      if (variant === 'edit') {
         // const response = await updateMaterial(data);
         // if (response.error) {
         //   toast.error(`Material Update Failed`);
@@ -92,15 +80,15 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
           toast.error(`Material Adding Failed`);
           console.log(response.error);
         } else {
-          toast.success("New material Added.");
+          toast.success('New material Added.');
           const newResponse = await updateProduct({
             productId: selectedProductId,
             measurement: response.data.measurementId,
           });
           if (newResponse.error) {
-            toast.error("Product update failed.");
+            toast.error('Product update failed.');
           } else {
-            toast.success("Product update successful");
+            toast.success('Product update successful');
           }
           reset();
           handleClose();
@@ -113,10 +101,10 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
 
   useEffect(() => {
     if (productData) {
-      toast.success("Product data fetched.");
-      setValue("itemType", productData.type);
+      toast.success('Product data fetched.');
+      setValue('itemType', productData.type);
     } else if (error) {
-      toast.error("Error fetching productData");
+      toast.error('Error fetching productData');
     }
   }, [productData, error]);
 
@@ -124,10 +112,10 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
     <div className="modal-dialog modal-dialog-centered">
       <div className="modal-content">
         <div className="modal-header">
-          <h5 className="modal-title">
-            Add Measurements to {productData?.type}
-          </h5>
-          <button onClick={handleClose}>X</button>
+          <h5 className="modal-title">Add Measurements to {productData?.type}</h5>
+          <button type="button" onClick={handleClose}>
+            X
+          </button>
         </div>
         <div className="modal-body d-flex h-100">
           {isLoading ? (
@@ -138,122 +126,62 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="inputGroup">
                 <div className="d-flex gap-1">
-                  <button
-                    className="primary-button"
-                    type="button"
-                    onClick={() => addText("SB")}
-                  >
+                  <button className="primary-button" type="button" onClick={() => addText('SB')}>
                     SB
                   </button>
-                  <button
-                    className="primary-button"
-                    type="button"
-                    onClick={() => addText("DB")}
-                  >
+                  <button className="primary-button" type="button" onClick={() => addText('DB')}>
                     DB
                   </button>
-                  <button
-                    className="primary-button"
-                    type="button"
-                    onClick={() => addText("Hinec")}
-                  >
+                  <button className="primary-button" type="button" onClick={() => addText('Hinec')}>
                     Hinec
                   </button>
                 </div>
                 <div className="d-flex gap-1">
-                  <button
-                    className="primary-button"
-                    type="button"
-                    onClick={() => addText("1 BT")}
-                  >
+                  <button className="primary-button" type="button" onClick={() => addText('1 BT')}>
                     1 BT
                   </button>
-                  <button
-                    className="primary-button"
-                    type="button"
-                    onClick={() => addText("2 BT")}
-                  >
+                  <button className="primary-button" type="button" onClick={() => addText('2 BT')}>
                     2 BT
                   </button>
-                  <button
-                    className="primary-button"
-                    type="button"
-                    onClick={() => addText("3 BT")}
-                  >
+                  <button className="primary-button" type="button" onClick={() => addText('3 BT')}>
                     3 BT
                   </button>
                 </div>
                 <div className="d-flex gap-1">
-                  <button
-                    className="primary-button"
-                    type="button"
-                    onClick={() => addText("Normal")}
-                  >
+                  <button className="primary-button" type="button" onClick={() => addText('Normal')}>
                     Normal
                   </button>
-                  <button
-                    className="primary-button"
-                    type="button"
-                    onClick={() => addText("Half Satting")}
-                  >
+                  <button className="primary-button" type="button" onClick={() => addText('Half Satting')}>
                     Half Satting
                   </button>
-                  <button
-                    className="primary-button"
-                    type="button"
-                    onClick={() => addText("Full Satting")}
-                  >
+                  <button className="primary-button" type="button" onClick={() => addText('Full Satting')}>
                     Full Satting
                   </button>
                 </div>
               </div>
               <div className="inputGroup my-3 w-30 d-flex flex-direction-row">
-                <RHFTextField<MeasurementSchema>
-                  label="Style"
-                  name="style"
-                ></RHFTextField>
+                <RHFTextField<MeasurementSchema> label="Style" name="style" />
               </div>
               <h6>Add Measurements</h6>
               <div className="my-3">
                 <div className="d-flex">
                   {[0, 1, 2, 3, 4].map((index) => (
-                    <TextField
-                      key={index}
-                      value={measurements[index]}
-                      onChange={(e) => addMeasurements(index, e.target.value)}
-                    />
+                    <TextField key={index} value={measurements[index]} onChange={(e) => addMeasurements(index, e.target.value)} />
                   ))}
                 </div>
                 <div className="d-flex">
                   {[5, 6, 7, 8, 9].map((index) => (
-                    <TextField
-                      key={index}
-                      value={measurements[index]}
-                      onChange={(e) => addMeasurements(index, e.target.value)}
-                    />
+                    <TextField key={index} value={measurements[index]} onChange={(e) => addMeasurements(index, e.target.value)} />
                   ))}
                 </div>
               </div>
               <div className="inputGroup">
-                <RHFTextField<MeasurementSchema>
-                  label="Remarks"
-                  name="remarks"
-                ></RHFTextField>
-                <RHFSwitch<MeasurementSchema>
-                  name="isNecessary"
-                  label="Necessary on the release date"
-                ></RHFSwitch>
-                <RHFDatePicker<MeasurementSchema>
-                  name="estimatedReleaseDate"
-                  label="Estimated release date"
-                ></RHFDatePicker>
+                <RHFTextField<MeasurementSchema> label="Remarks" name="remarks" />
+                <RHFSwitch<MeasurementSchema> name="isNecessary" label="Necessary on the release date" />
+                <RHFDatePicker<MeasurementSchema> name="estimatedReleaseDate" label="Estimated release date" />
               </div>
               <div className="modal-footer mt-3">
-                <button
-                  className="secondary-button"
-                  type="button"
-                  onClick={() => handleClear()}
-                >
+                <button className="secondary-button" type="button" onClick={() => handleClear()}>
                   Clear
                 </button>
 

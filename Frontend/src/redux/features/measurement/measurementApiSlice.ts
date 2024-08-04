@@ -6,7 +6,7 @@
  */
 import { toast } from 'sonner';
 import { ApiResponse } from '../../../types/common';
-import { apiSlice } from '../../api/apiSlice';
+import apiSlice from '../../api/apiSlice';
 
 export const measurementApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({

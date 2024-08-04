@@ -34,6 +34,8 @@ const baseRentOrderSchema = z.object({
       handLength: z.string().optional(),
       notes: z.string().optional(),
       amount: z.coerce.number().min(1, 'Price is required.'),
+      type: z.nativeEnum(ProductType),
+      rentItemId: z.number().min(1),
     })
   ),
   totalPrice: z.coerce.number().min(1, 'Total price is required.'),

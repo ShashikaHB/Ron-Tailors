@@ -1,16 +1,15 @@
-import { SubmitHandler, useFormContext, useWatch } from "react-hook-form";
-import {
-  MaterialSchema,
-  defaultMaterialValues,
-} from "../formSchemas/materialsSchema";
-import RHFTextField from "../../components/customFormComponents/customTextField/RHFTextField";
-import {
-  useAddNewMaterialMutation,
-  useGetSingleMaterialQuery,
-  useUpdateSingleMaterialMutation,
-} from "../../redux/features/material/materialApiSlice";
-import { toast } from "sonner";
-import { useEffect } from "react";
+/* *
+ * Copyright 2024 Shark Dev (Pvt) Ltd. All rights reserved.
+ *
+ * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
+ * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
+ */
+import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
+import { toast } from 'sonner';
+import { useEffect } from 'react';
+import { MaterialSchema, defaultMaterialValues } from '../formSchemas/materialsSchema';
+import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
+import { useAddNewMaterialMutation, useGetSingleMaterialQuery, useUpdateSingleMaterialMutation } from '../../redux/features/material/materialApiSlice';
 
 type AddMaterialFormProps = {
   handleClose: () => void;
@@ -18,23 +17,13 @@ type AddMaterialFormProps = {
 };
 
 const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
-  const {
-    control,
-    unregister,
-    watch,
-    reset,
-    setValue,
-    handleSubmit,
-    getValues,
-  } = useFormContext<MaterialSchema>();
+  const { control, unregister, watch, reset, setValue, handleSubmit, getValues } = useFormContext<MaterialSchema>();
 
   const [addNewMaterial] = useAddNewMaterialMutation();
   const [updateMaterial] = useUpdateSingleMaterialMutation();
-  const { data: singleMaterial } = useGetSingleMaterialQuery(
-    materialId as number
-  );
+  const { data: singleMaterial } = useGetSingleMaterialQuery(materialId as number);
 
-  const variant = useWatch({ control, name: "variant" });
+  const variant = useWatch({ control, name: 'variant' });
 
   const handleFormClose = (): void => {
     handleClose();
@@ -63,13 +52,13 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
 
   const onSubmit: SubmitHandler<MaterialSchema> = async (data) => {
     try {
-      if (variant === "edit") {
+      if (variant === 'edit') {
         const response = await updateMaterial(data);
         if (response.error) {
           toast.error(`Material Update Failed`);
           console.log(response.error);
         } else {
-          toast.success("Material Updated.");
+          toast.success('Material Updated.');
           reset();
         }
       } else {
@@ -78,7 +67,7 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
           toast.error(`Material Adding Failed`);
           console.log(response.error);
         } else {
-          toast.success("New material Added.");
+          toast.success('New material Added.');
           reset();
         }
       }
@@ -92,59 +81,29 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
       <div className="modal-content">
         <div className="modal-header">
           <h5 className="modal-title"> Add New Material</h5>
-          <button onClick={handleFormClose}>X</button>
+          <button type="button" onClick={handleFormClose}>
+            X
+          </button>
         </div>
         <div className="modal-body">
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="inputGroup">
-              <RHFTextField<MaterialSchema>
-                label="Name"
-                name="name"
-              ></RHFTextField>
-              <RHFTextField<MaterialSchema>
-                label="Color"
-                name="color"
-              ></RHFTextField>
-              <RHFTextField<MaterialSchema>
-                label="Unit Price"
-                name="unitPrice"
-                type="number"
-              ></RHFTextField>
-              <RHFTextField<MaterialSchema>
-                label="Available Units"
-                name="noOfUnits"
-                type="number"
-              ></RHFTextField>
-              <RHFTextField<MaterialSchema>
-                label="Margin"
-                name="marginPercentage"
-                type="number"
-              ></RHFTextField>
-              <RHFTextField<MaterialSchema>
-                label="Brand"
-                name="brand"
-              ></RHFTextField>
-              <RHFTextField<MaterialSchema>
-                label="Type"
-                name="type"
-              ></RHFTextField>
+              <RHFTextField<MaterialSchema> label="Name" name="name" />
+              <RHFTextField<MaterialSchema> label="Color" name="color" />
+              <RHFTextField<MaterialSchema> label="Unit Price" name="unitPrice" type="number" />
+              <RHFTextField<MaterialSchema> label="Available Units" name="noOfUnits" type="number" />
+              <RHFTextField<MaterialSchema> label="Margin" name="marginPercentage" type="number" />
+              <RHFTextField<MaterialSchema> label="Brand" name="brand" />
+              <RHFTextField<MaterialSchema> label="Type" name="type" />
             </div>
             <div className="modal-footer mt-3">
-              {variant === "create" && (
-                <button
-                  className="secondary-button"
-                  onClick={handleClear}
-                  type="button"
-                >
+              {variant === 'create' && (
+                <button className="secondary-button" onClick={handleClear} type="button">
                   Clear
                 </button>
               )}
-              <button
-                className="primary-button"
-                type="submit"
-                onClick={() => console.log("btn clicked")}
-              >
-                {variant === "create" ? "Add " : "Edit "}
+              <button className="primary-button" type="submit" onClick={() => console.log('btn clicked')}>
+                {variant === 'create' ? 'Add ' : 'Edit '}
               </button>
             </div>
           </form>

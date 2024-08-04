@@ -1,5 +1,6 @@
 import { Material } from "../models/materialModel.js";
 import asyncHandler from "express-async-handler";
+import { getDocId } from "../utils/docIds.js";
 
 export const createMaterial = asyncHandler(async (req, res) => {
   const brand = req.body.brand;
@@ -90,8 +91,17 @@ export const updateMaterial = asyncHandler(async (req, res) => {
 export const deleteMaterial = asyncHandler(async (req, res) => {
   const { materialId } = req.params;
 
+  if (!materialId) {
+    throw new Error("No material Id found")
+  }
+
+  const materialDocId = await getDocId(Material, "materialId", materialId)
+
   try {
-    const deleteMaterial = await Material.findByIdAndDelete(id);
+    const deleteMaterial = await Material.findByIdAndDelete(materialDocId);
+    if (!deleteMaterial) {
+        throw new Error('Material deletion failed.')
+    }
     res.json({
       message: "Material Deleted Successfully.",
       success: true,

@@ -6,11 +6,11 @@
  */
 import { toast } from 'sonner';
 import { omit } from 'lodash';
-import { GetMaterial } from '../../../types/material';
-import { apiSlice } from '../../api/apiSlice';
+import apiSlice from '../../api/apiSlice';
 import { ApiResponse } from '../../../types/common';
 import { MaterialSchema } from '../../../forms/formSchemas/materialsSchema';
 import { CustomerSchema } from '../../../forms/formSchemas/customerSchema';
+import { ApiGetRentItem } from '../../../types/rentItem';
 
 export const orderApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -45,7 +45,7 @@ export const orderApiSlice = apiSlice.injectEndpoints({
           return { ...res.data };
         }
       },
-      invalidatesTags: ['RentOrder']
+      invalidatesTags: ['RentOrder'],
     }),
     searchCustomer: builder.query<CustomerSchema, string>({
       query: (customerQuery) => ({
@@ -60,13 +60,13 @@ export const orderApiSlice = apiSlice.injectEndpoints({
         return res.data as CustomerSchema;
       },
     }),
-    getSingleMaterial: builder.query<GetMaterial, number>({
-      query: (id: number) => ({
-        url: `/material/${id}`,
+    getSingleRentOrder: builder.query<ApiGetRentItem, string>({
+      query: (rentItemId: string) => ({
+        url: `/rentOrder/${rentItemId}`,
         method: 'GET',
       }),
-      providesTags: (result, error, args) => (result ? [{ type: 'Materials', id: args?.toString() }] : []),
-      transformResponse: (res: ApiResponse<GetMaterial>): any => {
+      providesTags: (result, error, args) => (result ? [{ type: 'RentOrder', id: args?.toString() }] : []),
+      transformResponse: (res: ApiResponse<ApiGetRentItem>): any => {
         if (!res.success) {
           toast.error('Material data fetching failed!');
         }
@@ -103,4 +103,4 @@ export const orderApiSlice = apiSlice.injectEndpoints({
   }),
 });
 
-export const { useLazySearchCustomerQuery, useAddNewOrderMutation, useAddNewRentOrderMutation } = orderApiSlice;
+export const { useLazySearchCustomerQuery, useAddNewOrderMutation, useAddNewRentOrderMutation, useLazyGetSingleRentOrderQuery } = orderApiSlice;

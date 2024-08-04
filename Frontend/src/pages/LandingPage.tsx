@@ -12,49 +12,43 @@ import rentOut from '../assets/card-images/rent-out.svg';
 import payments from '../assets/card-images/payments.svg';
 import reports from '../assets/card-images/reports.svg';
 
-export interface cardConfig {
+export interface CardConfig {
   title: string;
   subtitle: string;
   image: string;
   link?: string;
 }
 
-const cardConfig: cardConfig[] = [
+const cardConfig: CardConfig[] = [
   {
     title: 'Price Calculator',
-    subtitle:
-      'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
+    subtitle: 'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
     image: priceCal,
   },
   {
     title: 'Sales Order',
-    subtitle:
-      'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
+    subtitle: 'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
     image: sales,
     link: '/secured/sales',
   },
   {
     title: 'Rent Out',
-    subtitle:
-      'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
+    subtitle: 'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
     image: rentOut,
   },
   {
     title: 'Payments',
-    subtitle:
-      'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
+    subtitle: 'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
     image: payments,
   },
   {
     title: 'Cash Book',
-    subtitle:
-      'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
+    subtitle: 'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
     image: cashBook,
   },
   {
     title: 'Reports',
-    subtitle:
-      'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
+    subtitle: 'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
     image: reports,
   },
 ];

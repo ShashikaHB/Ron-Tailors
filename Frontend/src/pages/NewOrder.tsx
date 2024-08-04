@@ -5,17 +5,23 @@
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
 import SelectCard from '../components/SelectCard';
-import { cardConfig } from './LandingPage';
+import { CardConfig } from './LandingPage';
 import sales from '../assets/card-images/sales-order.svg';
 import rentOut from '../assets/card-images/rent-out.svg';
 
 const NewOrder = () => {
-  const cardConfig: cardConfig[] = [
+  const cardConfig: CardConfig[] = [
     {
       title: 'Rent Out',
       subtitle: 'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
       image: rentOut,
       link: '/secured/addRentOutOrder',
+    },
+    {
+      title: 'Rent Return',
+      subtitle: 'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
+      image: rentOut,
+      link: '/secured/rentReturn',
     },
     {
       title: 'Sales Order',

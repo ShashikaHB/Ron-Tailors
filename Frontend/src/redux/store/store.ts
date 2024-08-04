@@ -9,7 +9,7 @@ import { setupListeners } from '@reduxjs/toolkit/query';
 import authReducer from '../features/auth/authSlice.ts';
 import orderReducer from '../features/orders/orderSlice.ts';
 import productReducer from '../features/product/productSlice.ts';
-import { apiSlice } from '../api/apiSlice.js';
+import apiSlice from '../api/apiSlice.js';
 
 export const store = configureStore({
   reducer: {

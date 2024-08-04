@@ -7,12 +7,8 @@
 import { FormProvider, useForm } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
 import { zodResolver } from '@hookform/resolvers/zod';
-import NewRentOut from '../forms/newRentAddEdit/AddEditRentOrder';
-import {
-  defaultRentOrderValues,
-  rentOrderSchema,
-  RentOrderSchema,
-} from '../forms/formSchemas/rentOutSchema';
+import NewRentOut from '../forms/newRentOrderAddEdit/AddEditRentOrder';
+import { defaultRentOrderValues, rentOrderSchema, RentOrderSchema } from '../forms/formSchemas/rentOrderSchema';
 
 const NewRentOutOrder = () => {
   const methods = useForm<RentOrderSchema>({

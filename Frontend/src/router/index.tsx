@@ -1,33 +1,42 @@
-import { Navigate, createBrowserRouter } from "react-router-dom";
-import ErrorPage from "../pages/ErrorPage";
-import SignInSignUpLayout from "../pageLayouts/SignInSignUpLayout"
-import RegisterPage from "../pages/RegisterPage";
-import LoginPage from "../pages/LoginPage";
-import RootLayout from "../pageLayouts/RootLayout";
-import LandingPage from "../pages/LandingPage";
-import { Profile } from "../pages/Profile";
-import SalesOrderPage from "../pages/SalesOrderPage";
-import NewOrder from "../pages/NewOrder";
-import ViewUnderConstruction from "../pages/ViewUnderConstruction";
-import StockPage from "../pages/StockPage";
-import UsersPage from "../pages/UsersPage";
-import RequireAuth from "../components/authHandlerComponent/RequireAuth";
-import NewSalesOrder from "../pages/NewSalesOrder";
-import NewRentOutOrder from "../pages/NewRentOutOrder";
+/* *
+ * Copyright 2024 Shark Dev (Pvt) Ltd. All rights reserved.
+ *
+ * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
+ * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
+ */
+import { Navigate, createBrowserRouter } from 'react-router-dom';
+import ErrorPage from '../pages/ErrorPage';
+import SignInSignUpLayout from '../pageLayouts/SignInSignUpLayout';
+import RegisterPage from '../pages/RegisterPage';
+import LoginPage from '../pages/LoginPage';
+import RootLayout from '../pageLayouts/RootLayout';
+import LandingPage from '../pages/LandingPage';
+import { Profile } from '../pages/Profile';
+import NewOrder from '../pages/NewOrder';
+import ViewUnderConstruction from '../pages/ViewUnderConstruction';
+import StockPage from '../pages/StockPage';
+import UsersPage from '../pages/UsersPage';
+import RequireAuth from '../components/authHandlerComponent/RequireAuth';
+import NewSalesOrder from '../pages/NewSalesOrder';
+import NewRentOutOrder from '../pages/NewRentOutOrder';
+import NewRentReturn from '../pages/NewRentReturn';
+import AddRentItem from '../pages/AddRentItem';
+import RentBook from '../pages/RentBook';
+import SalesOrderBook from '../pages/SalesOrderBook';
 
-export const router = createBrowserRouter([
+const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     element: <SignInSignUpLayout />,
     errorElement: <ErrorPage />,
     children: [
-      { path: "/", element: <Navigate to="/login" replace /> },
-      { path: "register", element: <RegisterPage /> },
-      { path: "login", element: <LoginPage /> },
+      { path: '/', element: <Navigate to="/login" replace /> },
+      { path: 'register', element: <RegisterPage /> },
+      { path: 'login', element: <LoginPage /> },
     ],
   },
   {
-    path: "/secured",
+    path: '/secured',
     element: <RootLayout />,
     errorElement: <ErrorPage />,
     children: [
@@ -35,56 +44,66 @@ export const router = createBrowserRouter([
         element: <RequireAuth />,
         children: [
           {
-            path: "dashboard",
-            element: <LandingPage></LandingPage>,
+            path: 'dashboard',
+            element: <LandingPage />,
           },
           {
-            path: "profile",
-            element: <Profile></Profile>,
+            path: 'profile',
+            element: <Profile />,
           },
           {
-            path: "orderBook",
-            element: <LandingPage></LandingPage>,
+            path: 'rentBook',
+            element: <RentBook />,
           },
           {
-            element: <SalesOrderPage></SalesOrderPage>,
-            path: "sales",
+            path: 'salesOrderBook',
+            element: <SalesOrderBook />,
           },
           {
-            element: <NewSalesOrder></NewSalesOrder>,
-            path: "addSalesOrder",
+            path: 'addSalesOrder',
+            element: <NewSalesOrder />,
           },
           {
-            element: <NewRentOutOrder></NewRentOutOrder>,
-            path: "addRentOutOrder",
+            path: 'addRentOrder',
+            element: <NewRentOutOrder />,
           },
           {
-            path: "newOrder",
-            element: <NewOrder></NewOrder>,
+            path: 'addRentItem',
+            element: <AddRentItem />,
           },
           {
-            path: "payments",
-            element: <ViewUnderConstruction></ViewUnderConstruction>,
+            path: 'rentReturn',
+            element: <NewRentReturn />,
           },
           {
-            path: "stock",
-            element: <StockPage></StockPage>,
+            path: 'newOrder',
+            element: <NewOrder />,
           },
           {
-            path: "users",
-            element: <UsersPage></UsersPage>,
+            path: 'stock',
+            element: <StockPage />,
           },
           {
-            path: "cashBook",
-            element: <ViewUnderConstruction></ViewUnderConstruction>,
+            path: 'users',
+            element: <UsersPage />,
           },
           {
-            path: "Reports",
-            element: <ViewUnderConstruction></ViewUnderConstruction>,
+            path: 'payments',
+            element: <ViewUnderConstruction />,
+          },
+          {
+            path: 'cashBook',
+            element: <ViewUnderConstruction />,
+          },
+          {
+            path: 'Reports',
+            element: <ViewUnderConstruction />,
           },
         ],
       },
     ],
   },
-  { path: "*", element: <Navigate to="/secured/dashboard" replace /> },
+  { path: '*', element: <Navigate to="/secured/dashboard" replace /> },
 ]);
+
+export default router;
