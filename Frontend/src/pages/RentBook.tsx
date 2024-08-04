@@ -65,9 +65,9 @@ const RentBook = () => {
   };
 
   return (
-    <div>
-      <div className="d-flex">
-        <div className="col-3 d-flex">
+    <div className="h-100 d-flex flex-column gap-3">
+      <div className="d-flex justify-content-between align-items-end">
+        <div className="w-50 d-flex">
           <TextField
             label="Search Order"
             placeholder="Search by Barcode or contact or orderId"
@@ -76,12 +76,12 @@ const RentBook = () => {
           />
         </div>
         <div>
-          <button type="button" className="primary-btn" onClick={() => handleNavigateToRentOrder()}>
+          <button type="button" className="primary-button" onClick={() => handleNavigateToRentOrder()}>
             Add new Rent Order
           </button>
         </div>
       </div>
-      <div style={{ height: '40vw' }}>
+      <div className="flex-grow-1 overflow-hidden">
         <MemoizedTable rowData={rowData} colDefs={colDefs} defaultColDef={defaultColDef} />
       </div>
     </div>

@@ -262,14 +262,14 @@ const NewRentOut = () => {
                 </div>
                 <div className="card-body">
                   <div className="row">
-                    <div className="col-12 d-flex gap-2 mb-3">
+                    <div className="col-12 d-flex gap-2 mb-3 align-items-end">
                       <TextField
                         label="Search Customer"
                         placeholder="Search the customer by mobile or name"
                         value={customerSearchQuery}
                         onChange={(e) => setCustomerSearchQuery(e.target.value)}
                       />
-                      <button type="button" aria-label="search_customer" onClick={() => handleSearchCustomer()}>
+                      <button className='icon-button' type="button" aria-label="search_customer" onClick={() => handleSearchCustomer()}>
                         <span>
                           <FaSearch />
                         </span>
@@ -297,7 +297,7 @@ const NewRentOut = () => {
               </div>
             </div>
             <div className="col-6">
-              <div className="card">
+              <div className="card h-100">
                 <div className="card-header">
                   <h5>Billing info</h5>
                 </div>
@@ -307,7 +307,7 @@ const NewRentOut = () => {
                       <RHFTextField<RentOrderSchema> label="Total" name="totalPrice" disabled />
                     </div>
                     <div className="col-6 mb-3">
-                      <RHFDropDown<RentOrderSchema> options={paymentOptions} name="paymentType" />
+                      <RHFDropDown<RentOrderSchema> label="Payment Options" options={paymentOptions} name="paymentType" />
                     </div>
                     <div className="col-6 mb-3">
                       <RHFTextField<RentOrderSchema> label="Advance" name="advPayment" />
@@ -345,20 +345,20 @@ const NewRentOut = () => {
       <div className="col-12">
         <div className="row">
           <div className="col-6">
-            <div className="card">
+            <div className="card h-100">
               <div className="card-header">
                 <h5>Add rent Items</h5>
               </div>
               <div className="card-body">
                 <div className="row">
-                  <div className="col-12 d-flex gap-2 mb-3">
+                  <div className="col-12 d-flex gap-2 mb-3 align-items-end">
                     <TextField
                       label="Search Product"
                       placeholder="Search the product by barcode"
                       value={productSearchQuery}
                       onChange={(e) => setProductSearchQuery(e.target.value)}
                     />
-                    <button type="button" aria-label="search_product" onClick={() => handleSearchProduct()}>
+                    <button className='icon-button' type="button" aria-label="search_product" onClick={() => handleSearchProduct()}>
                       <span>
                         <FaSearch />
                       </span>
@@ -419,8 +419,8 @@ const NewRentOut = () => {
             </div>
           </div>
           <div className="col-6">
-            <div className="card  h-100">
-              <div className="card-body">
+            <div className="h-100">
+              <div className="h-100">
                 <MemoizedTable<RentItemDetails> rowData={rowData} colDefs={colDefs} defaultColDef={defaultColDef} pagination={false} />
               </div>
             </div>

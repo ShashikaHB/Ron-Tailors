@@ -108,37 +108,42 @@ body {
     display: flex;
     flex-direction: column;
     gap: 18px;
-    .MuiInputBase-root{
+
+    .MuiInputBase-root {
       height: 42px !important;
+
       .MuiInputBase-input {
         padding: 9.5px 14px;
       }
     }
-    .MuiFormLabel-root{
-      top: -4px;
+
+    .MuiFormLabel-root {
       font-size: 14px;
       font-weight: 500;
     }
   }
 
-  .MuiFormLabel-root{
-    top: -4px;
+  .MuiFormLabel-root {
     font-size: 14px;
     font-weight: 500;
   }
-  .login-container{
-     width: 100%;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     .login-body{
-        width: 400px;
-     }
+
+  .login-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .login-body {
+      width: 400px;
+    }
   }
-  .modal-dialog{
+
+  .modal-dialog {
     max-width: 500px;
     margin: 1.75rem auto;
-    .modal-content{
+
+    .modal-content {
       position: relative;
       display: flex;
       flex-direction: column;
@@ -151,23 +156,94 @@ body {
       outline: 0;
       padding: 1rem;
       gap: 16px;
-      .modal-header{
+
+      .modal-header {
         display: flex;
         justify-content: space-between;
       }
-      .modal-footer{
+
+      .modal-footer {
         display: flex;
         gap: 8px;
       }
     }
   }
 
-  .main-body-container{
-    .container-fluid{
+  .main-body-container {
+    .container-fluid {
       max-width: 1256px;
-      .MuiFormControl-root{
+
+      .MuiFormControl-root {
         width: 100%;
       }
     }
+  }
+
+  .MuiFormControl-root {
+    .MuiInputBase-root {
+      height: 32px !important;
+      .MuiInputBase-input {
+        padding: 0 16px !important;
+        height: 32px !important;
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+        font-family: "Inter", sans-serif !important;
+      }
+      .MuiOutlinedInput-notchedOutline {
+        height: 32px !important;
+        top: 0;
+        legend{
+          display: none;
+        }
+      }
+    }
+    .MuiFormLabel-root {
+      color: rgba(0, 0, 0, 0.6);
+      font-family: "Inter", sans-serif !important;
+      font-weight: 500;
+      font-size: 13px;
+      line-height: normal;
+      letter-spacing: 0.00938em;
+      padding: 0;
+      position: relative;
+      display: block;
+      transform-origin: unset;
+      white-space: inherit;
+      overflow: inherit;
+      text-overflow: inherit;
+      max-width: calc(133% - 32px);
+      position: relative;
+      transform: inherit;
+      transition: inherit;
+      z-index: 1;
+      pointer-events: auto;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    .MuiFormHelperText-root{
+      font-family: "Inter", sans-serif !important;
+      margin-left: 0;
+      font-size: 11px;
+    }
+  }
+
+  .MuiFormGroup-root{
+    .MuiFormControlLabel-root{
+      .MuiFormControlLabel-label{
+        font-family: "Inter", sans-serif !important;
+        font-size: 13px;
+      }
+    }
+  }
+
+  h5{
+    margin-bottom: 0;
+  }
+
+  .ag-theme-quartz{
+    font-family: "Inter", sans-serif !important;
   }
 }

@@ -34,13 +34,15 @@ const UsersPage = () => {
   }, [users]);
 
   return (
-    <div className="h-100">
+    <div className="h-100 d-flex flex-column gap-3">
       <div className="d-flex justify-content-end mb-2">
         {/* <button type="button" className="primary-button" onClick={() => handleOpen(null)}>
           + New Material
         </button> */}
       </div>
-      <MemoizedTable<User> rowData={rowData} colDefs={colDefs} defaultColDef={defaultColDef} />
+      <div className="flex-grow-1 overflow-hidden">
+        <MemoizedTable<User> rowData={rowData} colDefs={colDefs} defaultColDef={defaultColDef} />
+      </div>
     </div>
   );
 };

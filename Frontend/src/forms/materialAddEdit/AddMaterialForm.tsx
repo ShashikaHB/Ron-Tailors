@@ -81,7 +81,7 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
       <div className="modal-content">
         <div className="modal-header">
           <h5 className="modal-title"> Add New Material</h5>
-          <button type="button" onClick={handleFormClose}>
+          <button className='icon-button' type="button" onClick={handleFormClose}>
             X
           </button>
         </div>

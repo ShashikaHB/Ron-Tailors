@@ -91,15 +91,19 @@ const StockPage = () => {
   const handleClose = useCallback(() => setOpen(false), []);
 
   return (
-    <div className="h-100">
-      <div className="d-flex justify-content-end mb-2">
+    <div className="h-100 d-flex flex-column gap-3">
+      <div className="d-flex justify-content-end">
         <button type="button" className="primary-button" onClick={() => handleOpen(null)}>
           + New Material
         </button>
       </div>
       {isLoading && <p>Loading!</p>}
       {isError && <p>Error loading data</p>}
-      {!isLoading && !isError && rowData.length > 0 && <Table<MaterialTableScheme> rowData={rowData} colDefs={colDefs} defaultColDef={defaultColDef} />}
+      {!isLoading && !isError && rowData.length > 0 && (
+        <div className="flex-grow-1 overflow-hidden">
+          <Table<MaterialTableScheme> rowData={rowData} colDefs={colDefs} defaultColDef={defaultColDef} />
+        </div>
+      )}
       <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
         <div>
           <FormProvider {...methods}>

@@ -113,7 +113,7 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
       <div className="modal-content">
         <div className="modal-header">
           <h5 className="modal-title">Add Measurements to {productData?.type}</h5>
-          <button type="button" onClick={handleClose}>
+          <button className='icon-button' type="button" onClick={handleClose}>
             X
           </button>
         </div>

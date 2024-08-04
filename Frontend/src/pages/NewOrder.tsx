@@ -31,7 +31,7 @@ const NewOrder = () => {
     },
   ];
   return (
-    <div className="row overflow-y-auto p-3 gap-3 justify-content-center">
+    <div className="row overflow-y-auto p-3 gap-5 justify-content-center flex-column align-items-center h-100">
       {cardConfig.map((card, index) => {
         return (
           <div key={index} className="col-5">

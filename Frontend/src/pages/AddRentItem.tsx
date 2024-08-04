@@ -72,9 +72,9 @@ const AddRentItem = () => {
   }, [rentItems]);
 
   return (
-    <div>
-      <div className="d-flex">
-        <div className="col-3 d-flex">
+    <div className="h-100 d-flex flex-column gap-3">
+      <div className="d-flex justify-content-between align-items-end">
+        <div className="w-50 d-flex">
           <TextField
             label="Barcode"
             placeholder="Search the product by Barcode"
@@ -83,12 +83,12 @@ const AddRentItem = () => {
           />
         </div>
         <div>
-          <button type="button" className="primary-btn" onClick={() => setOpen(!open)}>
+          <button type="button" className="primary-button" onClick={() => setOpen(!open)}>
             Add new Rent Item
           </button>
         </div>
       </div>
-      <div style={{ height: '40vw' }}>
+      <div className="flex-grow-1 overflow-hidden">
         <MemoizedTable rowData={rowData} colDefs={colDefs} defaultColDef={defaultColDef} />
       </div>
       <Modal open={open} onClose={handlePopupClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">

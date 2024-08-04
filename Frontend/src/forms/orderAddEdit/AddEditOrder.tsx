@@ -299,7 +299,7 @@ const AddEditOrder = () => {
                 </div>
                 <div className="card-body">
                   <div className="row">
-                    <div className="col-12 d-flex gap-2 mb-3">
+                    <div className="col-12 d-flex gap-2 mb-3 align-items-end">
                       <TextField
                         label="Search Customer"
                         size="small"
@@ -307,7 +307,7 @@ const AddEditOrder = () => {
                         value={customerSearchQuery}
                         onChange={(e) => setCustomerSearchQuery(e.target.value)}
                       />
-                      <button type="button" aria-label="search_customer" onClick={() => handleSearchCustomer()}>
+                      <button className='icon-button' type="button" aria-label="search_customer" onClick={() => handleSearchCustomer()}>
                         <span>
                           <FaSearch />
                         </span>

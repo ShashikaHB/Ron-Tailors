@@ -7,7 +7,7 @@
 import { TextField } from '@mui/material';
 import { FaSearch } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
-import { useLazySearchRentOrderByItemQuery } from '../redux/features/rentout/rentOutApiSlice';
+import { useLazySearchRentOrderByItemQuery } from '../redux/features/rentOrder/rentOrderApiSlice';
 import { ApiGetRentOrder } from '../types/rentOrder';
 
 const NewRentReturn = () => {
@@ -23,38 +23,57 @@ const NewRentReturn = () => {
 
   return (
     <div>
-      <div>
-        <TextField
-          label="Barcode"
-          placeholder="Search the product by Barcode"
-          value={rentItemSearchQuery}
-          onChange={(e) => setRentItemSearchQuery(e.target.value)}
-        />
-        <button type="button" aria-label="search_customer" onClick={() => triggerSearchRentOrder(rentItemSearchQuery)}>
-          <span>
-            <FaSearch />
-          </span>
-        </button>
-        <br />
-        <div>
-          <h2>Customer Details</h2>
-          <p>Customer : Mr.Isuru</p>
-          <p>Rent Date : 2024-08-02</p>
-          <p>Return Date : 2024-08-03</p>
+      <div className='d-flex flex-column gap-3'>
+        <div className="row">
+          <div className="col-6 d-flex align-items-end gap-2">
+            <TextField
+              label="Barcode"
+              placeholder="Search the product by Barcode"
+              value={rentItemSearchQuery}
+              onChange={(e) => setRentItemSearchQuery(e.target.value)}
+            />
+            <button className="icon-button" type="button" aria-label="search_customer" onClick={() => triggerSearchRentOrder(rentItemSearchQuery)}>
+              <span>
+                <FaSearch />
+              </span>
+            </button>
+          </div>
         </div>
-        <div>
-          <h2>Product Details</h2>
-          <p>Description: SB/1 Bt/Normal</p>
-          <p>Color: Check Brown</p>
-          <p>Size: 36</p>
+        <div className="row">
+          <div className="col-5">
+            <div className="card">
+              <div className="card-header">
+                <h5>Customer Details</h5>
+              </div>
+              <div className="card-body">
+                <p>Customer : Mr.Isuru</p>
+                <p>Rent Date : 2024-08-02</p>
+                <p>Return Date : 2024-08-03</p>
+              </div>
+            </div>
+          </div>
+          <div className="col-5">
+            <div className="card">
+              <div className="card-header">
+                <h5>Product Details</h5>
+              </div>
+              <div className="card-body">
+                <p>Description: SB/1 Bt/Normal</p>
+                <p>Color: Check Brown</p>
+                <p>Size: 36</p>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="d-flex">
-          <button type="button" className="secondary-btn">
-            Cancel
-          </button>
-          <button type="button" className="primary-btn">
-            Rent Return
-          </button>
+        <div className="row">
+          <div className="col-10 d-flex justify-content-end gap-2">
+            <button type="button" className="secondary-button">
+              Cancel
+            </button>
+            <button type="button" className="primary-button">
+              Rent Return
+            </button>
+          </div>
         </div>
       </div>
     </div>

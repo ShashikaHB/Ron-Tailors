@@ -141,7 +141,7 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
       <div className="modal-content">
         <div className="modal-header">
           <h5 className="modal-title"> Add New {productType}</h5>
-          <button onClick={handleClosePopup}>X</button>
+          <button className='icon-button' onClick={handleClosePopup}>X</button>
         </div>
         <div className="modal-body">
           {isLoading ? (

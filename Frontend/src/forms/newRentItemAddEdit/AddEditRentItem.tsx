@@ -126,7 +126,7 @@ const AddEditRentItemForm = ({ handleClose, rentItemId }: AddMaterialFormProps) 
       <div className="modal-content">
         <div className="modal-header">
           <h5 className="modal-title"> Add New Rent Item</h5>
-          <button type="button" onClick={handleFormClose}>
+          <button className='icon-button' type="button" onClick={handleFormClose}>
             X
           </button>
         </div>
