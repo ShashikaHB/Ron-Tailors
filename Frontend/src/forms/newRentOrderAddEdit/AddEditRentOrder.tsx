@@ -9,12 +9,13 @@ import { FaSearch } from 'react-icons/fa';
 import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { ColDef } from 'ag-grid-community';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
 import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
 import RHFDatePicker from '../../components/customFormComponents/customDatePicker/RHFDatePricker';
 import PaymentType from '../../enums/PaymentType';
-import { RentOrderSchema } from '../formSchemas/rentOrderSchema';
-import { useAddNewRentOrderMutation, useLazySearchCustomerQuery } from '../../redux/features/orders/orderApiSlice';
+import { defaultRentOrderValues, RentOrderSchema } from '../formSchemas/rentOrderSchema';
+import { useLazySearchCustomerQuery } from '../../redux/features/orders/orderApiSlice';
 import { ApiResponseError } from '../../types/common';
 import { useLazySearchRentItemQuery } from '../../redux/features/product/productApiSlice';
 import { RentItemDetails } from '../../types/rentItem';
@@ -22,6 +23,7 @@ import { RentItemDetailTypes } from '../../enums/RentItemDetails';
 import MemoizedTable from '../../components/agGridTable/Table';
 import RentItemDetailsRenderer from '../../components/agGridTable/customComponents/RentItemDetailsRenderer';
 import ProductType from '../../enums/ProductType';
+import { useAddNewRentOrderMutation } from '../../redux/features/rentOrder/rentOrderApiSlice';
 
 const salesPeople = [
   {
@@ -97,6 +99,11 @@ const NewRentOut = () => {
     { headerName: '', field: 'action' },
   ];
 
+  const defaultColDef: ColDef = {
+    flex: 1,
+    resizable: true,
+  };
+
   const handleSearchCustomer = () => {
     triggerCustomerSearch(customerSearchQuery);
   };
@@ -108,6 +115,13 @@ const NewRentOut = () => {
     setRowData((prev) => [...prev, rentItemDetails]);
     setRentItemDetails(initialRentItemDetails);
     setProductSearchQuery('');
+  };
+
+  const handleResetRentOrder = () => {
+    setRentItemDetails(initialRentItemDetails);
+    setRowData([]);
+    reset(defaultRentOrderValues);
+    setCustomerSearchQuery('');
   };
 
   const handleRentItemDetailsChange = (key: string, value: string | number) => {
@@ -124,6 +138,12 @@ const NewRentOut = () => {
       default:
         toast.error(`No key found for ${key} in Rent item details`);
         break;
+    }
+  };
+  const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (event.target instanceof HTMLInputElement) {
+      const value = event.target.valueAsNumber;
+      handleRentItemDetailsChange(RentItemDetailTypes.amount, value);
     }
   };
 
@@ -222,8 +242,7 @@ const NewRentOut = () => {
         } else {
           const newOrderId = response.data.orderId;
           toast.success('New order Added.');
-          reset();
-          window.open(`http://localhost:8000/api/v1/invoice/${newOrderId}`, '_blank');
+          handleResetRentOrder();
         }
       }
     } catch (error) {
@@ -372,12 +391,7 @@ const NewRentOut = () => {
                       />
                     </div>
                     <div className="col-2">
-                      <TextField
-                        label="Amount"
-                        type="number"
-                        value={rentItemDetails.amount}
-                        onChange={(e) => handleRentItemDetailsChange(RentItemDetailTypes.amount, e.target.value)}
-                      />
+                      <TextField label="Amount" type="number" value={rentItemDetails.amount} onChange={(e) => handleAmountChange(e)} />
                     </div>
                   </div>
                 </div>
@@ -407,7 +421,7 @@ const NewRentOut = () => {
           <div className="col-6">
             <div className="card  h-100">
               <div className="card-body">
-                <MemoizedTable<RentItemDetails> rowData={rowData} colDefs={colDefs} pagination={false} />
+                <MemoizedTable<RentItemDetails> rowData={rowData} colDefs={colDefs} defaultColDef={defaultColDef} pagination={false} />
               </div>
             </div>
           </div>

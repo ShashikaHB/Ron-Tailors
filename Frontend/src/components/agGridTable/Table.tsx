@@ -4,13 +4,13 @@
  * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
-import { ColDef } from 'ag-grid-community';
+import { ColDef, GridReadyEvent } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 // React Grid Logic
 import 'ag-grid-community/styles/ag-grid.css';
 // Core CSS
 import 'ag-grid-community/styles/ag-theme-quartz.css';
-import { memo, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import ProductRenderer from './customComponents/ProductRenderer';
 import ActionButtons from './customComponents/ActionButtons';
 
@@ -31,6 +31,16 @@ const Table = <T,>({ rowData, colDefs, defaultColDef, pagination }: TableProps<T
     actionButtons: ActionButtons,
   };
 
+  const onGridReady = (params: GridReadyEvent) => {
+    params.api.sizeColumnsToFit();
+  };
+
+  useEffect(() => {
+    if (gridRef.current && gridRef.current.api) {
+      gridRef.current.api.sizeColumnsToFit();
+    }
+  }, [rowData]);
+
   return (
     <div className="ag-theme-quartz h-100">
       <AgGridReact<T>
@@ -40,6 +50,7 @@ const Table = <T,>({ rowData, colDefs, defaultColDef, pagination }: TableProps<T
         defaultColDef={defaultColDef}
         pagination={pagination ?? true}
         components={components}
+        onGridReady={onGridReady}
       />
     </div>
   );

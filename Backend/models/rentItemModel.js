@@ -24,7 +24,7 @@ const rentItemSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Rented', 'Available'],
+    enum: ['Not Returned', 'Available'],
     default: 'Available'
   }
 });

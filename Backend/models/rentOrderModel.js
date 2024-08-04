@@ -70,6 +70,11 @@ const rentOrderSchema = new mongoose.Schema({
     type: String,
     enum: ["NIC", "Deposit"],
   },
+  orderStatus: {
+    type: String,
+    enum: ['Completed','AdvancePaid','Incomplete'],
+    default: 'Incomplete'
+  }
 });
 
 rentOrderSchema.plugin(AutoIncrement, {

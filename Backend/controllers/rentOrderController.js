@@ -88,14 +88,14 @@ export const getAllOrders = asyncHandler(async (req, res) => {
   });
 });
 
-export const getSingleRentOrder = asyncHandler(async (req, res) => {
+export const searchSingleOrder = asyncHandler(async (req, res) => {
     const {rentItemId} = req.params
 
     if(!rentItemId) {
         throw new Error('Rent order Id not found')
     }
     
-    const rentOrder = await RentOrder.find({'rentOrderDetails.rentItemId': rentItemId})
+    const rentOrder = await RentOrder.findOne({'rentOrderDetails.rentItemId': rentItemId})
       .select("-_id -__v")
       .populate({
         path: "customer",

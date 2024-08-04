@@ -13,6 +13,32 @@ import { ApiGetRentOrder } from '../../../types/rentOrder';
 
 export const rentOutApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
+    getSingleRentOrder: builder.query<ApiGetRentOrder, string>({
+      query: (rentOrderId: string) => ({
+        url: `/rentOrder/${rentOrderId}`,
+        method: 'GET',
+      }),
+      providesTags: (result, error, args) => (result ? [{ type: 'RentOrder', id: args?.toString() }] : []),
+      transformResponse: (res: ApiResponse<ApiGetRentOrder>): any => {
+        if (!res.success) {
+          toast.error('Material data fetching failed!');
+        }
+        return { ...res.data, variant: 'edit' };
+      },
+    }),
+    getAllRentOrders: builder.query<ApiGetRentOrder[], void>({
+      query: () => ({
+        url: `/rentOrder`,
+        method: 'GET',
+      }),
+      providesTags: (result, error, args) => (result ? [{ type: 'RentOrder', id: args?.toString() }] : []),
+      transformResponse: (res: ApiResponse<ApiGetRentOrder[]>): any => {
+        if (!res.success) {
+          toast.error('Material data fetching failed!');
+        }
+        return res.data;
+      },
+    }),
     addNewRentOrder: builder.mutation({
       query: (newRentOrder) => ({
         url: '/rentOrder',
@@ -29,22 +55,9 @@ export const rentOutApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: ['RentOrder'],
     }),
-    getSingleRentOrder: builder.query<ApiGetRentOrder, string>({
-      query: (rentOrderId: string) => ({
-        url: `/rentOrder/${rentOrderId}`,
-        method: 'GET',
-      }),
-      providesTags: (result, error, args) => (result ? [{ type: 'RentOrder', id: args?.toString() }] : []),
-      transformResponse: (res: ApiResponse<ApiGetRentOrder>): any => {
-        if (!res.success) {
-          toast.error('Material data fetching failed!');
-        }
-        return { ...res.data, variant: 'edit' };
-      },
-    }),
     searchRentOrderByItem: builder.query<ApiGetRentOrder, string>({
       query: (rentItemId: string) => ({
-        url: `/rentOrder/${rentItemId}`,
+        url: `/rentOrder/searchItem/${rentItemId}`,
         method: 'GET',
       }),
       providesTags: (result, error, args) => (result ? [{ type: 'RentOrder', id: args?.toString() }] : []),
@@ -85,4 +98,4 @@ export const rentOutApiSlice = apiSlice.injectEndpoints({
   }),
 });
 
-export const { useAddNewRentOrderMutation, useLazyGetSingleRentOrderQuery, useLazySearchRentOrderByItemQuery } = rentOutApiSlice;
+export const { useAddNewRentOrderMutation, useLazyGetSingleRentOrderQuery, useLazySearchRentOrderByItemQuery, useGetAllRentOrdersQuery } = rentOutApiSlice;

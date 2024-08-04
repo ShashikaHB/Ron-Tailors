@@ -4,11 +4,11 @@
  * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
-export enum ProductStatus {
-  NotStarted = 'Not Started',
-  CuttingStarted = 'Cutting Started',
-  CuttingDone = 'Cutting Done',
-  TailoringStarted = 'Tailoring Started',
-  TailoringDone = 'Tailoring Done',
-  ReadyMade = 'Ready Made',
+
+enum OrderStatusTypes {
+  complete = 'Complete',
+  advancePaid = 'AdvancePaid',
+  incomplete = 'Incomplete',
 }
+
+export default OrderStatusTypes;

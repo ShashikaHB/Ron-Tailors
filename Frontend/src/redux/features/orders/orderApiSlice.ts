@@ -14,6 +14,32 @@ import { ApiGetRentItem } from '../../../types/rentItem';
 
 export const orderApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
+    getAllSalesOrders: builder.query<any, string>({
+      query: () => ({
+        url: '/salesOrder',
+        method: 'GET',
+      }),
+      providesTags: ['SalesOrder'],
+      transformResponse: (res: ApiResponse<any[]>): any => {
+        if (!res.success) {
+          toast.error('Material data fetching failed!');
+        }
+        return res.data;
+      },
+    }),
+    getSingleSalesOrder: builder.query<ApiGetRentItem, string>({
+      query: (rentItemId: string) => ({
+        url: `/rentOrder/${rentItemId}`,
+        method: 'GET',
+      }),
+      providesTags: (result, error, args) => (result ? [{ type: 'RentOrder', id: args?.toString() }] : []),
+      transformResponse: (res: ApiResponse<ApiGetRentItem>): any => {
+        if (!res.success) {
+          toast.error('Material data fetching failed!');
+        }
+        return { ...res.data, variant: 'edit' };
+      },
+    }),
     addNewOrder: builder.mutation({
       query: (newOrder) => ({
         url: '/salesOrder',
@@ -24,28 +50,10 @@ export const orderApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res: ApiResponse<any>) => {
         if (!res.success) {
           toast.error('Order creation failed.');
-        } else {
-          toast.success('New order created.');
-          return { ...res.data };
         }
+        return { ...res.data };
       },
-      invalidatesTags: ['Orders'],
-    }),
-    addNewRentOrder: builder.mutation({
-      query: (newRentOrder) => ({
-        url: '/rentOrder',
-        method: 'POST',
-        body: { ...newRentOrder },
-      }),
-      transformResponse: (res: ApiResponse<any>) => {
-        if (!res.success) {
-          toast.error('Rent order creation failed.');
-        } else {
-          toast.success('New rent order created.');
-          return { ...res.data };
-        }
-      },
-      invalidatesTags: ['RentOrder'],
+      invalidatesTags: ['SalesOrder'],
     }),
     searchCustomer: builder.query<CustomerSchema, string>({
       query: (customerQuery) => ({
@@ -58,19 +66,6 @@ export const orderApiSlice = apiSlice.injectEndpoints({
           toast.error('Customer search failed!');
         }
         return res.data as CustomerSchema;
-      },
-    }),
-    getSingleRentOrder: builder.query<ApiGetRentItem, string>({
-      query: (rentItemId: string) => ({
-        url: `/rentOrder/${rentItemId}`,
-        method: 'GET',
-      }),
-      providesTags: (result, error, args) => (result ? [{ type: 'RentOrder', id: args?.toString() }] : []),
-      transformResponse: (res: ApiResponse<ApiGetRentItem>): any => {
-        if (!res.success) {
-          toast.error('Material data fetching failed!');
-        }
-        return { ...res.data, variant: 'edit' };
       },
     }),
     updateSingleMaterial: builder.mutation<ApiResponse<string>, MaterialSchema>({
@@ -103,4 +98,4 @@ export const orderApiSlice = apiSlice.injectEndpoints({
   }),
 });
 
-export const { useLazySearchCustomerQuery, useAddNewOrderMutation, useAddNewRentOrderMutation, useLazyGetSingleRentOrderQuery } = orderApiSlice;
+export const { useLazySearchCustomerQuery, useAddNewOrderMutation, useGetAllSalesOrdersQuery } = orderApiSlice;

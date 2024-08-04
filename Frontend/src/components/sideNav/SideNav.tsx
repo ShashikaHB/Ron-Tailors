@@ -50,7 +50,7 @@ export const sideBarConfig: SideBarConfig[] = [
     icon: <SaleOrderIcon />,
     children: [
       {
-        title: 'New Order',
+        title: 'New Sale Order',
         icon: <SaleOrderIcon />,
         path: '/secured/addSalesOrder',
       },

@@ -15,7 +15,7 @@ const NewOrder = () => {
       title: 'Rent Out',
       subtitle: 'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
       image: rentOut,
-      link: '/secured/addRentOutOrder',
+      link: '/secured/addRentOrder',
     },
     {
       title: 'Rent Return',
