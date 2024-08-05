@@ -9,6 +9,7 @@ import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import { TextField } from '@mui/material';
 import { ColDef } from 'ag-grid-community';
+import { RiCloseLargeLine } from '@remixicon/react';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
 import { ProductSchema } from '../formSchemas/productSchema';
 import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
@@ -18,7 +19,9 @@ import Loader from '../../components/loderComponent/Loader';
 import RHFSwitch from '../../components/customFormComponents/customSwitch/RHFSwitch';
 import ProductType from '../../enums/ProductType';
 import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
-import { resetMaterials, selectMaterial, selectType, setMaterials } from '../../redux/features/product/productSlice';
+import {
+  resetMaterials, selectMaterial, selectType, setMaterials,
+} from '../../redux/features/product/productSlice';
 import { MaterialNeededforProduct } from '../../types/material';
 import Table from '../../components/agGridTable/Table';
 import { useAddNewProductMutation } from '../../redux/features/product/productApiSlice';
@@ -30,7 +33,9 @@ type AddEditProductProps = {
 };
 
 const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
-  const { control, unregister, watch, reset, setValue, handleSubmit, getValues, clearErrors } = useFormContext<ProductSchema>();
+  const {
+    control, unregister, watch, reset, setValue, handleSubmit, getValues, clearErrors,
+  } = useFormContext<ProductSchema>();
 
   const productType = useAppSelector(selectType);
   const selectedMaterials = useAppSelector(selectMaterial);
@@ -92,7 +97,7 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
       } else {
         const response = await addProduct(data);
         if (response.error) {
-          toast.error(`Material Adding Failed`);
+          toast.error('Material Adding Failed');
           console.log(response.error);
         } else {
           toast.success('New material Added.');
@@ -128,9 +133,13 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
     <div className="modal-dialog modal-dialog-centered">
       <div className="modal-content">
         <div className="modal-header">
-          <h5 className="modal-title"> Add New {productType}</h5>
+          <h5 className="modal-title">
+            {' '}
+            Add New
+            {productType}
+          </h5>
           <button className="icon-button" onClick={handleClosePopup}>
-            X
+            <RiCloseLargeLine size={18} />
           </button>
         </div>
         <div className="modal-body">
@@ -161,23 +170,19 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
                     type="number"
                     label="Material Code"
                     value={material.material}
-                    onChange={(e) =>
-                      setMaterial((prev) => ({
-                        ...prev,
-                        material: Number(e.target.value),
-                      }))
-                    }
+                    onChange={(e) => setMaterial((prev) => ({
+                      ...prev,
+                      material: Number(e.target.value),
+                    }))}
                   />
                   <TextField
                     type="number"
                     label="Units needed"
                     value={material.unitsNeeded}
-                    onChange={(e) =>
-                      setMaterial((prev) => ({
-                        ...prev,
-                        unitsNeeded: Number(e.target.value),
-                      }))
-                    }
+                    onChange={(e) => setMaterial((prev) => ({
+                      ...prev,
+                      unitsNeeded: Number(e.target.value),
+                    }))}
                   />
                 </div>
                 <button className="primary-button" type="button" onClick={() => handleMaterialAdd()}>

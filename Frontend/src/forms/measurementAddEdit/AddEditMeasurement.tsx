@@ -7,6 +7,7 @@
 import { useEffect } from 'react';
 import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
 import { TextField } from '@mui/material';
+import { RiCloseLargeLine } from '@remixicon/react';
 import { toast } from 'sonner';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
 import { MeasurementSchema } from '../formSchemas/measurementSchema';
@@ -114,7 +115,7 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
         <div className="modal-header">
           <h5 className="modal-title">Add Measurements to {productData?.type}</h5>
           <button className='icon-button' type="button" onClick={handleClose}>
-            X
+          <RiCloseLargeLine size={18} />
           </button>
         </div>
         <div className="modal-body d-flex h-100">

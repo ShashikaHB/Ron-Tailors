@@ -7,6 +7,7 @@
 import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import { useEffect } from 'react';
+import { RiCloseLargeLine } from '@remixicon/react';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
 import { defaultRentItemValues, RentItemSchema } from '../formSchemas/rentItemSchema';
 import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
@@ -127,7 +128,7 @@ const AddEditRentItemForm = ({ handleClose, rentItemId }: AddMaterialFormProps) 
         <div className="modal-header">
           <h5 className="modal-title"> Add New Rent Item</h5>
           <button className='icon-button' type="button" onClick={handleFormClose}>
-            X
+          <RiCloseLargeLine size={18} />
           </button>
         </div>
         <div className="modal-body">
