@@ -11,8 +11,8 @@ const CustomerRenderer = (params: ICellRendererParams) => {
   const { name, mobile } = params?.data?.customer ?? '';
   return (
     <div>
-      <p>{name}</p>
-      <p>Mobile : {mobile}</p>
+      <p className='font-weight-bold'>Name: {name}</p>
+      <p>Mobile: {mobile}</p>
     </div>
   );
 };
