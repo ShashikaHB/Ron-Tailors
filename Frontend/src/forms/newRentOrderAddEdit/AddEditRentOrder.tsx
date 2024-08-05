@@ -68,7 +68,9 @@ const paymentOptions = [
 ];
 
 const NewRentOut = () => {
-  const { control, unregister, watch, reset, setValue, handleSubmit, getValues, clearErrors } = useFormContext<RentOrderSchema>();
+  const {
+    control, unregister, watch, reset, setValue, handleSubmit, getValues, clearErrors,
+  } = useFormContext<RentOrderSchema>();
 
   const [triggerCustomerSearch, { data: customer, error: customerSearchError, isLoading }] = useLazySearchCustomerQuery();
 
@@ -261,7 +263,7 @@ const NewRentOut = () => {
         console.log(data);
         const response = await addRentOrder(data);
         if (response.error) {
-          toast.error(`Order Adding Failed`);
+          toast.error('Order Adding Failed');
           console.log(response.error);
         } else {
           const newOrderId = response.data.orderId;

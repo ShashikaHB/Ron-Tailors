@@ -39,46 +39,50 @@ const LoginPage = () => {
       <Loader />
     </div>
   ) : (
-    <div className="d-flex gap-4 flex-column">
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="inputGroup gap-4 d-flex flex-column mt-4">
-          <TextField
-            id="mobile"
-            label="Mobile"
-            variant="outlined"
-            placeholder="Enter 10 digit mobile number"
-            fullWidth
-            required
-            type="number"
-            error={isError}
-            value={mobile}
-            onChange={(e) => setMobile(e.target.value)}
-          />
-          <TextField
-            id="password"
-            label="Password"
-            variant="outlined"
-            placeholder="Enter password"
-            fullWidth
-            required
-            type="password"
-            value={password}
-            error={isError}
-            helperText={isError ? 'User name or password is invalid' : null}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <div className="w-100 mt-3">
-          <button className="primary-button w-100" type="submit">
-            Login
-          </button>
-        </div>
-      </form>
+    <div className="d-flex gap-4 flex-column justify-content-between h-100">
       <div>
-        <p>
-          Don't have account? <Link to="/register">Sign Up</Link>
-        </p>
+        <h2>Sign in</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="inputGroup gap-3 d-flex flex-column mt-4">
+            <TextField
+              id="mobile"
+              label="Mobile"
+              variant="outlined"
+              placeholder="Enter 10 digit mobile number"
+              fullWidth
+              required
+              type="number"
+              error={isError}
+              value={mobile}
+              onChange={(e) => setMobile(e.target.value)}
+            />
+            <TextField
+              id="password"
+              label="Password"
+              variant="outlined"
+              placeholder="Enter password"
+              fullWidth
+              required
+              type="password"
+              value={password}
+              error={isError}
+              helperText={isError ? 'User name or password is invalid' : null}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <div className="w-100 mt-5">
+            <button className="primary-button w-100" type="submit">
+              Login
+            </button>
+          </div>
+        </form>
+      </div>
+      <div className="d-flex justify-content-center">
+        <small>
+          Don't have account?
+          {' '}
+          <Link to="/register">Sign Up</Link>
+        </small>
       </div>
     </div>
   );

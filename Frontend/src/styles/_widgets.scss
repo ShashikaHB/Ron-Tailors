@@ -133,9 +133,24 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-
+    background-image: url('../assets/images/login-img.jpg');
+    background-size: cover;
+    .login-background{
+      background: rgba(0, 0, 0, 0.5);
+      height: 100%;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
     .login-body {
-      width: 400px;
+      width: 500px;
+      background-color: #fff;
+      padding: 58px 40px;
+      border-radius: 16px;
+    }
+    .login-logo{
+      height: 60px;
     }
   }
 
