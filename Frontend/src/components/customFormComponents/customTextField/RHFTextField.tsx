@@ -25,7 +25,7 @@ const RHFTextField = <T extends FieldValues>({ name, ...props }: Props<T>) => {
           helperText={error?.message}
           error={!!error}
           size="small"
-          InputLabelProps={{ shrink: field.value === 0 ? true : field.value }}
+          //   InputLabelProps={{ shrink: Boolean(field.value) || field.value === 0 }}
           value={field.value ?? ''}
         />
       )}

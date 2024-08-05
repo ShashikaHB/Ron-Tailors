@@ -10,18 +10,19 @@ import { DevTool } from '@hookform/devtools';
 import { useCallback, useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ColDef } from 'ag-grid-community';
-import { CustomCellRendererProps } from 'ag-grid-react';
+import { toast } from 'sonner';
 import AddEditRentItemForm from '../forms/newRentItemAddEdit/AddEditRentItem';
 import { defaultRentItemValues, rentItemSchema, RentItemSchema } from '../forms/formSchemas/rentItemSchema';
 import MemoizedTable from '../components/agGridTable/Table';
 import { RentItemTableSchema } from '../types/rentItem';
-import { useGetAllRentItemsQuery } from '../redux/features/rentItem/rentItemApiSlice';
-import ActionButtons from '../components/agGridTable/customComponents/ActionButtons';
+import { useDeleteRentItemMutation, useGetAllRentItemsQuery } from '../redux/features/rentItem/rentItemApiSlice';
 import { useAppDispatch } from '../redux/reduxHooks/reduxHooks';
 import { setSelectedRentItemId } from '../redux/features/orders/orderSlice';
+import ActionButtonNew from '../components/agGridTable/customComponents/ActionButtonNew';
 
 const AddRentItem = () => {
   const { data: rentItems, isError, isLoading, error } = useGetAllRentItemsQuery();
+  const [deleteRentItem, { isError: deleteError }] = useDeleteRentItemMutation();
   const methods = useForm<RentItemSchema>({
     mode: 'all',
     resolver: zodResolver(rentItemSchema),
@@ -34,6 +35,10 @@ const AddRentItem = () => {
     dispatch(setSelectedRentItemId(rentItemId));
   }, []);
 
+  const handleDelete = (id: number) => {
+    deleteRentItem(id);
+  };
+
   const initialColDefs: ColDef<RentItemTableSchema>[] = [
     { headerName: 'Barcode', field: 'rentItemId' },
     { headerName: 'Description', field: 'description' },
@@ -44,22 +49,28 @@ const AddRentItem = () => {
     {
       headerName: 'Actions',
       field: 'action',
-      cellRenderer: ActionButtons,
-      cellRendererParams: (params: CustomCellRendererProps) => ({
-        materialId: params.data?.rentItemId,
-        handleOpen,
-      }),
+      cellRenderer: ActionButtonNew,
+      cellRendererParams: {
+        handleEdit: handleOpen,
+        handleDelete,
+        idType: 'rentItemId',
+      },
     },
   ];
   const [rowData, setRowData] = useState<RentItemTableSchema[]>([]);
   const [colDefs, setColDefs] = useState<ColDef<RentItemTableSchema>[]>(initialColDefs);
+
+  const [orderSearchQuery, setOrderSearchQuery] = useState('');
 
   const defaultColDef: ColDef = {
     flex: 1,
     resizable: true,
   };
 
-  const handlePopupClose = useCallback(() => setOpen(false), []);
+  const handlePopupClose = useCallback(() => {
+    setOpen(false);
+    dispatch(setSelectedRentItemId(0));
+  }, []);
 
   useEffect(() => {
     if (rentItems) {
@@ -69,7 +80,25 @@ const AddRentItem = () => {
       }));
       setRowData(transformedData);
     }
-  }, [rentItems]);
+    if (isError || deleteError) {
+      toast.error('Rent Items fetching failed!');
+    }
+  }, [rentItems, isError, deleteError]);
+
+  useEffect(() => {
+    if (orderSearchQuery !== '') {
+      const lowercasedFilter = orderSearchQuery.toLowerCase();
+      const filteredRowData = rentItems?.filter(
+        (item: any) =>
+          item.rentItemId.toString().toLowerCase().includes(lowercasedFilter) ||
+          item.color.toLowerCase().includes(lowercasedFilter) ||
+          item.size.toLowerCase().includes(lowercasedFilter)
+      );
+      setRowData(filteredRowData);
+    } else {
+      setRowData(rentItems);
+    }
+  }, [orderSearchQuery]);
 
   return (
     <div className="h-100 d-flex flex-column gap-3">
@@ -78,8 +107,8 @@ const AddRentItem = () => {
           <TextField
             label="Barcode"
             placeholder="Search the product by Barcode"
-            //   value={customerSearchQuery}
-            //   onChange={(e) => setCustomerSearchQuery(e.target.value)}
+            value={orderSearchQuery}
+            onChange={(e) => setOrderSearchQuery(e.target.value)}
           />
         </div>
         <div>

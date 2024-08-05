@@ -6,7 +6,7 @@
  */
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 import ErrorPage from '../pages/ErrorPage';
-import SignInSignUpLayout from '../pageLayouts/SIgnInSignUpLayout';
+import SignInSignUpLayout from '../pageLayouts/SignInSignUpLayout';
 import RegisterPage from '../pages/RegisterPage';
 import LoginPage from '../pages/LoginPage';
 import RootLayout from '../pageLayouts/RootLayout';

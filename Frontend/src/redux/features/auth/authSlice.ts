@@ -12,6 +12,7 @@ import { RootState } from '../../store/store';
 const initialState: UserState = {
   user: {} as User,
   accessToken: '',
+  allUsers: [],
 };
 
 const authSlice = createSlice({
@@ -27,12 +28,16 @@ const authSlice = createSlice({
       state.user = {} as User;
       state.accessToken = '';
     },
+    setAllUsers: (state, action: PayloadAction<User[]>) => {
+      state.allUsers = action.payload;
+    },
   },
 });
 
 export const selectUser = (state: RootState) => state.auth.user;
+export const allUsers = (state: RootState) => state.auth.allUsers;
 export const selectToken = (state: RootState) => state.auth.accessToken;
 
-export const { setCredentials, logOut } = authSlice.actions;
+export const { setCredentials, logOut, setAllUsers } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -12,6 +12,12 @@ import rentOut from '../assets/card-images/rent-out.svg';
 const NewOrder = () => {
   const cardConfig: CardConfig[] = [
     {
+      title: 'Sales Order',
+      subtitle: 'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
+      image: sales,
+      link: '/secured/addSalesOrder',
+    },
+    {
       title: 'Rent Out',
       subtitle: 'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
       image: rentOut,
@@ -22,12 +28,6 @@ const NewOrder = () => {
       subtitle: 'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
       image: rentOut,
       link: '/secured/rentReturn',
-    },
-    {
-      title: 'Sales Order',
-      subtitle: 'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
-      image: sales,
-      link: '/secured/addSalesOrder',
     },
   ];
   return (

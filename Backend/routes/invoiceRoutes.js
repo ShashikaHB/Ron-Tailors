@@ -1,8 +1,9 @@
 import express from "express";
-import { getInvoice } from "../controllers/invoiceController.js";
+import { getRentInvoice, getSalesInvoice } from "../controllers/invoiceController.js";
 
 const router = express.Router();
 
-router.get("/:orderId", getInvoice);
+router.get("/salesOrder/:orderId", getSalesInvoice);
+router.get("/rentOrder/:orderId", getRentInvoice);
 
 export default router;

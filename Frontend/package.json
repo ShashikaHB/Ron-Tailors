@@ -19,6 +19,7 @@
     "@mui/styled-engine-sc": "^6.0.0-alpha.18",
     "@mui/x-date-pickers": "^7.9.0",
     "@reduxjs/toolkit": "^2.2.5",
+    "@remixicon/react": "^4.2.0",
     "@tanstack/react-table": "^8.17.3",
     "ag-grid-community": "^32.0.0",
     "ag-grid-react": "^32.0.0",
@@ -40,6 +41,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/node": "^22.1.0",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@typescript-eslint/eslint-plugin": "^7.17.0",

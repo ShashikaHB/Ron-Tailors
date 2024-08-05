@@ -7,11 +7,12 @@
 import { TextField } from '@mui/material';
 import { FaSearch } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
+import { format } from 'date-fns';
 import { useLazySearchRentOrderByItemQuery } from '../redux/features/rentOrder/rentOrderApiSlice';
 import { ApiGetRentOrder } from '../types/rentOrder';
 
 const NewRentReturn = () => {
-  const [triggerSearchRentOrder, { data: rentOrderData }] = useLazySearchRentOrderByItemQuery();
+  const [triggerSearchRentOrder, { data: rentOrderData }] = useLazySearchRentOrderByItemQuery({});
   const [rentItemSearchQuery, setRentItemSearchQuery] = useState('');
   const [rentOrderDetails, setRentOrderDetails] = useState<ApiGetRentOrder>();
 
@@ -23,7 +24,7 @@ const NewRentReturn = () => {
 
   return (
     <div>
-      <div className='d-flex flex-column gap-3'>
+      <div className="d-flex flex-column gap-3">
         <div className="row">
           <div className="col-6 d-flex align-items-end gap-2">
             <TextField
@@ -45,11 +46,15 @@ const NewRentReturn = () => {
               <div className="card-header">
                 <h5>Customer Details</h5>
               </div>
-              <div className="card-body">
-                <p>Customer : Mr.Isuru</p>
-                <p>Rent Date : 2024-08-02</p>
-                <p>Return Date : 2024-08-03</p>
-              </div>
+              {rentOrderDetails ? (
+                <div className="card-body">
+                  <p>Customer :{rentOrderDetails?.customer?.name}</p>
+                  <p>Rent Date :{format(rentOrderDetails?.rentDate as Date, 'MM/dd/yyyy')}</p>
+                  <p>Return Date :{format(rentOrderDetails?.returnDate as Date, 'MM/dd/yyyy')}</p>
+                </div>
+              ) : (
+                <div className="card-body">No data available</div>
+              )}
             </div>
           </div>
           <div className="col-5">
@@ -57,11 +62,20 @@ const NewRentReturn = () => {
               <div className="card-header">
                 <h5>Product Details</h5>
               </div>
-              <div className="card-body">
-                <p>Description: SB/1 Bt/Normal</p>
-                <p>Color: Check Brown</p>
-                <p>Size: 36</p>
-              </div>
+              {rentOrderData ? (
+                rentOrderData?.rentOrderDetails?.map((item, index) => (
+                  <div key={index} className="card-body">
+                    <p>Description:{item.description}</p>
+                    <p>Color: {item.color}</p>
+                    <p>Size: {item.size}</p>
+                    {rentOrderData?.rentOrderDetails?.length > 1 && rentOrderData?.rentOrderDetails?.length - 1 !== index && (
+                      <div style={{ borderTop: '1px solid black' }} />
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="card-body">No data Available</div>
+              )}
             </div>
           </div>
         </div>
@@ -70,7 +84,7 @@ const NewRentReturn = () => {
             <button type="button" className="secondary-button">
               Cancel
             </button>
-            <button type="button" className="primary-button">
+            <button type="button" className="primary-button" disabled={!rentOrderData}>
               Rent Return
             </button>
           </div>

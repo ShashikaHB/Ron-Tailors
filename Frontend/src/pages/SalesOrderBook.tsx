@@ -48,6 +48,12 @@ const SalesOrderBook = () => {
   const [rowData, setRowData] = useState<any[]>([]);
   const [colDefs, setColDefs] = useState<ColDef<any>[]>(initialColDefs);
 
+  const [orderSearchQuery, setOrderSearchQuery] = useState('');
+
+  const handleNavigateToRentOrder = (rentOrderId?: number) => {
+    nagivate('/secured/addSalesOrder');
+  };
+
   useEffect(() => {
     if (salesOrders) {
       const transformedRentOrders = salesOrders.map((item: any) => ({ ...item, action: 'action' }));
@@ -58,9 +64,20 @@ const SalesOrderBook = () => {
     }
   }, [salesOrders, salesOrderError]);
 
-  const handleNavigateToRentOrder = (rentOrderId?: number) => {
-    nagivate('/secured/addSalesOrder');
-  };
+  useEffect(() => {
+    if (orderSearchQuery !== '') {
+      const lowercasedFilter = orderSearchQuery.toLowerCase();
+      const filteredRowData = salesOrders.filter(
+        (item: any) =>
+          item.orderId.toString().toLowerCase().includes(lowercasedFilter) ||
+          item.customer.name.toLowerCase().includes(lowercasedFilter) ||
+          item.customer.mobile.toLowerCase().includes(lowercasedFilter)
+      );
+      setRowData(filteredRowData);
+    } else {
+      setRowData(salesOrders);
+    }
+  }, [orderSearchQuery]);
 
   return (
     <div className="h-100 d-flex flex-column gap-3">
@@ -69,8 +86,8 @@ const SalesOrderBook = () => {
           <TextField
             label="Search Order"
             placeholder="Search by Barcode or contact or orderId"
-            //   value={customerSearchQuery}
-            //   onChange={(e) => setCustomerSearchQuery(e.target.value)}
+            value={orderSearchQuery}
+            onChange={(e) => setOrderSearchQuery(e.target.value)}
           />
         </div>
         <div>

@@ -70,7 +70,25 @@ export const rentItemApiSlice = apiSlice.injectEndpoints({
         { type: 'RentItem' },
       ],
     }),
+    deleteRentItem: builder.mutation<ApiGetRentItem[], any>({
+      query: (itemId) => ({
+        url: `/rentItem/${itemId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['RentItem'],
+      transformResponse: (res: ApiResponse<ApiGetRentItem[]>) => {
+        if (!res.success) {
+          return [];
+        }
+        toast.success('Rent Item Deleted successfully!');
+        return (res.data ?? []).map((item) => ({
+          ...item,
+          variant: 'edit' as const,
+        }));
+      },
+    }),
   }),
 });
 
-export const { useGetAllRentItemsQuery, useAddNewRentItemMutation, useUpdateSingleRentItemMutation, useLazyGetSingleRentItemQuery } = rentItemApiSlice;
+export const { useGetAllRentItemsQuery, useAddNewRentItemMutation, useUpdateSingleRentItemMutation, useLazyGetSingleRentItemQuery, useDeleteRentItemMutation } =
+  rentItemApiSlice;

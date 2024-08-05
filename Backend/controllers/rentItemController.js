@@ -110,8 +110,9 @@ export const deleteRentItem = asyncHandler(async (req, res) => {
   const deleteRentItem = await RentItem.findByIdAndDelete(rentItem._id);
 
   if (!deleteRentItem) {
-    throw new Error ("Rent Item deletion failed.")
+    throw new Error("Rent Item deletion failed.");
   }
+
   res.json({
     message: "RentItem Deleted Successfully.",
     success: true,
@@ -119,34 +120,34 @@ export const deleteRentItem = asyncHandler(async (req, res) => {
 });
 
 export const searchRentItem = asyncHandler(async (req, res) => {
-    const searchQuery = req.query.searchQuery;
-  
-    if (!searchQuery) {
-      res.status(400);
-      throw new Error("Search query parameter not provided.");
+  const searchQuery = req.query.searchQuery;
+
+  if (!searchQuery) {
+    res.status(400);
+    throw new Error("Search query parameter not provided.");
+  }
+
+  try {
+    // Construct the query to find customers by mobile or name
+    const rentItem = await RentItem.findOne({ rentItemId: Number(searchQuery) })
+      .lean()
+      .select("-_id -__v")
+      .exec();
+
+    if (!rentItem) {
+      res.status(404);
+      throw new Error("Rent Item not found.");
     }
-  
-    try {
-      // Construct the query to find customers by mobile or name
-      const rentItem = await RentItem.findOne({ rentItemId: Number(searchQuery) })
-        .lean()
-        .select("-_id -__v")
-        .exec();
-  
-      if (!rentItem) {
-        res.status(404);
-        throw new Error("Rent Item not found.");
-      }
-  
-      res.json({
-        message: "Rent Item data fetched successfully.",
-        success: true,
-        data: rentItem,
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        error: error.message,
-      });
-    }
-  });
+
+    res.json({
+      message: "Rent Item data fetched successfully.",
+      success: true,
+      data: rentItem,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});

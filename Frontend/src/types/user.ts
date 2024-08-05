@@ -15,4 +15,5 @@ export type User = {
 export type UserState = {
   user: User;
   accessToken: string;
+  allUsers: User[];
 };

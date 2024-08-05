@@ -1,54 +1,42 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { OrderSchema } from "../formSchemas/orderSchema";
-import { SubmitHandler, useFormContext, useWatch } from "react-hook-form";
-import RHFTextField from "../../components/customFormComponents/customTextField/RHFTextField";
-import { ProductSchema } from "../formSchemas/productSchema";
-import RHFDropDown from "../../components/customFormComponents/customDropDown/RHFDropDown";
-import { useGetAllUsersQuery } from "../../redux/features/user/userApiSlice";
-import { useRoleBasedOptions } from "../../utils/userUtils";
-import { Roles } from "../../enums/Roles";
-import Loader from "../../components/loderComponent/Loader";
-import { toast } from "sonner";
-import RHFSwitch from "../../components/customFormComponents/customSwitch/RHFSwitch";
-import { ProductType } from "../../enums/ProductType";
-import {
-  useAppDispatch,
-  useAppSelector,
-} from "../../redux/reduxHooks/reduxHooks";
-import {
-  resetMaterials,
-  selectMaterial,
-  selectType,
-  setMaterials,
-} from "../../redux/features/product/productSlice";
-import { MaterialNeededforProduct } from "../../types/material";
-import { TextField } from "@mui/material";
-import Table from "../../components/agGridTable/Table";
-import { ColDef } from "ag-grid-community";
-import { useAddNewProductMutation } from "../../redux/features/product/productApiSlice";
-import { setCreatedProducts } from "../../redux/features/orders/orderSlice";
+/* *
+ * Copyright 2024 Shark Dev (Pvt) Ltd. All rights reserved.
+ *
+ * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
+ * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
+ */
+import { useEffect, useState } from 'react';
+import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
+import { toast } from 'sonner';
+import { TextField } from '@mui/material';
+import { ColDef } from 'ag-grid-community';
+import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
+import { ProductSchema } from '../formSchemas/productSchema';
+import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
+import { useGetAllUsersQuery } from '../../redux/features/user/userApiSlice';
+import { Roles } from '../../enums/Roles';
+import Loader from '../../components/loderComponent/Loader';
+import RHFSwitch from '../../components/customFormComponents/customSwitch/RHFSwitch';
+import ProductType from '../../enums/ProductType';
+import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
+import { resetMaterials, selectMaterial, selectType, setMaterials } from '../../redux/features/product/productSlice';
+import { MaterialNeededforProduct } from '../../types/material';
+import Table from '../../components/agGridTable/Table';
+import { useAddNewProductMutation } from '../../redux/features/product/productApiSlice';
+import { setCreatedProducts } from '../../redux/features/orders/orderSlice';
+import { getUserRoleBasedOptions } from '../../utils/userUtils';
 
 type AddEditProductProps = {
   handleClose: () => void;
 };
 
 const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
-  const {
-    control,
-    unregister,
-    watch,
-    reset,
-    setValue,
-    handleSubmit,
-    getValues,
-    clearErrors,
-  } = useFormContext<ProductSchema>();
+  const { control, unregister, watch, reset, setValue, handleSubmit, getValues, clearErrors } = useFormContext<ProductSchema>();
 
   const productType = useAppSelector(selectType);
   const selectedMaterials = useAppSelector(selectMaterial);
   const dispatch = useAppDispatch();
 
-  const variant = useWatch({ control, name: "variant" });
+  const variant = useWatch({ control, name: 'variant' });
 
   const [material, setMaterial] = useState<MaterialNeededforProduct>({
     material: 0,
@@ -59,17 +47,17 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
 
   const { data: users = [], error, isLoading } = useGetAllUsersQuery();
 
-  const cuttersOptions = useRoleBasedOptions(users, Roles.Cutter);
-  const tailorOptions = useRoleBasedOptions(users, Roles.Tailor);
-  const measurerOptions = useRoleBasedOptions(users, Roles.SalesPerson);
+  const cuttersOptions = getUserRoleBasedOptions(users, Roles.Cutter);
+  const tailorOptions = getUserRoleBasedOptions(users, Roles.Tailor);
+  const measurerOptions = getUserRoleBasedOptions(users, Roles.SalesPerson);
 
   const colDefs: ColDef<MaterialNeededforProduct>[] = [
-    { headerName: "Id", field: "material" },
-    { headerName: "Units needed", field: "unitsNeeded" },
+    { headerName: 'Id', field: 'material' },
+    { headerName: 'Units needed', field: 'unitsNeeded' },
   ];
 
   if (error) {
-    toast.error("Error fetching users");
+    toast.error('Error fetching users');
   }
 
   const handleClear = () => {
@@ -92,7 +80,7 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
 
   const onSubmit: SubmitHandler<ProductSchema> = async (data) => {
     try {
-      if (variant === "edit") {
+      if (variant === 'edit') {
         // const response = await updateMaterial(data);
         // if (response.error) {
         //   toast.error(`Material Update Failed`);
@@ -107,7 +95,7 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
           toast.error(`Material Adding Failed`);
           console.log(response.error);
         } else {
-          toast.success("New material Added.");
+          toast.success('New material Added.');
           dispatch(setCreatedProducts(response.data));
           reset();
           dispatch(resetMaterials());
@@ -130,10 +118,10 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
   }, [watch]);
 
   useEffect(() => {
-    setValue("type", productType as ProductType);
+    setValue('type', productType as ProductType);
   }, [productType]);
   useEffect(() => {
-    setValue("materials", selectedMaterials as MaterialNeededforProduct[]);
+    setValue('materials', selectedMaterials as MaterialNeededforProduct[]);
   }, [selectedMaterials]);
 
   return (
@@ -141,7 +129,9 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
       <div className="modal-content">
         <div className="modal-header">
           <h5 className="modal-title"> Add New {productType}</h5>
-          <button className='icon-button' onClick={handleClosePopup}>X</button>
+          <button className="icon-button" onClick={handleClosePopup}>
+            X
+          </button>
         </div>
         <div className="modal-body">
           {isLoading ? (
@@ -152,51 +142,17 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="d-flex gap-4">
                 <div className="inputGroup">
-                  <RHFTextField<ProductSchema>
-                    label="Color"
-                    name="color"
-                  ></RHFTextField>
-                  <RHFTextField<ProductSchema>
-                    label="Style"
-                    name="style"
-                  ></RHFTextField>
-                  <RHFTextField<ProductSchema>
-                    label="Price"
-                    name="price"
-                    type="number"
-                  ></RHFTextField>
-                  <RHFTextField<ProductSchema>
-                    label="Number of Units"
-                    name="noOfUnits"
-                    type="number"
-                    disabled
-                  ></RHFTextField>
-                  <RHFSwitch<ProductSchema>
-                    name="isNewRentOut"
-                    label="New Rentout"
-                  ></RHFSwitch>
+                  <RHFTextField<ProductSchema> label="Color" name="color" />
+                  <RHFTextField<ProductSchema> label="Style" name="style" />
+                  <RHFTextField<ProductSchema> label="Price" name="price" type="number" />
+                  <RHFTextField<ProductSchema> label="Number of Units" name="noOfUnits" type="number" disabled />
+                  <RHFSwitch<ProductSchema> name="isNewRentOut" label="New Rentout" />
                 </div>
                 <div className="inputGroup">
-                  <RHFTextField<ProductSchema>
-                    label="Rent Price"
-                    name="rentPrice"
-                    type="number"
-                  ></RHFTextField>
-                  <RHFDropDown<ProductSchema>
-                    options={cuttersOptions}
-                    name="cutter"
-                    label="Cutter"
-                  ></RHFDropDown>
-                  <RHFDropDown<ProductSchema>
-                    options={tailorOptions}
-                    name="tailor"
-                    label="Tailor"
-                  ></RHFDropDown>
-                  <RHFDropDown<ProductSchema>
-                    options={measurerOptions}
-                    name="measurer"
-                    label="Measurer"
-                  ></RHFDropDown>
+                  <RHFTextField<ProductSchema> label="Rent Price" name="rentPrice" type="number" />
+                  <RHFDropDown<ProductSchema> options={cuttersOptions} name="cutter" label="Cutter" />
+                  <RHFDropDown<ProductSchema> options={tailorOptions} name="tailor" label="Tailor" />
+                  <RHFDropDown<ProductSchema> options={measurerOptions} name="measurer" label="Measurer" />
                 </div>
               </div>
               <div className="inputGroup">
@@ -224,37 +180,21 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
                     }
                   />
                 </div>
-                <button
-                  className="primary-button"
-                  type="button"
-                  onClick={() => handleMaterialAdd()}
-                >
+                <button className="primary-button" type="button" onClick={() => handleMaterialAdd()}>
                   Add Material
                 </button>
               </div>
               {selectedMaterials.length > 0 && (
-                <div style={{ height: "25vh" }}>
-                  <Table<MaterialNeededforProduct>
-                    rowData={selectedMaterials}
-                    colDefs={colDefs}
-                    pagination={false}
-                  ></Table>
+                <div style={{ height: '25vh' }}>
+                  <Table<MaterialNeededforProduct> rowData={selectedMaterials} colDefs={colDefs} pagination={false} />
                 </div>
               )}
               <div className="modal-footer mt-3">
-                <button
-                  className="secondary-button"
-                  type="button"
-                  onClick={() => handleClear()}
-                >
+                <button className="secondary-button" type="button" onClick={() => handleClear()}>
                   Clear
                 </button>
 
-                <button
-                  className="primary-button"
-                  type="submit"
-                  onClick={() => console.log("btn clicked")}
-                >
+                <button className="primary-button" type="submit" onClick={() => console.log('btn clicked')}>
                   Add
                 </button>
               </div>

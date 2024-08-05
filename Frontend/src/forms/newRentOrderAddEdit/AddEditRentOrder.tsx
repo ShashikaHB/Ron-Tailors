@@ -24,21 +24,26 @@ import MemoizedTable from '../../components/agGridTable/Table';
 import RentItemDetailsRenderer from '../../components/agGridTable/customComponents/RentItemDetailsRenderer';
 import ProductType from '../../enums/ProductType';
 import { useAddNewRentOrderMutation } from '../../redux/features/rentOrder/rentOrderApiSlice';
+import SimpleActionButton from '../../components/agGridTable/customComponents/SimpleActionButton';
+import { useAppSelector } from '../../redux/reduxHooks/reduxHooks';
+import { allUsers } from '../../redux/features/auth/authSlice';
+import { getUserRoleBasedOptions } from '../../utils/userUtils';
+import { Roles } from '../../enums/Roles';
 
-const salesPeople = [
-  {
-    value: 0,
-    label: 'Select a Sales Person',
-  },
-  {
-    value: 112,
-    label: 'shashika',
-  },
-  {
-    value: 114,
-    label: 'Nimal',
-  },
-];
+// const salesPeople = [
+//   {
+//     value: 0,
+//     label: 'Select a Sales Person',
+//   },
+//   {
+//     value: 112,
+//     label: 'shashika',
+//   },
+//   {
+//     value: 114,
+//     label: 'Nimal',
+//   },
+// ];
 
 const initialRentItemDetails: RentItemDetails = {
   rentItemId: null,
@@ -84,6 +89,15 @@ const NewRentOut = () => {
   const discount = useWatch({ control, name: 'discount' });
   const variant = useWatch({ control, name: 'variant' });
 
+  const users = useAppSelector(allUsers);
+
+  const salesPeople = getUserRoleBasedOptions(users, Roles.SalesPerson);
+
+  const handleRemove = (id: number) => {
+    const filteredRowData = rowData.filter((row) => row.rentItemId !== id);
+    setRowData(filteredRowData);
+  };
+
   const colDefs = [
     { headerName: 'Barcode', field: 'rentItemId' },
     {
@@ -94,9 +108,18 @@ const NewRentOut = () => {
         data: params.data,
       }),
       autoHeight: true,
+      minWidth: 250,
     },
     { headerName: 'Amount', field: 'amount' },
-    { headerName: '', field: 'action' },
+    {
+      headerName: '',
+      field: 'action',
+      cellRenderer: SimpleActionButton,
+      cellRendererParams: {
+        handleRemove,
+        idField: 'rentItemId',
+      },
+    },
   ];
 
   const defaultColDef: ColDef = {
@@ -122,6 +145,7 @@ const NewRentOut = () => {
     setRowData([]);
     reset(defaultRentOrderValues);
     setCustomerSearchQuery('');
+    setProductSearchQuery('');
   };
 
   const handleRentItemDetailsChange = (key: string, value: string | number) => {
@@ -241,7 +265,7 @@ const NewRentOut = () => {
           console.log(response.error);
         } else {
           const newOrderId = response.data.orderId;
-          toast.success('New order Added.');
+          toast.success('New Rent Order Added successfully');
           handleResetRentOrder();
         }
       }
@@ -269,7 +293,7 @@ const NewRentOut = () => {
                         value={customerSearchQuery}
                         onChange={(e) => setCustomerSearchQuery(e.target.value)}
                       />
-                      <button className='icon-button' type="button" aria-label="search_customer" onClick={() => handleSearchCustomer()}>
+                      <button className="icon-button" type="button" aria-label="search_customer" onClick={() => handleSearchCustomer()}>
                         <span>
                           <FaSearch />
                         </span>
@@ -330,8 +354,8 @@ const NewRentOut = () => {
                     >
                       Cancel Order
                     </button>
-                    <button className="primary-button" type="submit" onClick={() => console.log('btn clicked')}>
-                      Rentout
+                    <button className="primary-button" type="submit">
+                      Rent Out
                       {/* {variant === "create" ? "Create Order " : "Edit Order "} */}
                     </button>
                   </div>
@@ -358,7 +382,7 @@ const NewRentOut = () => {
                       value={productSearchQuery}
                       onChange={(e) => setProductSearchQuery(e.target.value)}
                     />
-                    <button className='icon-button' type="button" aria-label="search_product" onClick={() => handleSearchProduct()}>
+                    <button className="icon-button" type="button" aria-label="search_product" onClick={() => handleSearchProduct()}>
                       <span>
                         <FaSearch />
                       </span>
@@ -399,19 +423,13 @@ const NewRentOut = () => {
                   <button
                     className="secondary-button mx-2"
                     type="button"
-                    // disabled={isAddItemButtonDisabled}
                     onClick={() => {
                       setRentItemDetails(initialRentItemDetails);
                     }}
                   >
                     Clear Item
                   </button>
-                  <button
-                    className="primary-button"
-                    type="button"
-                    // disabled={isAddItemButtonDisabled}
-                    onClick={handleRentItemAdd}
-                  >
+                  <button className="primary-button" type="button" disabled={rentItemDetails.amount === 0} onClick={handleRentItemAdd}>
                     Add Item
                   </button>
                 </div>
@@ -427,7 +445,6 @@ const NewRentOut = () => {
           </div>
         </div>
       </div>
-      {/* <button onClick={() => setOpen(true)}>Add products to Order</button> */}
     </div>
   );
 };

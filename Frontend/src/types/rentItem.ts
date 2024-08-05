@@ -9,7 +9,7 @@ import ProductType from '../enums/ProductType';
 import { RentItemStatus } from '../enums/RentItemDetails';
 
 export type RentItemDetails = {
-  rentItemId: number;
+  rentItemId: number | null;
   color: string;
   size: number | undefined;
   description: string;

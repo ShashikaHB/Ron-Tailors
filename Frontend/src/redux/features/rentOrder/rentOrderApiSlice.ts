@@ -49,7 +49,6 @@ export const rentOutApiSlice = apiSlice.injectEndpoints({
         if (!res.success) {
           toast.error('Rent order creation failed.');
         } else {
-          toast.success('New rent order created.');
           return { ...res.data };
         }
       },

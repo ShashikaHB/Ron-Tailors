@@ -12,14 +12,13 @@ type RentItemDetailsRendererProps = {
 };
 
 const RentItemDetailsRenderer = ({ data }: RentItemDetailsRendererProps) => {
-  const { description, color, size, handLength, notes } = data;
+  const { description, color, size, handLength, notes, type } = data;
   return (
     <div>
-      <div>{description}</div>
-      <div>
-        {color} | {size} | {handLength}
-      </div>
-      <div>{notes}</div>
+      <div>{`${type} : ${description}`}</div>
+      <div>{`Color: ${color}  |  Size: ${size}`}</div>
+      <div>{`HandLength: ${handLength}`}</div>
+      <div>{`Notes: ${notes}`}</div>
     </div>
   );
 };

@@ -19,10 +19,9 @@ export const userApiSlice = apiSlice.injectEndpoints({
       providesTags: ['Materials'],
       transformResponse: (res: ApiResponse<User[]>): User[] => {
         if (!res.success) {
-          toast.error('Material data fetching failed!');
+          toast.error('Users data fetching failed!');
           return []; // Return an empty array in case of failure
         }
-        toast.success('All users fetched!');
         return res.data as User[]; // Return the array of users directly
       },
     }),

@@ -12,6 +12,12 @@ import SideNavItem from './SideNavItem';
 import HomeIcon from '../imageComponents/HomeIcon';
 import SaleOrderIcon from '../imageComponents/SalesOrderIcon';
 import { SideBarConfig } from '../../types/common';
+import RentOrderIcon from '../imageComponents/RentOrderIcon';
+import StocksIcon from '../imageComponents/StocksIcon';
+import UsersIcon from '../imageComponents/UsersIcon';
+import PaymentsIcon from '../imageComponents/PaymentsIcon';
+import CashBookIcon from '../imageComponents/CashBookIcon';
+import ReportsIcon from '../imageComponents/ReportsIcon';
 
 export const sideBarConfig: SideBarConfig[] = [
   {
@@ -21,26 +27,22 @@ export const sideBarConfig: SideBarConfig[] = [
   },
   {
     title: 'Rent Out',
-    icon: <HomeIcon />,
+    icon: <RentOrderIcon />,
     children: [
       {
         title: 'New Rent Order',
-        icon: <HomeIcon />,
         path: '/secured/addRentOrder',
       },
       {
         title: 'Rent Book',
-        icon: <HomeIcon />,
         path: '/secured/rentBook',
       },
       {
         title: 'Return Rent',
-        icon: <SaleOrderIcon />,
         path: '/secured/rentReturn',
       },
       {
         title: 'Add Rent Item',
-        icon: <SaleOrderIcon />,
         path: '/secured/addRentItem',
       },
     ],
@@ -51,39 +53,37 @@ export const sideBarConfig: SideBarConfig[] = [
     children: [
       {
         title: 'New Sale Order',
-        icon: <SaleOrderIcon />,
         path: '/secured/addSalesOrder',
       },
       {
         title: 'Order Book',
         path: 'salesOrderBook',
-        icon: <HomeIcon />,
       },
     ],
   },
   {
     title: 'Stock',
-    icon: <HomeIcon />,
+    icon: <StocksIcon />,
     path: '/secured/stock',
   },
   {
     title: 'Users',
-    icon: <HomeIcon />,
+    icon: <UsersIcon />,
     path: '/secured/users',
   },
   {
     title: 'Payments',
-    icon: <HomeIcon />,
+    icon: <PaymentsIcon />,
     path: '/secured/payments',
   },
   {
     title: 'Cash Book',
-    icon: <HomeIcon />,
+    icon: <CashBookIcon />,
     path: '/secured/cashBook',
   },
   {
     title: 'Reports',
-    icon: <HomeIcon />,
+    icon: <ReportsIcon />,
     path: '/secured/reports',
   },
 ];
