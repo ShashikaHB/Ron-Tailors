@@ -7,7 +7,7 @@
 import { useEffect } from 'react';
 import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
 import { TextField } from '@mui/material';
-import { RiCloseLargeLine } from '@remixicon/react';
+import { RiCloseLargeLine, RiClipboardLine } from '@remixicon/react';
 import { toast } from 'sonner';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
 import { MeasurementSchema } from '../formSchemas/measurementSchema';
@@ -24,7 +24,9 @@ type AddEditProductProps = {
 };
 
 const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
-  const { control, unregister, watch, reset, setValue, handleSubmit, getValues, clearErrors } = useFormContext<MeasurementSchema>();
+  const {
+    control, unregister, watch, reset, setValue, handleSubmit, getValues, clearErrors,
+  } = useFormContext<MeasurementSchema>();
 
   useEffect(() => {
     const sub = watch((value) => {
@@ -78,7 +80,7 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
       } else {
         const response = await addMeasurement(data);
         if (response.error) {
-          toast.error(`Material Adding Failed`);
+          toast.error('Material Adding Failed');
           console.log(response.error);
         } else {
           toast.success('New material Added.');
@@ -113,12 +115,21 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
     <div className="modal-dialog modal-dialog-centered">
       <div className="modal-content">
         <div className="modal-header">
-          <h5 className="modal-title">Add Measurements to {productData?.type}</h5>
-          <button className='icon-button' type="button" onClick={handleClose}>
-          <RiCloseLargeLine size={18} />
+          <h5 className="modal-title">
+            Add Measurements to
+            {productData?.type}
+          </h5>
+          <button className="icon-button" type="button" onClick={handleClose}>
+            <RiCloseLargeLine size={18} />
           </button>
         </div>
-        <div className="modal-body d-flex h-100">
+        <div className="modal-body d-flex h-100 flex-column">
+          <div>
+            <div className="d-flex align-items-center mb-3 gap-2">
+              <RiClipboardLine size={18} />
+              <div>Copy form other Measurement</div>
+            </div>
+          </div>
           {isLoading ? (
             <div className="d-flex justify-content-center">
               <Loader />
@@ -165,12 +176,12 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
               </div>
               <h6>Add Measurements</h6>
               <div className="my-3">
-                <div className="d-flex">
+                <div className="d-flex gap-1 mb-1">
                   {[0, 1, 2, 3, 4].map((index) => (
                     <TextField key={index} value={measurements[index]} onChange={(e) => addMeasurements(index, e.target.value)} />
                   ))}
                 </div>
-                <div className="d-flex">
+                <div className="d-flex gap-1 mb-1">
                   {[5, 6, 7, 8, 9].map((index) => (
                     <TextField key={index} value={measurements[index]} onChange={(e) => addMeasurements(index, e.target.value)} />
                   ))}
@@ -192,9 +203,6 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
               </div>
             </form>
           )}
-          <div>
-            <h5>Copy form other Measurement</h5>
-          </div>
         </div>
       </div>
     </div>
