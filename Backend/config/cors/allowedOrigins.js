@@ -1,6 +1,7 @@
 export const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
-  "https://rontailors.netlify.app"
+  "https://rontailors.netlify.app",
+  "https://ron-tailors.netlify.app",
 
 ];
