@@ -5,12 +5,10 @@
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
 import { toast } from 'sonner';
-import { omit } from 'lodash';
 import apiSlice from '../../api/apiSlice';
 import { ApiResponse } from '../../../types/common';
-import { MaterialSchema } from '../../../forms/formSchemas/materialsSchema';
 import { CustomerSchema } from '../../../forms/formSchemas/customerSchema';
-import { ApiGetRentItem } from '../../../types/rentItem';
+import handleApiResponse from '../../../utils/handleApiResponse';
 
 export const orderApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -27,15 +25,15 @@ export const orderApiSlice = apiSlice.injectEndpoints({
         return res.data;
       },
     }),
-    getSingleSalesOrder: builder.query<ApiGetRentItem, string>({
-      query: (rentItemId: string) => ({
-        url: `/rentOrder/${rentItemId}`,
+    getSingleSalesOrder: builder.query<any, string>({
+      query: (salesOrderId: string) => ({
+        url: `/salesOrder/${salesOrderId}`,
         method: 'GET',
       }),
-      providesTags: (result, error, args) => (result ? [{ type: 'RentOrder', id: args?.toString() }] : []),
-      transformResponse: (res: ApiResponse<ApiGetRentItem>): any => {
+      providesTags: (result, error, args) => (result ? [{ type: 'SalesOrder', id: args?.toString() }] : []),
+      transformResponse: (res: ApiResponse<any>): any => {
         if (!res.success) {
-          toast.error('Material data fetching failed!');
+          return [];
         }
         return { ...res.data, variant: 'edit' };
       },
@@ -61,41 +59,20 @@ export const orderApiSlice = apiSlice.injectEndpoints({
         method: 'GET',
       }),
       providesTags: ['Customer'],
-      transformResponse: (res: ApiResponse<CustomerSchema>): CustomerSchema => {
-        if (!res.success) {
-          toast.error('Customer search failed!');
-        }
-        return res.data as CustomerSchema;
-      },
+      transformResponse: (res: ApiResponse<CustomerSchema>): CustomerSchema => handleApiResponse(res, 'Customer search successful!'),
     }),
-    updateSingleMaterial: builder.mutation<ApiResponse<string>, MaterialSchema>({
-      query: (material: MaterialSchema) => {
-        if (material.variant === 'edit') {
-          const materialData = omit(material, ['variant', 'materialId']);
-          return {
-            url: `/material/${material.materialId}`,
-            method: 'PATCH',
-            body: materialData,
-          };
-        }
-        throw new Error('Unsupported variant type for update.');
+    updateSalesOrder: builder.mutation<ApiResponse<string>, any>({
+      query: (salesOrderData: any) => {
+        return {
+          url: `/salesOrder/${salesOrderData.salesOrderId}`,
+          method: 'PATCH',
+          body: { ...salesOrderData },
+        };
       },
-      invalidatesTags: (
-        result: any,
-        error: any,
-        args: {
-          variant: string;
-          materialId: { toString: () => any };
-        }
-      ) => [
-        {
-          type: 'Materials',
-          id: args?.variant === 'edit' ? args.materialId.toString() : 'unknown',
-        },
-        { type: 'Materials' },
-      ],
+      invalidatesTags: (result, error, args) => (result ? [{ type: 'SalesOrder', id: args.salesOrderId }, { type: 'SalesOrder' }] : []),
     }),
   }),
 });
 
-export const { useLazySearchCustomerQuery, useAddNewOrderMutation, useGetAllSalesOrdersQuery } = orderApiSlice;
+export const { useLazySearchCustomerQuery, useAddNewOrderMutation, useGetAllSalesOrdersQuery, useLazyGetSingleSalesOrderQuery, useUpdateSalesOrderMutation } =
+  orderApiSlice;

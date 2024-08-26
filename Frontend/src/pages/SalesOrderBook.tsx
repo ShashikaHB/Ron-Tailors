@@ -6,30 +6,30 @@
  */
 
 import { ColDef } from 'ag-grid-community';
-import { CustomCellRendererProps } from 'ag-grid-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import ActionButtons from '../components/agGridTable/customComponents/ActionButtons';
+import { TextField } from '@mui/material';
 import MemoizedTable from '../components/agGridTable/Table';
 import CustomerRenderer from '../components/agGridTable/customComponents/CustomerRenderer';
 import { useGetAllSalesOrdersQuery } from '../redux/features/orders/orderApiSlice';
 import SalesOrderDetailsRenderer from '../components/agGridTable/customComponents/SalesOrderDetailsRenderer';
+import ActionButtonNew from '../components/agGridTable/customComponents/ActionButtonNew';
 
 const SalesOrderBook = () => {
-  const { data: salesOrders, isError: salesOrderError, isLoading } = useGetAllSalesOrdersQuery();
+  const { data: salesOrders, isError: salesOrderError, isLoading } = useGetAllSalesOrdersQuery('');
 
   const nagivate = useNavigate();
 
   const defaultColDef: ColDef = { resizable: true };
 
-  const handleOpen = () => {
-    console.log('clicked open');
+  const handleOpen = (id: string) => {
+    nagivate(`/secured/addSalesOrder/${id}`);
   };
 
   const initialColDefs: ColDef<any>[] = [
-    { headerName: 'Order Id', field: 'orderId' },
+    { headerName: 'Order Id', field: 'salesOrderId' },
     { headerName: 'Customer', field: 'customer', cellRenderer: CustomerRenderer, autoHeight: true },
     { headerName: 'Order Details', field: 'orderDetails', cellRenderer: SalesOrderDetailsRenderer, autoHeight: true, minWidth: 400 },
     { headerName: 'Order Date', field: 'orderDate', valueFormatter: (params) => format(params.value as Date, 'dd-MM-yyyy') },
@@ -37,11 +37,12 @@ const SalesOrderBook = () => {
     {
       headerName: 'Actions',
       field: 'action',
-      cellRenderer: ActionButtons,
-      cellRendererParams: (params: CustomCellRendererProps) => ({
-        materialId: params.data?.orderId,
-        handleOpen,
-      }),
+      cellRenderer: ActionButtonNew,
+      cellRendererParams: {
+        handleEdit: handleOpen,
+        idType: 'salesOrderId',
+        isOrderBook: true,
+      },
     },
   ];
   const [rowData, setRowData] = useState<any[]>([]);
@@ -68,7 +69,7 @@ const SalesOrderBook = () => {
       const lowercasedFilter = orderSearchQuery.toLowerCase();
       const filteredRowData = salesOrders.filter(
         (item: any) =>
-          item.orderId.toString().toLowerCase().includes(lowercasedFilter) ||
+          item.salesOrderId.toString().toLowerCase().includes(lowercasedFilter) ||
           item.customer.name.toLowerCase().includes(lowercasedFilter) ||
           item.customer.mobile.toLowerCase().includes(lowercasedFilter)
       );

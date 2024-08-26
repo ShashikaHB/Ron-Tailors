@@ -11,102 +11,44 @@ import { toast } from 'sonner';
 import { FormProvider, SubmitHandler, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useParams } from 'react-router-dom';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
-import { OrderSchema } from '../formSchemas/orderSchema';
-import { useAddNewOrderMutation, useLazySearchCustomerQuery } from '../../redux/features/orders/orderApiSlice';
-import { ApiResponseError, OptionCheckBox } from '../../types/common';
+import { defaultOrderValues, OrderSchema } from '../formSchemas/orderSchema';
+import {
+  useAddNewOrderMutation,
+  useLazyGetSingleSalesOrderQuery,
+  useLazySearchCustomerQuery,
+  useUpdateSalesOrderMutation,
+} from '../../redux/features/orders/orderApiSlice';
+import { OptionCheckBox } from '../../types/common';
 import RHFDatePicker from '../../components/customFormComponents/customDatePicker/RHFDatePricker';
 import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
-import PaymentType from '../../enums/PaymentType';
 import AddEditProduct from '../productAddEdit/AddEditProduct';
 import { ProductSchema, defaultProductValues, productSchema } from '../formSchemas/productSchema';
 import CheckBoxGroup from '../../components/customFormComponents/checkboxGroup/CheckBoxGroup';
 import Table from '../../components/agGridTable/Table';
-import ProductType from '../../enums/ProductType';
 import { MeasurementSchema, defaultMeasurementValues, measurementSchema } from '../formSchemas/measurementSchema';
 import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
 import { setProductType, setSelectedProduct } from '../../redux/features/product/productSlice';
-import { selectOrderItems, setOrderProducts } from '../../redux/features/orders/orderSlice';
+import { removeOrderProducts, resetOderProducts, selectOrderItems, setOrderProducts, setOrderProductsBulk } from '../../redux/features/orders/orderSlice';
 import { useGetAllProductsQuery } from '../../redux/features/product/productApiSlice';
 import mapProducts from '../../utils/productUtils';
-import ActionButtons from '../../components/agGridTable/customComponents/ActionButtons';
 import ProductRenderer from '../../components/agGridTable/customComponents/ProductRenderer';
 import AddEditMeasurement from '../measurementAddEdit/AddEditMeasurement';
-
-const salesPeople = [
-  {
-    value: 0,
-    label: 'Select a Sales Person',
-  },
-  {
-    value: 112,
-    label: 'shashika',
-  },
-  {
-    value: 114,
-    label: 'Nimal',
-  },
-];
-
-const initialProductOptions = [
-  {
-    id: ProductType.Shirt,
-    label: 'Shirt',
-    checked: false,
-  },
-  {
-    id: ProductType.Coat,
-    label: 'Coat',
-    checked: false,
-  },
-  {
-    id: ProductType.Trouser,
-    label: 'Trouser',
-    checked: false,
-  },
-  {
-    id: ProductType.WestCoat,
-    label: 'West Coat',
-    checked: false,
-  },
-  {
-    id: ProductType.Cravat,
-    label: 'Cravat',
-    checked: false,
-  },
-  {
-    id: ProductType.Bow,
-    label: 'Bow',
-    checked: false,
-  },
-  {
-    id: ProductType.Tie,
-    label: 'Tie',
-    checked: false,
-  },
-];
-
-const paymentOptions = [
-  {
-    value: PaymentType.Cash,
-    label: 'Cash',
-  },
-  {
-    value: PaymentType.Card,
-    label: 'Card',
-  },
-];
-
-// const rowData = [
-//   { product: "Coat", qty: 1, amount: 1000 },
-//   { product: "Coat", qty: 1, amount: 1000 },
-//   { product: "Coat", qty: 1, amount: 1000 },
-// ];
+import stores from '../../consts/stores';
+import { allUsers } from '../../redux/features/auth/authSlice';
+import getUserRoleBasedOptions from '../../utils/userUtils';
+import { Roles } from '../../enums/Roles';
+import paymentOptions from '../../consts/paymentOptions';
+import { initialProductOptions } from '../../consts/products';
 
 const AddEditOrder = () => {
-  const { control, unregister, watch, reset, setValue, handleSubmit, getValues, clearErrors } = useFormContext<OrderSchema>();
+  const { control, watch, reset, setValue, handleSubmit, clearErrors, getValues } = useFormContext<OrderSchema>();
 
   const dispatch = useAppDispatch();
+
+  const users = useAppSelector(allUsers);
+  const salesPeople = getUserRoleBasedOptions(users, Roles.SalesPerson);
 
   const methods = useForm<ProductSchema>({
     mode: 'all',
@@ -119,7 +61,7 @@ const AddEditOrder = () => {
     defaultValues: defaultMeasurementValues,
   });
 
-  const [open, setOpen] = useState(false);
+  const [openProducts, setOpenProducts] = useState(false);
   const [rowData, setRowData] = useState([]);
   const [openMeasurement, setOpenMeasurement] = useState(false);
   const [description, setDescription] = useState('');
@@ -130,17 +72,21 @@ const AddEditOrder = () => {
   const discount = useWatch({ control, name: 'discount' });
   const variant = useWatch({ control, name: 'variant' });
 
+  const { salesOrderId } = useParams();
+
   const orderItems = useAppSelector(selectOrderItems);
   const isAddItemButtonDisabled = description.trim() === '' || !productOptions.some((option) => option.checked);
 
-  const [trigger, { data: customer, error: customerSearchError, isLoading }] = useLazySearchCustomerQuery();
-  const { data: productsData, error, isLoading: productsLoading } = useGetAllProductsQuery({});
+  const [trigger, { data: customer, isLoading }] = useLazySearchCustomerQuery();
+  const [updateSalesOrder] = useUpdateSalesOrderMutation();
+  const [getSalesOrderData, { data: salesOrderData }] = useLazyGetSingleSalesOrderQuery();
+  const { data: productsData, isLoading: productsLoading } = useGetAllProductsQuery({});
 
   const [addOrder, { data: newOrder }] = useAddNewOrderMutation();
 
   const [customerSearchQuery, setCustomerSearchQuery] = useState('');
 
-  const handleClose = useCallback(() => setOpen(false), []);
+  const handleClose = useCallback(() => setOpenProducts(false), []);
   const handleMeasurementClose = useCallback(() => setOpenMeasurement(false), []);
 
   const handleOpenMeasurement = useCallback((productId: number) => {
@@ -148,27 +94,42 @@ const AddEditOrder = () => {
     dispatch(setSelectedProduct(productId));
   }, []);
 
+  const handleRemove = (id: number) => {
+    dispatch(removeOrderProducts(id));
+  };
+
+  const transformOrderDetails = (orderDetails: any) => {
+    return orderDetails.map((detail: any) => {
+      return {
+        description: detail.description,
+        products: detail.products.map((product: any) => product.productId),
+      };
+    });
+  };
+
+  const getUpdatingFormattedData = (data: any) => {
+    const salesPerson = data.salesPerson.userId;
+    const weddingDate = data?.weddingDate ? new Date(data.weddingDate) : null;
+    const orderDate = data?.orderDate ? new Date(data.orderDate) : null;
+    const deliveryDate = data?.deliveryDate ? new Date(data.deliveryDate) : null;
+    const fitOnRounds = data?.fitOnRounds.map((round: any) => (round ? new Date(round) : null));
+    const orderDetails = transformOrderDetails(data?.orderDetails);
+    return { ...data, salesPerson, weddingDate, orderDate, deliveryDate, fitOnRounds, orderDetails };
+  };
+
   const colDefs = [
     {
-      headerName: 'Product',
+      headerName: 'Product Details',
       field: 'product',
       cellRenderer: ProductRenderer,
-      cellRendererParams: (params) => ({
+      cellRendererParams: (params: any) => ({
         data: params.data,
         handleOpenMeasurement,
+        handleRemove,
       }),
       autoHeight: true,
     },
     { headerName: 'Amount', field: 'amount' },
-    {
-      headerName: 'Actions',
-      field: 'action',
-      cellRenderer: ActionButtons,
-      cellRendererParams: (params) => ({
-        productId: params.data?.productId,
-        action: 'delete',
-      }),
-    },
   ];
 
   const handleSearchCustomer = () => {
@@ -181,7 +142,7 @@ const AddEditOrder = () => {
         if (option.id === id) {
           if (!option.checked) {
             // Only set open to true if the checkbox is being checked
-            setOpen(true);
+            setOpenProducts(true);
           }
           return { ...option, checked: !option.checked };
         }
@@ -207,11 +168,32 @@ const AddEditOrder = () => {
     reset();
   };
 
+  const handleOrderFormReset = () => {
+    reset(defaultOrderValues);
+    dispatch(resetOderProducts());
+  };
+
+  useEffect(() => {
+    if (salesOrderId) {
+      // Fetch and populate the order data for editing
+      getSalesOrderData(salesOrderId).then((response) => {
+        if (response.data) {
+          reset(getUpdatingFormattedData(response.data)); // Populate the form with fetched data
+          const formattedOrderDetails = transformOrderDetails(response.data.orderDetails);
+          dispatch(setOrderProductsBulk(formattedOrderDetails));
+        }
+      });
+    } else {
+      handleOrderFormReset();
+    }
+  }, [salesOrderId, salesOrderData]);
+
   useEffect(() => {
     if (productsData) {
       const newRowData = mapProducts(orderItems, productsData);
       setRowData(newRowData);
-      const totalAmount = newRowData.reduce((sum, row) => sum + (row.amount || 0), 0);
+      console.log(newRowData);
+      const totalAmount = newRowData.reduce((sum: number, row: any) => sum + (row.amount || 0), 0);
       setValue('totalPrice', totalAmount);
     }
     if (orderItems) {
@@ -239,51 +221,37 @@ const AddEditOrder = () => {
   }, [watch]);
 
   useEffect(() => {
-    if (customerSearchError) {
-      let errorMessage = 'An unknown error occurred';
-      if ('status' in customerSearchError) {
-        // error is FetchBaseQueryError
-        const err = customerSearchError as ApiResponseError;
-        errorMessage = err.data.error ?? 'Something went wrong';
-      } else if (customerSearchError instanceof Error) {
-        // error is SerializedError
-        errorMessage = customerSearchError.message;
-      }
-      toast.error(errorMessage);
-    }
     if (customer) {
       setValue('customer.name', customer.name);
       setValue('customer.mobile', customer.mobile);
       setCustomerSearchQuery('');
       clearErrors();
     }
-  }, [customerSearchError, customer]);
+  }, [customer]);
 
   const onSubmit: SubmitHandler<OrderSchema> = async (data) => {
     try {
       if (variant === 'edit') {
-        // const response = await updateMaterial(data);
-        // if (response.error) {
-        //   toast.error(`Material Update Failed`);
-        //   console.log(response.error);
-        // } else {
-        //   toast.success("Material Updated.");
-        //   reset();
-        // }
+        const response = await updateSalesOrder(data);
+        if (response.error) {
+          console.log(response.error);
+        } else {
+          toast.success('Order Updated!');
+          reset();
+        }
       } else {
         const response = await addOrder(data);
         if (response.error) {
-          toast.error(`Order Adding Failed`);
           console.log(response.error);
         } else {
-          const newOrderId = response.data.orderId;
-          toast.success('New order Added.');
-          reset();
-          window.open(`http://localhost:8000/api/v1/invoice/${newOrderId}`, '_blank');
+          const newOrderId = response.data.salesOrderId;
+          toast.success('New order Added!');
+          handleOrderFormReset();
+          //   window.open(`http://localhost:8000/api/v1/invoice/${newOrderId}`, '_blank');
         }
       }
-    } catch (error) {
-      toast.error(`Material Action Failed. ${error.message}`);
+    } catch (e) {
+      toast.error(`Material Action Failed. ${e.message}`);
     }
   };
 
@@ -299,7 +267,7 @@ const AddEditOrder = () => {
                 </div>
                 <div className="card-body">
                   <div className="row">
-                    <div className="col-12 d-flex gap-2 mb-3 align-items-end">
+                    <div className="col-6 d-flex gap-2 mb-3 align-items-end">
                       <TextField
                         label="Search Customer"
                         size="small"
@@ -307,11 +275,14 @@ const AddEditOrder = () => {
                         value={customerSearchQuery}
                         onChange={(e) => setCustomerSearchQuery(e.target.value)}
                       />
-                      <button className='icon-button' type="button" aria-label="search_customer" onClick={() => handleSearchCustomer()}>
+                      <button className="icon-button" type="button" aria-label="search_customer" onClick={() => handleSearchCustomer()}>
                         <span>
                           <FaSearch />
                         </span>
                       </button>
+                    </div>
+                    <div className="col-6 d-flex gap-2 mb-3 align-items-end">
+                      <RHFDropDown<OrderSchema> options={stores} name="store" label="Store" />
                     </div>
                   </div>
                   <div className="row">
@@ -348,7 +319,7 @@ const AddEditOrder = () => {
                       <RHFTextField<OrderSchema> label="Total" name="totalPrice" disabled />
                     </div>
                     <div className="col-6 mb-3">
-                      <RHFDropDown<OrderSchema> options={paymentOptions} name="paymentType" />
+                      <RHFDropDown<OrderSchema> options={paymentOptions} name="paymentType" label="Payment Type" />
                     </div>
                     <div className="col-6 mb-3">
                       <RHFTextField<OrderSchema> label="Advance" name="advPayment" />
@@ -367,7 +338,7 @@ const AddEditOrder = () => {
                     <button className="secondary-button" type="submit" onClick={handleCancelOrder}>
                       Cancel Order
                     </button>
-                    <button className="primary-button" type="submit" onClick={() => console.log('btn clicked')}>
+                    <button className="primary-button" type="submit">
                       {variant === 'create' ? 'Create Order ' : 'Edit Order '}
                     </button>
                   </div>
@@ -404,12 +375,11 @@ const AddEditOrder = () => {
             </div>
           </div>
           <div className="col-6">
-            <Table rowData={rowData} colDefs={colDefs} pagination={false} />
+            <Table<any> rowData={rowData} colDefs={colDefs} pagination={false} />
           </div>
         </div>
       </div>
-      {/* <button onClick={() => setOpen(true)}>Add products to Order</button> */}
-      <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+      <Modal open={openProducts} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
         <div>
           <FormProvider {...methods}>
             <div>

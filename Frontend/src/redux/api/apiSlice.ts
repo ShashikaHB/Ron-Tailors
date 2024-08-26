@@ -5,12 +5,13 @@
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
 import { BaseQueryFn, FetchArgs, FetchBaseQueryError, FetchBaseQueryMeta, createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { toast } from 'sonner';
 import { setCredentials, logOut } from '../features/auth/authSlice';
 import { RootState } from '../store/store';
 import { UserState } from '../../types/user';
 
-const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta> = fetchBaseQuery({
-  baseUrl: 'http://localhost:8000/api/v1/',
+const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, object, FetchBaseQueryMeta> = fetchBaseQuery({
+  baseUrl: `${import.meta.env.VITE_BASE_URL}/api/v1/`,
   credentials: 'include', // This will send back the http only cookie which is used in refresh token.
   prepareHeaders: (headers, { getState }) => {
     const state = getState() as RootState;
@@ -22,9 +23,14 @@ const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {
   },
 });
 
-const baseQueryWithReAuth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta> = async (args, api, extraOptions) => {
+const baseQueryWithReAuth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, object, FetchBaseQueryMeta> = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions);
 
+  const errorMessage = (result.error?.data as { message?: string })?.message || 'An error occurred!';
+
+  if (result.error) {
+    toast.error(errorMessage);
+  }
   if (result?.error?.status === 403) {
     // Send refresh token to get new access token
 
@@ -53,7 +59,7 @@ const baseQueryWithReAuth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
 const apiSlice = createApi({
   baseQuery: baseQueryWithReAuth,
   endpoints: (builder) => ({}),
-  tagTypes: ['Materials', 'Customer', 'Users', 'Products', 'SalesOrder', 'RentOrder', 'RentItem'],
+  tagTypes: ['Materials', 'Customer', 'Users', 'Products', 'SalesOrder', 'RentOrder', 'RentItem', 'RentItemList', 'PiecePrices', 'Salary', 'Transactions'],
 });
 
 export default apiSlice;

@@ -79,9 +79,7 @@ const LoginPage = () => {
       </div>
       <div className="d-flex justify-content-center">
         <small>
-          Don't have account?
-          {' '}
-          <Link to="/register">Sign Up</Link>
+          Don`&apos;`t have account? <Link to="/register">Sign Up</Link>
         </small>
       </div>
     </div>

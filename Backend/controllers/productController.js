@@ -4,6 +4,7 @@ import { User } from "../models/userModel.js";
 import { Measurement } from "../models/measurementModel.js";
 import { Material } from "../models/materialModel.js";
 import { getDocId } from "../utils/docIds.js";
+import { logWork } from "../utils/logWork.js";
 
 // @desc    Create a new product
 // @route   POST /api/products
@@ -275,4 +276,61 @@ export const searchProduct = asyncHandler(async (req, res) => {
       error: error.message,
     });
   }
+});
+
+export const updateProductStatus = asyncHandler(async (req, res) => {
+  const { productId } = req.params;
+  const { status } = req.body;
+
+  if (!status) {
+    res.status(400);
+    throw new Error("Status is required.");
+  }
+
+  const product = await Product.findOne({ productId });
+
+  if (!product) {
+    res.status(404);
+    throw new Error("Product not found.");
+  }
+
+  product.status = status;
+
+  // Handle work log creation or update based on status
+  if (status === "Cutting Started") {
+    await logWork(product.cutter, "Cutting Started", product.type, product._id);
+  } else if (status === "Cutting Done") {
+    await logWork(product.cutter, "Cutting Done", product.type, product._id);
+    // Deduct material stock when cutting is done
+    for (const materialEntry of product.materials) {
+      const material = await Material.findById(materialEntry.material._id);
+
+      if (material) {
+        material.noOfUnits -= materialEntry.unitsNeeded;
+
+        if (material.noOfUnits < 0) {
+          material.noOfUnits = 0; // Prevent negative stock
+        }
+
+        await material.save();
+      }
+    }
+  } else if (status === "Tailoring Started") {
+    await logWork(
+      product.tailor,
+      "Tailoring Started",
+      product.type,
+      product._id
+    );
+  } else if (status === "Tailoring Done") {
+    await logWork(product.tailor, "Tailoring Done", product.type, product._id);
+  }
+
+  const updatedProduct = await product.save();
+
+  res.json({
+    message: "Product status updated successfully.",
+    success: true,
+    data: updatedProduct,
+  });
 });

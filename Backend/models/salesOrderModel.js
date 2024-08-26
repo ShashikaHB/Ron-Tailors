@@ -11,6 +11,15 @@ const salesOrderSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Customer",
     },
+    salesOrderId: {
+      type: String,
+      unique: true,
+    },
+    store: {
+      enum: ["RW", "KE"],
+      type: String,
+      required: [true, "Store Location is required."],
+    },
     orderDate: {
       type: Date,
       required: [true, "Order Date is required."],
@@ -76,9 +85,19 @@ const salesOrderSchema = new mongoose.Schema(
 );
 
 salesOrderSchema.plugin(AutoIncrement, {
-  inc_field: "orderId",
-  id: "orders",
-  start_seq: 10,
+  inc_field: "salesOrderSeq",
+  id: "salesOrders",
+  start_seq: 1000,
+});
+
+salesOrderSchema.post("save", function (doc, next) {
+  if (!doc.salesOrderId) {
+    // Update the salesOrderId after the sequence has been generated
+    doc.salesOrderId = `${doc.store}${doc?.salesOrderSeq}`;
+    doc.save().then(() => next());
+  } else {
+    next();
+  }
 });
 
 //Export the model

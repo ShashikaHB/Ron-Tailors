@@ -10,7 +10,6 @@ import { DevTool } from '@hookform/devtools';
 import { useCallback, useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ColDef } from 'ag-grid-community';
-import { toast } from 'sonner';
 import AddEditRentItemForm from '../forms/newRentItemAddEdit/AddEditRentItem';
 import { defaultRentItemValues, rentItemSchema, RentItemSchema } from '../forms/formSchemas/rentItemSchema';
 import MemoizedTable from '../components/agGridTable/Table';
@@ -21,8 +20,8 @@ import { setSelectedRentItemId } from '../redux/features/orders/orderSlice';
 import ActionButtonNew from '../components/agGridTable/customComponents/ActionButtonNew';
 
 const AddRentItem = () => {
-  const { data: rentItems, isError, isLoading, error } = useGetAllRentItemsQuery();
-  const [deleteRentItem, { isError: deleteError }] = useDeleteRentItemMutation();
+  const { data: rentItems, isLoading: rentItemLoading } = useGetAllRentItemsQuery();
+  const [deleteRentItem] = useDeleteRentItemMutation();
   const methods = useForm<RentItemSchema>({
     mode: 'all',
     resolver: zodResolver(rentItemSchema),
@@ -57,8 +56,8 @@ const AddRentItem = () => {
       },
     },
   ];
-  const [rowData, setRowData] = useState<RentItemTableSchema[]>([]);
-  const [colDefs, setColDefs] = useState<ColDef<RentItemTableSchema>[]>(initialColDefs);
+  const [rowData, setRowData] = useState<any>([]);
+  const [colDefs, setColDefs] = useState<any>(initialColDefs);
 
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
 
@@ -80,10 +79,7 @@ const AddRentItem = () => {
       }));
       setRowData(transformedData);
     }
-    if (isError || deleteError) {
-      toast.error('Rent Items fetching failed!');
-    }
-  }, [rentItems, isError, deleteError]);
+  }, [rentItems]);
 
   useEffect(() => {
     if (orderSearchQuery !== '') {

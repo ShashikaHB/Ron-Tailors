@@ -9,6 +9,7 @@ import {
   getProductFields,
 } from "../utils/docIds.js";
 import { Material } from "../models/materialModel.js";
+import { Transaction } from "../models/transactionModel.js";
 
 export const createOrder = asyncHandler(async (req, res) => {
   const {
@@ -78,6 +79,13 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   const newOrder = await SalesOrder.create(orderData);
 
+  // Create a credit transaction
+  await Transaction.create({
+    type: "Credit",
+    amount: newOrder.subTotal,
+    description: `Sales Order ${newOrder.salesOrderId}`,
+  });
+
   res.json({
     message: "New order created successfully.",
     success: true,
@@ -131,42 +139,112 @@ export const getAllOrders = asyncHandler(async (req, res) => {
   });
 });
 
-export const updateOrder = asyncHandler(async (req, res) => {
-  const { orderId } = req.params;
+export const getSingleSalesOrder = asyncHandler(async (req, res) => {
+  const { salesOrderId } = req?.params;
 
-  if (!orderId) {
+  const salesOrder = await SalesOrder.findOne({ salesOrderId })
+    .populate({
+      path: "customer",
+      select: "-_id -createdAt -updatedAt -__v",
+    })
+    .populate(
+      "salesPerson",
+      "-createdAt -updatedAt -password -_id -__v -refreshToken"
+    )
+    .lean();
+
+  const orderWithProductFields = await Promise.all(
+    salesOrder.orderDetails.map(async (detail) => {
+      const products = await Promise.all(
+        detail.products.map(async (product) => {
+          const productFields = await getProductFields(product._id);
+          return productFields;
+        })
+      );
+      return {
+        ...detail,
+        products,
+      };
+    })
+  );
+
+  res.json({
+    message: "Sales Order Fetched Successfully.",
+    success: true,
+    data: { ...salesOrder, orderDetails: orderWithProductFields },
+  });
+});
+
+export const updateSalesOrder = asyncHandler(async (req, res) => {
+  const {
+    customer: { name, mobile },
+    orderDate,
+    deliveryDate,
+    salesPerson,
+    orderDetails,
+    totalPrice,
+    subTotal,
+    paymentType,
+  } = req.body;
+
+  const { salesOrderId } = req?.params;
+
+  if (!salesOrderId) {
     throw new Error("OrderId is not provided!");
   }
-  const updateData = req.body;
 
-  try {
-    const updatedOrder = await SalesOrder.findByIdAndUpdate(
-      orderId,
-      { $set: filteredUpdateData },
-      { new: true, runValidators: true }
-    )
-      .populate({
-        path: "customer",
-        select: "-_id -createdAt -updatedAt -__v",
-      })
-      .populate(
-        "salesPerson",
-        "-createdAt -updatedAt -password -_id -__v -refreshToken"
-      )
-      .lean();
-
-    if (!updatedOrder) {
-      res.status(404);
-      throw new Error(`SalesOrder with ID ${orderId} not found.`);
-    }
-
-    res.json({
-      message: "SalesOrder updated successfully.",
-      success: true,
-      data: updatedOrder,
-    });
-  } catch (error) {
-    res.status(400);
-    throw new Error(error.message);
+  const salesOrder = await SalesOrder.findOne({ salesOrderId }).lean().exec();
+  if (!salesOrder) {
+    throw new Error("No sales order found");
   }
+
+  let customer = undefined;
+  customer = await Customer.findOne({ mobile }).lean().exec();
+  if (!customer) {
+    customer = await Customer.create({ name, mobile });
+  }
+  const salesPersonDoc = await getDocId(User, "userId", salesPerson);
+
+  // Loop through the orderDetails array and replace productId with the corresponding _id
+  const orderDetailsData = await Promise.all(
+    orderDetails.map(async (detail) => {
+      const productsData = await Promise.all(
+        detail.products.map(async (productId) => {
+          const product = await getDocId(Product, "productId", productId);
+          if (!product) {
+            throw new Error(`No product found for ID ${productId}`);
+          }
+          return product._id; // Return only the _id of the product
+        })
+      );
+
+      return {
+        description: detail.description,
+        products: productsData,
+      };
+    })
+  );
+
+  const orderData = {
+    ...req.body,
+    customer: customer._id,
+    salesPerson: salesPersonDoc,
+    orderDetails: orderDetailsData,
+  };
+
+  const updateOrder = await SalesOrder.findByIdAndUpdate(
+    salesOrder._id,
+    {
+      ...orderData,
+    },
+    {
+      new: true,
+    }
+  );
+
+  res.json({
+    message: "Sales order updated successfully.",
+    success: true,
+    data: updateOrder,
+  });
 });

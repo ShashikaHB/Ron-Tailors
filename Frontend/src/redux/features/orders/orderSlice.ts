@@ -28,12 +28,25 @@ const orderSlice = createSlice({
       });
       state.createdProducts = [];
     },
-    removeOrderProducts: (state, action: PayloadAction<number>) => {},
+    setOrderProductsBulk: (state, action: PayloadAction<any>) => {
+      state.orderProducts = action.payload;
+    },
+    removeOrderProducts: (state, action: PayloadAction<number>) => {
+      state.orderProducts = state.orderProducts
+        .map((row: any) => {
+          const filteredProducts = row.products.filter((product: any) => product !== action.payload);
+          return { ...row, products: filteredProducts };
+        })
+        .filter((row: any) => row.products.length > 0);
+    },
     setCreatedProducts: (state, action: PayloadAction<number>) => {
       state.createdProducts.push(action.payload);
     },
     setSelectedRentItemId: (state, action: PayloadAction<number>) => {
       state.selectedRentItemId = action.payload;
+    },
+    resetOderProducts: (state) => {
+      state.orderProducts = [];
     },
   },
 });
@@ -41,6 +54,6 @@ const orderSlice = createSlice({
 export const selectOrderItems = (state: RootState) => state.orders.orderProducts;
 export const selectedRentItemId = (state: RootState) => state.orders.selectedRentItemId;
 
-export const { setOrderProducts, removeOrderProducts, setCreatedProducts, setSelectedRentItemId } = orderSlice.actions;
+export const { setOrderProducts, removeOrderProducts, setCreatedProducts, setSelectedRentItemId, resetOderProducts, setOrderProductsBulk } = orderSlice.actions;
 
 export default orderSlice.reducer;

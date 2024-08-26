@@ -16,4 +16,5 @@ export type UserState = {
   user: User;
   accessToken: string;
   allUsers: User[];
+  otpMode: boolean;
 };

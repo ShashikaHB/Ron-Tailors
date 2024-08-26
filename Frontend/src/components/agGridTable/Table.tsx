@@ -16,7 +16,7 @@ import ActionButtons from './customComponents/ActionButtons';
 
 type TableProps<T> = {
   rowData: T[];
-  colDefs: ColDef<T>[];
+  colDefs: (ColDef<T> | ColDef<T & { action?: string }>)[];
   defaultColDef?: ColDef;
   pagination?: boolean;
 };
@@ -46,7 +46,7 @@ const Table = <T,>({ rowData, colDefs, defaultColDef, pagination }: TableProps<T
       <AgGridReact<T>
         ref={gridRef}
         rowData={rowData}
-        columnDefs={colDefs}
+        columnDefs={colDefs as ColDef<T>[]}
         defaultColDef={defaultColDef}
         pagination={pagination ?? true}
         components={components}

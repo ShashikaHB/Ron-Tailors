@@ -10,25 +10,26 @@ import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { ColDef } from 'ag-grid-community';
+import { useParams } from 'react-router-dom';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
 import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
 import RHFDatePicker from '../../components/customFormComponents/customDatePicker/RHFDatePricker';
 import PaymentType from '../../enums/PaymentType';
-import { defaultRentOrderValues, RentOrderSchema } from '../formSchemas/rentOrderSchema';
+import { defaultRentOrderValues, rentOrderSchema, RentOrderSchema } from '../formSchemas/rentOrderSchema';
 import { useLazySearchCustomerQuery } from '../../redux/features/orders/orderApiSlice';
-import { ApiResponseError } from '../../types/common';
 import { useLazySearchRentItemQuery } from '../../redux/features/product/productApiSlice';
 import { RentItemDetails } from '../../types/rentItem';
 import { RentItemDetailTypes } from '../../enums/RentItemDetails';
 import MemoizedTable from '../../components/agGridTable/Table';
 import RentItemDetailsRenderer from '../../components/agGridTable/customComponents/RentItemDetailsRenderer';
 import ProductType from '../../enums/ProductType';
-import { useAddNewRentOrderMutation } from '../../redux/features/rentOrder/rentOrderApiSlice';
+import { useAddNewRentOrderMutation, useLazyGetSingleRentOrderQuery, useUpdateSingleRentOrderMutation } from '../../redux/features/rentOrder/rentOrderApiSlice';
 import SimpleActionButton from '../../components/agGridTable/customComponents/SimpleActionButton';
 import { useAppSelector } from '../../redux/reduxHooks/reduxHooks';
 import { allUsers } from '../../redux/features/auth/authSlice';
-import { getUserRoleBasedOptions } from '../../utils/userUtils';
+import getUserRoleBasedOptions from '../../utils/userUtils';
 import { Roles } from '../../enums/Roles';
+import stores from '../../consts/stores';
 
 // const salesPeople = [
 //   {
@@ -46,7 +47,7 @@ import { Roles } from '../../enums/Roles';
 // ];
 
 const initialRentItemDetails: RentItemDetails = {
-  rentItemId: null,
+  rentItemId: 0,
   color: '',
   size: undefined,
   description: '',
@@ -68,15 +69,15 @@ const paymentOptions = [
 ];
 
 const NewRentOut = () => {
-  const {
-    control, unregister, watch, reset, setValue, handleSubmit, getValues, clearErrors,
-  } = useFormContext<RentOrderSchema>();
+  const { control, unregister, watch, reset, setValue, handleSubmit, getValues, clearErrors } = useFormContext<RentOrderSchema>();
 
-  const [triggerCustomerSearch, { data: customer, error: customerSearchError, isLoading }] = useLazySearchCustomerQuery();
+  const [triggerCustomerSearch, { data: customer, isLoading }] = useLazySearchCustomerQuery();
 
-  const [triggerProductSearch, { data: rentItem, error: rentItemSearchError, isLoading: rentItemLoading }] = useLazySearchRentItemQuery();
+  const [triggerProductSearch, { data: rentItem, isLoading: rentItemLoading }] = useLazySearchRentItemQuery();
 
+  const [getRentOrderData, { data: singleRentOrderData }] = useLazyGetSingleRentOrderQuery();
   const [addRentOrder] = useAddNewRentOrderMutation();
+  const [updateRentOrder] = useUpdateSingleRentOrderMutation();
 
   const [customerSearchQuery, setCustomerSearchQuery] = useState('');
 
@@ -100,11 +101,13 @@ const NewRentOut = () => {
     setRowData(filteredRowData);
   };
 
+  const { rentOrderId } = useParams();
+
   const colDefs = [
-    { headerName: 'Barcode', field: 'rentItemId' },
+    { headerName: 'Barcode', field: 'rentItemId' as keyof RentItemDetails },
     {
       headerName: 'Order Description',
-      field: 'description',
+      field: 'description' as keyof RentItemDetails,
       cellRenderer: RentItemDetailsRenderer,
       cellRendererParams: (params: any) => ({
         data: params.data,
@@ -112,10 +115,9 @@ const NewRentOut = () => {
       autoHeight: true,
       minWidth: 250,
     },
-    { headerName: 'Amount', field: 'amount' },
+    { headerName: 'Amount', field: 'amount' as keyof RentItemDetails },
     {
       headerName: '',
-      field: 'action',
       cellRenderer: SimpleActionButton,
       cellRendererParams: {
         handleRemove,
@@ -173,6 +175,27 @@ const NewRentOut = () => {
     }
   };
 
+  const getUpdatingFormattedData = (data: any) => {
+    const salesPerson = data?.salesPerson?.userId;
+    const rentDate = data?.rentDate ? new Date(data.rentDate) : null;
+    const returnDate = data?.returnDate ? new Date(data.returnDate) : null;
+    return { ...data, salesPerson, rentDate, returnDate };
+  };
+
+  useEffect(() => {
+    if (rentOrderId) {
+      // Fetch and populate the order data for editing
+      getRentOrderData(rentOrderId).then((response) => {
+        if (response.data) {
+          reset(getUpdatingFormattedData(response.data)); // Populate the form with fetched data
+          setRowData(response.data.rentOrderDetails);
+        }
+      });
+    } else {
+      handleResetRentOrder();
+    }
+  }, [rentOrderId, singleRentOrderData]);
+
   useEffect(() => {
     const sub = watch((value) => {
       console.log(value);
@@ -201,39 +224,15 @@ const NewRentOut = () => {
   }, [total, discount, advance]);
 
   useEffect(() => {
-    if (customerSearchError) {
-      let errorMessage = 'An unknown error occurred';
-      if ('status' in customerSearchError) {
-        // error is FetchBaseQueryError
-        const err = customerSearchError as ApiResponseError;
-        errorMessage = err.data.error ?? 'Something went wrong';
-      } else if (customerSearchError instanceof Error) {
-        // error is SerializedError
-        errorMessage = customerSearchError.message;
-      }
-      toast.error(errorMessage);
-    }
     if (customer) {
       setValue('customer.name', customer.name);
       setValue('customer.mobile', customer.mobile);
       setCustomerSearchQuery('');
       clearErrors();
     }
-  }, [customerSearchError, customer, setValue, clearErrors]);
+  }, [customer, setValue, clearErrors]);
 
   useEffect(() => {
-    if (rentItemSearchError) {
-      let errorMessage = 'An unknown error occurred';
-      if ('status' in rentItemSearchError) {
-        // error is FetchBaseQueryError
-        const err = rentItemSearchError as ApiResponseError;
-        errorMessage = err.data.error ?? 'Something went wrong';
-      } else if (rentItemSearchError instanceof Error) {
-        // error is SerializedError
-        errorMessage = rentItemSearchError.message;
-      }
-      toast.error(errorMessage);
-    }
     if (rentItem) {
       toast.success('Rent Item fetched successfully.');
       setRentItemDetails((prevDetails) => ({
@@ -246,27 +245,33 @@ const NewRentOut = () => {
       }));
       clearErrors();
     }
-  }, [rentItemSearchError, rentItem]);
+  }, [rentItem]);
+
+  const handleValidateData = () => {
+    const formData = getValues();
+
+    const result = rentOrderSchema.safeParse(formData);
+
+    console.log(result);
+  };
 
   const onSubmit: SubmitHandler<RentOrderSchema> = async (data) => {
     try {
       if (variant === 'edit') {
-        // const response = await updateMaterial(data);
-        // if (response.error) {
-        //   toast.error(`Material Update Failed`);
-        //   console.log(response.error);
-        // } else {
-        //   toast.success("Material Updated.");
-        //   reset();
-        // }
+        const response = await updateRentOrder(data);
+        if (response.error) {
+          console.log(response.error);
+        } else {
+          toast.success('Order Updated!');
+          reset();
+        }
       } else {
         console.log(data);
         const response = await addRentOrder(data);
         if (response.error) {
-          toast.error('Order Adding Failed');
           console.log(response.error);
         } else {
-          const newOrderId = response.data.orderId;
+          const newOrderId = response.data.rentOrderId;
           toast.success('New Rent Order Added successfully');
           handleResetRentOrder();
         }
@@ -288,7 +293,7 @@ const NewRentOut = () => {
                 </div>
                 <div className="card-body">
                   <div className="row">
-                    <div className="col-12 d-flex gap-2 mb-3 align-items-end">
+                    <div className="col-6 d-flex gap-2 mb-3 align-items-end">
                       <TextField
                         label="Search Customer"
                         placeholder="Search the customer by mobile or name"
@@ -300,6 +305,9 @@ const NewRentOut = () => {
                           <FaSearch />
                         </span>
                       </button>
+                    </div>
+                    <div className="col-6 d-flex gap-2 mb-3 align-items-end">
+                      <RHFDropDown<RentOrderSchema> options={stores} name="store" label="Store" />
                     </div>
                   </div>
                   <div className="row">
@@ -357,8 +365,7 @@ const NewRentOut = () => {
                       Cancel Order
                     </button>
                     <button className="primary-button" type="submit">
-                      Rent Out
-                      {/* {variant === "create" ? "Create Order " : "Edit Order "} */}
+                      {variant === 'create' ? 'Create Order ' : 'Edit Order '}
                     </button>
                   </div>
                 </div>
@@ -367,7 +374,6 @@ const NewRentOut = () => {
           </div>
         </form>
       </div>
-
       <div className="col-12">
         <div className="row">
           <div className="col-6">

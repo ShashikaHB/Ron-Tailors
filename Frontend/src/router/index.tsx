@@ -23,6 +23,8 @@ import NewRentReturn from '../pages/NewRentReturn';
 import AddRentItem from '../pages/AddRentItem';
 import RentBook from '../pages/RentBook';
 import SalesOrderBook from '../pages/SalesOrderBook';
+import Salary from '../pages/Salary';
+import CashBook from '../pages/CashBook';
 
 const router = createBrowserRouter([
   {
@@ -60,16 +62,20 @@ const router = createBrowserRouter([
             element: <SalesOrderBook />,
           },
           {
-            path: 'addSalesOrder',
+            path: 'addSalesOrder/:salesOrderId?',
             element: <NewSalesOrder />,
           },
           {
-            path: 'addRentOrder',
+            path: 'addRentOrder/:rentOrderId?',
             element: <NewRentOutOrder />,
           },
           {
             path: 'addRentItem',
             element: <AddRentItem />,
+          },
+          {
+            path: 'editSalary',
+            element: <Salary />,
           },
           {
             path: 'rentReturn',
@@ -93,7 +99,7 @@ const router = createBrowserRouter([
           },
           {
             path: 'cashBook',
-            element: <ViewUnderConstruction />,
+            element: <CashBook />,
           },
           {
             path: 'Reports',

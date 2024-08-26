@@ -1,4 +1,10 @@
-import React, { useEffect, useState } from "react";
+/* *
+ * Copyright 2024 Shark Dev (Pvt) Ltd. All rights reserved.
+ *
+ * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
+ * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
+ */
+import { useEffect, useState } from 'react';
 
 type CustomToastProps = {
   message: string;
@@ -6,11 +12,7 @@ type CustomToastProps = {
   onClose?: () => void;
 };
 
-const CustomToast = ({
-  message,
-  duration = 5000,
-  onClose,
-}: CustomToastProps) => {
+const CustomToast = ({ message, duration = 5000, onClose }: CustomToastProps) => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -34,24 +36,24 @@ const CustomToast = ({
   return (
     <div
       style={{
-        position: "relative",
-        padding: "10px",
-        backgroundColor: "#333",
-        color: "#fff",
-        borderRadius: "5px",
+        position: 'relative',
+        padding: '10px',
+        backgroundColor: '#333',
+        color: '#fff',
+        borderRadius: '5px',
       }}
     >
       <div>{message}</div>
       <div
         style={{
-          position: "absolute",
+          position: 'absolute',
           bottom: 0,
           left: 0,
-          height: "5px",
+          height: '5px',
           width: `${progress}%`,
-          backgroundColor: "#4caf50",
+          backgroundColor: '#4caf50',
         }}
-      ></div>
+      />
     </div>
   );
 };

@@ -6,6 +6,7 @@
  */
 import z from 'zod';
 import PaymentType from '../../enums/PaymentType';
+import Stores from '../../enums/Stores';
 
 // Create a base schema without the conditional fields
 const baseOrderSchema = z.object({
@@ -15,6 +16,7 @@ const baseOrderSchema = z.object({
       message: 'Mobile number should be exactly 10 digits',
     }),
   }),
+  store: z.nativeEnum(Stores).default(Stores.Kegalle),
   salesPerson: z.number().min(1, 'Sales person is required.'),
   orderDate: z.date().refine((date) => date instanceof Date && !Number.isNaN(date.getTime()), {
     message: 'Order date is required and must be a valid date.',
@@ -46,7 +48,7 @@ const createOrderSchema = baseOrderSchema.extend({
 // Define the edit schema with customer and salesPerson as respective schemas
 const editOrderSchema = baseOrderSchema.extend({
   variant: z.literal('edit'),
-  orderId: z.number().min(1),
+  salesOrderId: z.string().min(1),
 });
 
 // Combine create and edit schemas into a discriminated union schema
@@ -61,6 +63,7 @@ export const defaultOrderValues: OrderSchema = {
     name: '',
     mobile: '',
   },
+  store: Stores.Kegalle,
   orderDate: new Date(),
   deliveryDate: new Date(),
   weddingDate: undefined,

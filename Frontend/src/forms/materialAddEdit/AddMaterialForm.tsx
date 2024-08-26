@@ -18,9 +18,7 @@ type AddMaterialFormProps = {
 };
 
 const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
-  const {
-    control, unregister, watch, reset, setValue, handleSubmit, getValues,
-  } = useFormContext<MaterialSchema>();
+  const { control, unregister, watch, reset, setValue, handleSubmit, getValues } = useFormContext<MaterialSchema>();
 
   const [addNewMaterial] = useAddNewMaterialMutation();
   const [updateMaterial] = useUpdateSingleMaterialMutation();
@@ -84,7 +82,7 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
       <div className="modal-content">
         <div className="modal-header">
           <h5 className="modal-title"> Add New Material</h5>
-          <button className="icon-button" type="button" onClick={handleFormClose}>
+          <button type="button" aria-label="close-btn" className="icon-button" onClick={handleFormClose}>
             <RiCloseLargeLine size={18} />
           </button>
         </div>

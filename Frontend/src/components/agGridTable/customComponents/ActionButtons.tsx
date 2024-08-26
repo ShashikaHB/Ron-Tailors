@@ -16,9 +16,11 @@ type ActionButtonProps = {
 const ActionButtons = ({ materialId, handleOpen, handleDelete, action }: ActionButtonProps) => {
   return (
     <div className="d-flex gap-2 mt-2">
-      <button type="button" className="primary-button-sm" onClick={() => handleOpen(materialId)}>
-        {action ? `${action}` : 'Edit'}
-      </button>
+      {action && (
+        <button type="button" className="primary-button-sm" onClick={() => handleOpen(materialId)}>
+          {action}
+        </button>
+      )}
       <button type="button" className="primary-button-sm" onClick={() => handleDelete(materialId)}>
         Delete
       </button>

@@ -42,7 +42,7 @@ export const sideBarConfig: SideBarConfig[] = [
         path: '/secured/rentReturn',
       },
       {
-        title: 'Add Rent Item',
+        title: 'Rent Items',
         path: '/secured/addRentItem',
       },
     ],
@@ -74,7 +74,7 @@ export const sideBarConfig: SideBarConfig[] = [
   {
     title: 'Payments',
     icon: <PaymentsIcon />,
-    path: '/secured/payments',
+    path: '/secured/editSalary',
   },
   {
     title: 'Cash Book',

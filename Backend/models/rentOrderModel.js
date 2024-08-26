@@ -10,6 +10,15 @@ const rentOrderSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Customer",
   },
+  rentOrderId: {
+    type: String,
+    unique: true,
+  },
+  store: {
+    enum: ["RW", "KE"],
+    type: String,
+    required: [true, "Store Location is required."],
+  },
   rentDate: {
     type: Date,
     required: [true, "Rent Date is required."],
@@ -69,18 +78,29 @@ const rentOrderSchema = new mongoose.Schema({
   stakeOption: {
     type: String,
     enum: ["NIC", "Deposit"],
+    required: [true, "Payment Type is required."],
   },
   orderStatus: {
     type: String,
-    enum: ['Completed','AdvancePaid','Incomplete'],
-    default: 'Incomplete'
-  }
+    enum: ["Completed", "AdvancePaid", "Incomplete"],
+    default: "Incomplete",
+  },
 });
 
 rentOrderSchema.plugin(AutoIncrement, {
-  inc_field: "rentOrderId",
+  inc_field: "rentOrderSeq",
   id: "rentOrders",
   start_seq: 10,
+});
+
+rentOrderSchema.post("save", function (doc, next) {
+  if (!doc.rentOrderId) {
+    // Update the rentOrderId after the sequence has been generated
+    doc.rentOrderId = `${doc.store}${doc.rentOrderSeq}`;
+    doc.save().then(() => next());
+  } else {
+    next();
+  }
 });
 
 //Export the model

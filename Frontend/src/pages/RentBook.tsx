@@ -24,8 +24,8 @@ const RentBook = () => {
 
   const defaultColDef: ColDef = { resizable: true };
 
-  const handleOpen = () => {
-    console.log('clicked open');
+  const handleOpen = (id: string) => {
+    navigate(`/secured/addRentOrder/${id}`);
   };
 
   const initialColDefs: ColDef<any>[] = [
@@ -34,6 +34,7 @@ const RentBook = () => {
     { headerName: 'Order Details', field: 'rentOrderDetails', cellRenderer: RentOrderDetailsRenderer, autoHeight: true, minWidth: 400 },
     { headerName: 'Rent Date', field: 'rentDate', valueFormatter: (params) => format(params.value as Date, 'dd-MM-yyyy') },
     { headerName: 'Return Date', field: 'returnDate', valueFormatter: (params) => format(params.value as Date, 'dd-MM-yyyy') },
+    { headerName: 'Order Status', field: 'orderStatus' },
     {
       headerName: 'Actions',
       field: 'action',
@@ -45,8 +46,8 @@ const RentBook = () => {
       },
     },
   ];
-  const [rowData, setRowData] = useState<any[]>([]);
-  const [colDefs, setColDefs] = useState<ColDef<any>[]>(initialColDefs);
+  const [rowData, setRowData] = useState<any>([]);
+  const [colDefs, setColDefs] = useState<any>(initialColDefs);
 
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
 
@@ -63,7 +64,7 @@ const RentBook = () => {
   useEffect(() => {
     if (orderSearchQuery !== '') {
       const lowercasedFilter = orderSearchQuery.toLowerCase();
-      const filteredRowData = rentOrders.filter(
+      const filteredRowData = rentOrders?.filter(
         (item) =>
           item.rentOrderId.toString().toLowerCase().includes(lowercasedFilter) ||
           item.customer.name.toLowerCase().includes(lowercasedFilter) ||

@@ -30,7 +30,21 @@ export const authApiSlice = apiSlice.injectEndpoints({
         method: 'GET',
       }),
     }),
+    sendOtp: builder.mutation<any, any>({
+      query: (mobile: string) => ({
+        url: '/auth/sendOtp',
+        method: 'POST',
+        body: { mobile },
+      }),
+    }),
+    verifyOtp: builder.mutation<{ mobile: string; otp: string }, any>({
+      query: (otpData: { mobile: string; otp: string }) => ({
+        url: '/auth/verifyOtp',
+        method: 'POST',
+        body: { ...otpData },
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation, useRegisterMutation, useLazyLogoutQuery } = authApiSlice;
+export const { useLoginMutation, useRegisterMutation, useLazyLogoutQuery, useSendOtpMutation, useVerifyOtpMutation } = authApiSlice;

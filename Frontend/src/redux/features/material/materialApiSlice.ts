@@ -6,7 +6,6 @@
  */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { toast } from 'sonner';
 import { omit } from 'lodash';
 import { GetMaterial, Material } from '../../../types/material';
 import apiSlice from '../../api/apiSlice';
@@ -30,9 +29,6 @@ export const materialApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: ['Materials'],
       transformResponse: (res: ApiResponse<Material[]>): Material[] => {
-        if (!res.success) {
-          toast.error('Material data fetching failed!');
-        }
         return res.data as Material[];
       },
     }),
@@ -41,11 +37,8 @@ export const materialApiSlice = apiSlice.injectEndpoints({
         url: `/material/${id}`,
         method: 'GET',
       }),
-      providesTags: (result, error, args) => (result ? [{ type: 'Materials', id: args?.toString() }] : []),
+      providesTags: (result, _error, args) => (result ? [{ type: 'Materials', id: args?.toString() }] : []),
       transformResponse: (res: ApiResponse<GetMaterial>): any => {
-        if (!res.success) {
-          toast.error('Material data fetching failed!');
-        }
         return { ...res.data, variant: 'edit' };
       },
     }),
@@ -61,13 +54,13 @@ export const materialApiSlice = apiSlice.injectEndpoints({
         }
         throw new Error('Unsupported variant type for update.');
       },
-      invalidatesTags: (result: any, error: any, args: { variant: string; materialId: { toString: () => any } }) => [
-        {
-          type: 'Materials',
-          id: args?.variant === 'edit' ? args.materialId.toString() : 'unknown',
-        },
-        { type: 'Materials' },
-      ],
+      //   invalidatesTags: (_result: any, _error: any, arg: { variant: any; materialId: { toString: () => any } }) => [
+      //     {
+      //       type: 'Materials',
+      //       id: arg?.variant === 'edit' ? arg.materialId.toString() : 'unknown',
+      //     },
+      //     { type: 'Materials' },
+      //   ],
     }),
     deleteNewMaterial: builder.mutation<ApiResponse, number>({
       query: (materialId) => ({

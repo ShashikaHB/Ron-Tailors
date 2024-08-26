@@ -59,12 +59,21 @@ export const productApiSlice = apiSlice.injectEndpoints({
         body: { ...data.measurement },
       }),
       transformResponse: (res: ApiResponse<any>) => {
-        if (!res.success) {
-          toast.error('error while creating measurement');
-        }
         toast.success('New measurement created.');
         return res.data;
       },
+    }),
+    updateProductStatus: builder.mutation({
+      query: ({ status, productId }: { status: string; productId: number }) => ({
+        url: `/product/updateStatus/${productId}`,
+        method: 'PATCH',
+        body: { status },
+      }),
+      transformResponse: (res: ApiResponse<any>) => {
+        toast.success('Product Status updated..');
+        return res.data;
+      },
+      invalidatesTags: ['SalesOrder'],
     }),
     searchRentItem: builder.query<ApiGetRentItem, string>({
       query: (rentItemId: string) => ({
@@ -82,5 +91,11 @@ export const productApiSlice = apiSlice.injectEndpoints({
   }),
 });
 
-export const { useAddNewProductMutation, useGetAllProductsQuery, useGetSingleProductQuery, useUpdateSingleProductMutation, useLazySearchRentItemQuery } =
-  productApiSlice;
+export const {
+  useAddNewProductMutation,
+  useGetAllProductsQuery,
+  useGetSingleProductQuery,
+  useUpdateSingleProductMutation,
+  useLazySearchRentItemQuery,
+  useUpdateProductStatusMutation,
+} = productApiSlice;

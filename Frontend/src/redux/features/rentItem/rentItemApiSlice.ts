@@ -4,23 +4,15 @@
  * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
-import { toast } from 'sonner';
 import apiSlice from '../../api/apiSlice';
 import { ApiResponse } from '../../../types/common';
 import { RentItemSchema } from '../../../forms/formSchemas/rentItemSchema';
 import { ApiGetRentItem } from '../../../types/rentItem';
 import { GetMaterial } from '../../../types/material';
+import handleApiResponse from '../../../utils/handleApiResponse';
 
 export const rentItemApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    addNewRentItem: builder.mutation<ApiResponse, RentItemSchema>({
-      query: (addNewRentItem) => ({
-        url: '/rentItem',
-        method: 'POST',
-        body: { ...addNewRentItem },
-      }),
-      invalidatesTags: ['RentItem'],
-    }),
     getAllRentItems: builder.query<ApiGetRentItem[], void>({
       query: () => ({
         url: '/rentItem',
@@ -28,11 +20,8 @@ export const rentItemApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: ['RentItem'],
       transformResponse: (res: ApiResponse<ApiGetRentItem[]>) => {
-        if (!res.success) {
-          toast.error('Material data fetching failed!');
-          return [];
-        }
-        return (res.data ?? []).map((item) => ({
+        const data = handleApiResponse(res);
+        return (data ?? []).map((item) => ({
           ...item,
           variant: 'edit' as const,
         }));
@@ -45,11 +34,21 @@ export const rentItemApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: (result, error, args) => (result ? [{ type: 'RentItem', id: args?.toString() }] : []),
       transformResponse: (res: ApiResponse<GetMaterial>): any => {
-        if (!res.success) {
-          toast.error('Material data fetching failed!');
+        const data = handleApiResponse(res);
+        if (data) {
+          return { ...data, variant: 'edit' };
         }
-        return { ...res.data, variant: 'edit' };
+        return null;
       },
+    }),
+    addNewRentItem: builder.mutation<ApiResponse, RentItemSchema>({
+      query: (addNewRentItem) => ({
+        url: '/rentItem',
+        method: 'POST',
+        body: { ...addNewRentItem },
+      }),
+      invalidatesTags: ['RentItem'],
+      transformResponse: (res: ApiResponse) => handleApiResponse(res, 'Rent Item added Successfully!'),
     }),
     updateSingleRentItem: builder.mutation<ApiResponse, RentItemSchema>({
       query: (rentItem: RentItemSchema) => {
@@ -62,30 +61,21 @@ export const rentItemApiSlice = apiSlice.injectEndpoints({
         }
         throw new Error('Unsupported variant type for update.');
       },
-      invalidatesTags: (result: any, error: any, args: { variant: string; rentItemId: { toString: () => any } }) => [
-        {
-          type: 'RentItem',
-          id: args?.variant === 'edit' ? args.rentItemId?.toString() : 'unknown',
-        },
-        { type: 'RentItem' },
-      ],
+      invalidatesTags: (result, error, args) => {
+        if (args.variant === 'edit') {
+          return [{ type: 'RentItem', id: args.rentItemId.toString() }];
+        }
+        return [];
+      },
+      transformResponse: (res: ApiResponse) => handleApiResponse(res, 'Rent Item updated Successfully!'),
     }),
-    deleteRentItem: builder.mutation<ApiGetRentItem[], any>({
+    deleteRentItem: builder.mutation<ApiResponse, number>({
       query: (itemId) => ({
         url: `/rentItem/${itemId}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['RentItem'],
-      transformResponse: (res: ApiResponse<ApiGetRentItem[]>) => {
-        if (!res.success) {
-          return [];
-        }
-        toast.success('Rent Item Deleted successfully!');
-        return (res.data ?? []).map((item) => ({
-          ...item,
-          variant: 'edit' as const,
-        }));
-      },
+      transformResponse: (res: ApiResponse) => handleApiResponse(res, 'Rent Item deleted Successfully!'),
     }),
   }),
 });

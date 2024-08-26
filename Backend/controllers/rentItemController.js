@@ -82,7 +82,7 @@ export const updateRentItem = asyncHandler(async (req, res) => {
     throw new Error("No rentItem found to update.");
   }
 
-  const updatedMaterial = await RentItem.findByIdAndUpdate(
+  const updatedRentItem = await RentItem.findByIdAndUpdate(
     rentItem._id,
     {
       description: req?.body?.description,
@@ -98,7 +98,7 @@ export const updateRentItem = asyncHandler(async (req, res) => {
   res.json({
     message: "RentItem updated.",
     success: true,
-    data: updatedMaterial,
+    data: updatedRentItem,
   });
 });
 
@@ -147,7 +147,7 @@ export const searchRentItem = asyncHandler(async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error.message,
+      message: error.message,
     });
   }
 });

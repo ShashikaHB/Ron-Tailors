@@ -15,7 +15,7 @@ const SignInSignUpLayout = () => (
       </div>
       <div className="col-6">
         <div className="login-body">
-          <div className='h-100'>
+          <div className="h-100">
             <Outlet />
           </div>
         </div>

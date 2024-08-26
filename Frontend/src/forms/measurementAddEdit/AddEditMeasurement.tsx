@@ -45,7 +45,7 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
 
   const [updateProduct, { data: updatedProduct }] = useUpdateSingleProductMutation();
 
-  const { data: productData, error, isLoading } = useGetSingleProductQuery(selectedProductId);
+  const { data: productData, isLoading } = useGetSingleProductQuery(selectedProductId);
 
   const addText = (text: string) => {
     const currentStyle = getValues('style');
@@ -78,7 +78,6 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
       } else {
         const response = await addMeasurement(data);
         if (response.error) {
-          toast.error(`Material Adding Failed`);
           console.log(response.error);
         } else {
           toast.success('New material Added.');
@@ -87,7 +86,7 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
             measurement: response.data.measurementId,
           });
           if (newResponse.error) {
-            toast.error('Product update failed.');
+            console.log(newResponse.error);
           } else {
             toast.success('Product update successful');
           }
@@ -95,8 +94,8 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
           handleClose();
         }
       }
-    } catch (error) {
-      toast.error(`Material Action Failed. ${error.message}`);
+    } catch (e) {
+      toast.error(`Measurement Action Failed. ${e.message}`);
     }
   };
 
@@ -104,18 +103,19 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
     if (productData) {
       toast.success('Product data fetched.');
       setValue('itemType', productData.type);
-    } else if (error) {
-      toast.error('Error fetching productData');
     }
-  }, [productData, error]);
+  }, [productData]);
 
   return (
     <div className="modal-dialog modal-dialog-centered">
       <div className="modal-content">
         <div className="modal-header">
-          <h5 className="modal-title">Add Measurements to {productData?.type}</h5>
-          <button className='icon-button' type="button" onClick={handleClose}>
-          <RiCloseLargeLine size={18} />
+          <h5 className="modal-title">
+            Add Measurements to
+            {` ${productData?.type}`}
+          </h5>
+          <button aria-label="close-btn" className="icon-button" type="button" onClick={handleClose}>
+            <RiCloseLargeLine size={18} />
           </button>
         </div>
         <div className="modal-body d-flex h-100">
@@ -126,6 +126,11 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
           ) : (
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="inputGroup">
+                <div>
+                  <h6>Copy form other Measurement</h6>
+                  <br />
+                  <div style={{ border: '1px solid black', marginTop: '20px' }} />
+                </div>
                 <div className="d-flex gap-1">
                   <button className="primary-button" type="button" onClick={() => addText('SB')}>
                     SB
@@ -185,16 +190,12 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
                 <button className="secondary-button" type="button" onClick={() => handleClear()}>
                   Clear
                 </button>
-
                 <button className="primary-button" type="submit">
                   Save
                 </button>
               </div>
             </form>
           )}
-          <div>
-            <h5>Copy form other Measurement</h5>
-          </div>
         </div>
       </div>
     </div>
