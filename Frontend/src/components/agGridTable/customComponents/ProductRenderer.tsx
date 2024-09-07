@@ -4,10 +4,16 @@
  * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
+import { RiCloseLargeLine } from '@remixicon/react';
 import { memo } from 'react';
-import { Button } from '@mui/material';
 
-const ProductRenderer = ({ data, handleOpenMeasurement }) => {
+type ProductRendererProps = {
+  data: any;
+  handleOpenMeasurement: (id: number) => void;
+  handleRemove: (id: number) => void;
+};
+
+const ProductRenderer = ({ data, handleOpenMeasurement, handleRemove }: ProductRendererProps) => {
   const { description, products } = data;
 
   return (
@@ -16,7 +22,7 @@ const ProductRenderer = ({ data, handleOpenMeasurement }) => {
         <strong>{description}</strong>
       </div>
       <div>
-        {products.map((product, index) => {
+        {products.map((product: any, index: any) => {
           return (
             <div
               key={index}
@@ -25,12 +31,18 @@ const ProductRenderer = ({ data, handleOpenMeasurement }) => {
                 alignItems: 'center',
                 marginTop: '5px',
               }}
+              className="d-flex gap-4"
             >
               <span style={{ marginRight: '10px' }}>{product.type}</span>
-              <Button variant="outlined" size="small" style={{ marginRight: '10px' }} onClick={() => handleOpenMeasurement(product.productId)}>
-                M
-              </Button>
-              <span>${product.price}</span>
+              <span>Rs.{product.price}</span>
+              <div className="d-flex gap-2">
+                <button type="button" aria-label="close-btn" className="icon-button" onClick={() => handleOpenMeasurement(product.productId)}>
+                  M
+                </button>
+                <button type="button" aria-label="close-btn" className="icon-button" onClick={() => handleRemove(product.productId)}>
+                  <RiCloseLargeLine size={18} />
+                </button>
+              </div>
             </div>
           );
         })}

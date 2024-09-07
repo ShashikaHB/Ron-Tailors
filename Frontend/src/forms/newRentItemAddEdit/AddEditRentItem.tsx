@@ -5,7 +5,6 @@
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
 import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
-import { toast } from 'sonner';
 import { useEffect } from 'react';
 import { RiCloseLargeLine } from '@remixicon/react';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
@@ -101,24 +100,24 @@ const AddEditRentItemForm = ({ handleClose, rentItemId }: AddMaterialFormProps) 
       if (variant === 'edit') {
         const response = await updateSingleRentItem(data);
         if (response.error) {
-          toast.error(`Rent Item Update Failed`);
+          //   toast.error(`Rent Item Update Failed`);
         } else {
-          toast.success('Rent Item Updated.');
+          //   toast.success('Rent Item Updated.');
           setValue('size', null);
           reset(defaultRentItemValues);
         }
       } else {
         const response = await addNewRentItem(data);
         if (response.error) {
-          toast.error(`Rent Item Adding Failed`);
+          //   toast.error(`Rent Item Adding Failed`);
         } else {
-          toast.success('New material Added.');
+          //   toast.success('New material Added.');
           setValue('size', null);
           reset(defaultRentItemValues);
         }
       }
     } catch (error) {
-      toast.error(`Rent Item Action Failed. ${error.message}`);
+      //   toast.error(`Rent Item Action Failed. ${error.message}`);
     }
   };
 
@@ -127,8 +126,8 @@ const AddEditRentItemForm = ({ handleClose, rentItemId }: AddMaterialFormProps) 
       <div className="modal-content">
         <div className="modal-header">
           <h5 className="modal-title"> Add New Rent Item</h5>
-          <button className='icon-button' type="button" onClick={handleFormClose}>
-          <RiCloseLargeLine size={18} />
+          <button aria-label="close-btn" className="icon-button" type="button" onClick={handleFormClose}>
+            <RiCloseLargeLine size={18} />
           </button>
         </div>
         <div className="modal-body">

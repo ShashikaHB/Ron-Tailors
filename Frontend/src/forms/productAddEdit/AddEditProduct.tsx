@@ -7,9 +7,10 @@
 import { useEffect, useState } from 'react';
 import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
-import { TextField } from '@mui/material';
+import { MenuItem, TextField } from '@mui/material';
 import { ColDef } from 'ag-grid-community';
 import { RiCloseLargeLine } from '@remixicon/react';
+import { capitalize } from 'lodash';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
 import { ProductSchema } from '../formSchemas/productSchema';
 import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
@@ -19,23 +20,22 @@ import Loader from '../../components/loderComponent/Loader';
 import RHFSwitch from '../../components/customFormComponents/customSwitch/RHFSwitch';
 import ProductType from '../../enums/ProductType';
 import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
-import {
-  resetMaterials, selectMaterial, selectType, setMaterials,
-} from '../../redux/features/product/productSlice';
-import { MaterialNeededforProduct } from '../../types/material';
+import { removeMaterials, resetMaterials, selectMaterial, selectType, setMaterials } from '../../redux/features/product/productSlice';
+import { GetMaterial, MaterialNeededforProduct } from '../../types/material';
 import Table from '../../components/agGridTable/Table';
 import { useAddNewProductMutation } from '../../redux/features/product/productApiSlice';
 import { setCreatedProducts } from '../../redux/features/orders/orderSlice';
-import { getUserRoleBasedOptions } from '../../utils/userUtils';
+import getUserRoleBasedOptions from '../../utils/userUtils';
+import SimpleActionButton from '../../components/agGridTable/customComponents/SimpleActionButton';
+import { useGetAllMaterialsQuery } from '../../redux/features/material/materialApiSlice';
+import getAvailableMaterialOptions from '../../utils/materialUtils';
 
 type AddEditProductProps = {
   handleClose: () => void;
 };
 
 const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
-  const {
-    control, unregister, watch, reset, setValue, handleSubmit, getValues, clearErrors,
-  } = useFormContext<ProductSchema>();
+  const { control, unregister, watch, reset, setValue, handleSubmit, getValues, clearErrors } = useFormContext<ProductSchema>();
 
   const productType = useAppSelector(selectType);
   const selectedMaterials = useAppSelector(selectMaterial);
@@ -43,27 +43,38 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
 
   const variant = useWatch({ control, name: 'variant' });
 
-  const [material, setMaterial] = useState<MaterialNeededforProduct>({
-    material: 0,
-    unitsNeeded: 0,
-  });
-
   const [addProduct] = useAddNewProductMutation();
 
-  const { data: users = [], error, isLoading } = useGetAllUsersQuery();
+  const { data: users = [], isLoading } = useGetAllUsersQuery();
+  const { data: materials, isLoading: materialLoading } = useGetAllMaterialsQuery();
+
+  const materialOptions = getAvailableMaterialOptions(materials as GetMaterial[]);
+
+  const [material, setMaterial] = useState<MaterialNeededforProduct>({
+    material: materialOptions[0]?.value,
+    unitsNeeded: 0,
+  });
 
   const cuttersOptions = getUserRoleBasedOptions(users, Roles.Cutter);
   const tailorOptions = getUserRoleBasedOptions(users, Roles.Tailor);
   const measurerOptions = getUserRoleBasedOptions(users, Roles.SalesPerson);
 
-  const colDefs: ColDef<MaterialNeededforProduct>[] = [
-    { headerName: 'Id', field: 'material' },
-    { headerName: 'Units needed', field: 'unitsNeeded' },
-  ];
+  const handleRemove = (id: number) => {
+    dispatch(removeMaterials(id));
+  };
 
-  if (error) {
-    toast.error('Error fetching users');
-  }
+  const colDefs: ColDef<MaterialNeededforProduct>[] = [
+    { headerName: 'Material Id', field: 'material' },
+    { headerName: 'Units needed', field: 'unitsNeeded' },
+    {
+      headerName: '',
+      cellRenderer: SimpleActionButton,
+      cellRendererParams: {
+        handleRemove,
+        idField: 'material',
+      },
+    },
+  ];
 
   const handleClear = () => {
     reset();
@@ -97,18 +108,17 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
       } else {
         const response = await addProduct(data);
         if (response.error) {
-          toast.error('Material Adding Failed');
           console.log(response.error);
         } else {
-          toast.success('New material Added.');
+          toast.success('New Product Created.');
           dispatch(setCreatedProducts(response.data));
           reset();
           dispatch(resetMaterials());
           handleClose();
         }
       }
-    } catch (error) {
-      toast.error(`Material Action Failed. ${error.message}`);
+    } catch (e) {
+      console.log(e);
     }
   };
 
@@ -134,11 +144,10 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
       <div className="modal-content">
         <div className="modal-header">
           <h5 className="modal-title">
-            {' '}
             Add New
-            {productType}
+            {` ${productType}`}
           </h5>
-          <button className="icon-button" onClick={handleClosePopup}>
+          <button aria-label="close-btn" type="button" className="icon-button" onClick={handleClosePopup}>
             <RiCloseLargeLine size={18} />
           </button>
         </div>
@@ -165,42 +174,58 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
                 </div>
               </div>
               <div className="inputGroup">
-                <div className="d-flex gap-4">
+                <h5 className="modal-title pt-1">Materials</h5>
+                <div className="d-flex gap-4 align-items-end mb-3">
+                  <div className="col-4">
+                    <TextField
+                      select
+                      size="small"
+                      label="Material"
+                      defaultValue={{
+                        value: 0,
+                        label: `Select a material`,
+                      }}
+                      onChange={(e) =>
+                        setMaterial((prev) => ({
+                          ...prev,
+                          material: Number(e.target.value),
+                        }))
+                      }
+                    >
+                      {materialOptions?.map((option, index) => (
+                        <MenuItem key={index} value={option.value} disabled={option.value === 0}>
+                          {capitalize(option.label)}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </div>
                   <TextField
-                    type="number"
-                    label="Material Code"
-                    value={material.material}
-                    onChange={(e) => setMaterial((prev) => ({
-                      ...prev,
-                      material: Number(e.target.value),
-                    }))}
-                  />
-                  <TextField
-                    type="number"
                     label="Units needed"
                     value={material.unitsNeeded}
-                    onChange={(e) => setMaterial((prev) => ({
-                      ...prev,
-                      unitsNeeded: Number(e.target.value),
-                    }))}
+                    onChange={(e) =>
+                      setMaterial((prev) => ({
+                        ...prev,
+                        unitsNeeded: Number(e.target.value),
+                      }))
+                    }
                   />
+                  <button className="primary-button" type="button" onClick={() => handleMaterialAdd()}>
+                    Add
+                  </button>
                 </div>
-                <button className="primary-button" type="button" onClick={() => handleMaterialAdd()}>
-                  Add Material
-                </button>
               </div>
-              {selectedMaterials.length > 0 && (
-                <div style={{ height: '25vh' }}>
-                  <Table<MaterialNeededforProduct> rowData={selectedMaterials} colDefs={colDefs} pagination={false} />
-                </div>
-              )}
+
+              <div style={{ height: '25vh' }}>
+                <Table<MaterialNeededforProduct> rowData={selectedMaterials} colDefs={colDefs} pagination={false} />
+              </div>
+
               <div className="modal-footer mt-3">
                 <button className="secondary-button" type="button" onClick={() => handleClear()}>
-                  Clear
+                  Clear Item
                 </button>
 
-                <button className="primary-button" type="submit" onClick={() => console.log('btn clicked')}>
-                  Add
+                <button className="primary-button" type="submit">
+                  Add Item
                 </button>
               </div>
             </form>

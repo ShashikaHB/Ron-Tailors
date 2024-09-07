@@ -3,7 +3,7 @@ import { getRentInvoice, getSalesInvoice } from "../controllers/invoiceControlle
 
 const router = express.Router();
 
-router.get("/salesOrder/:orderId", getSalesInvoice);
-router.get("/rentOrder/:orderId", getRentInvoice);
+router.get("/salesOrder/:salesOrderId", getSalesInvoice);
+router.get("/rentOrder/:rentOrderId", getRentInvoice);
 
 export default router;

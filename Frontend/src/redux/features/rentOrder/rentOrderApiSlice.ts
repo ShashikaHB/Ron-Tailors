@@ -4,11 +4,8 @@
  * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
-import { toast } from 'sonner';
-import { omit } from 'lodash';
 import apiSlice from '../../api/apiSlice';
 import { ApiResponse } from '../../../types/common';
-import { MaterialSchema } from '../../../forms/formSchemas/materialsSchema';
 import { ApiGetRentOrder } from '../../../types/rentOrder';
 
 export const rentOutApiSlice = apiSlice.injectEndpoints({
@@ -20,9 +17,6 @@ export const rentOutApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: (result, error, args) => (result ? [{ type: 'RentOrder', id: args?.toString() }] : []),
       transformResponse: (res: ApiResponse<ApiGetRentOrder>): any => {
-        if (!res.success) {
-          toast.error('Material data fetching failed!');
-        }
         return { ...res.data, variant: 'edit' };
       },
     }),
@@ -31,11 +25,8 @@ export const rentOutApiSlice = apiSlice.injectEndpoints({
         url: `/rentOrder`,
         method: 'GET',
       }),
-      providesTags: (result, error, args) => (result ? [{ type: 'RentOrder', id: args?.toString() }] : []),
+      providesTags: ['RentOrder'],
       transformResponse: (res: ApiResponse<ApiGetRentOrder[]>): any => {
-        if (!res.success) {
-          toast.error('Material data fetching failed!');
-        }
         return res.data;
       },
     }),
@@ -46,11 +37,7 @@ export const rentOutApiSlice = apiSlice.injectEndpoints({
         body: { ...newRentOrder },
       }),
       transformResponse: (res: ApiResponse<any>) => {
-        if (!res.success) {
-          toast.error('Rent order creation failed.');
-        } else {
-          return { ...res.data };
-        }
+        return { ...res.data };
       },
       invalidatesTags: ['RentOrder'],
     }),
@@ -61,40 +48,34 @@ export const rentOutApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: (result, error, args) => (result ? [{ type: 'RentOrder', id: args?.toString() }] : []),
       transformResponse: (res: ApiResponse<ApiGetRentOrder>): any => {
-        if (!res.success) {
-          toast.error('Material data fetching failed!');
-        }
         return { ...res.data, variant: 'edit' };
       },
     }),
-    updateSingleMaterial: builder.mutation<ApiResponse<string>, MaterialSchema>({
-      query: (material: MaterialSchema) => {
-        if (material.variant === 'edit') {
-          const materialData = omit(material, ['variant', 'materialId']);
-          return {
-            url: `/material/${material.materialId}`,
-            method: 'PATCH',
-            body: materialData,
-          };
-        }
-        throw new Error('Unsupported variant type for update.');
+    updateSingleRentOrder: builder.mutation<ApiResponse<any>, any>({
+      query: (rentOrderData: any) => {
+        return {
+          url: `/rentOrder/${rentOrderData.rentOrderId}`,
+          method: 'PATCH',
+          body: { ...rentOrderData },
+        };
       },
-      invalidatesTags: (
-        result: any,
-        error: any,
-        args: {
-          variant: string;
-          materialId: { toString: () => any };
-        }
-      ) => [
-        {
-          type: 'Materials',
-          id: args?.variant === 'edit' ? args.materialId.toString() : 'unknown',
-        },
-        { type: 'Materials' },
-      ],
+      invalidatesTags: (result, error, args) => (result ? [{ type: 'RentOrder', id: args.rentOrderId }, { type: 'RentOrder' }] : []),
+    }),
+    rentReturn: builder.mutation<ApiResponse<any>, string>({
+      query: (rentOrderId: string) => ({
+        url: `/rentOrder/rentReturn/${rentOrderId}`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['RentOrder', 'RentItem'],
     }),
   }),
 });
 
-export const { useAddNewRentOrderMutation, useLazyGetSingleRentOrderQuery, useLazySearchRentOrderByItemQuery, useGetAllRentOrdersQuery } = rentOutApiSlice;
+export const {
+  useAddNewRentOrderMutation,
+  useLazyGetSingleRentOrderQuery,
+  useLazySearchRentOrderByItemQuery,
+  useGetAllRentOrdersQuery,
+  useRentReturnMutation,
+  useUpdateSingleRentOrderMutation,
+} = rentOutApiSlice;

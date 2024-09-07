@@ -8,6 +8,7 @@ import z from 'zod';
 import PaymentType from '../../enums/PaymentType';
 import ProductType from '../../enums/ProductType';
 import StakeOptions from '../../enums/StakeOptions';
+import Stores from '../../enums/Stores';
 
 // Create a base schema without the conditional fields
 const baseRentOrderSchema = z.object({
@@ -17,6 +18,7 @@ const baseRentOrderSchema = z.object({
       message: 'Mobile number should be exactly 10 digits',
     }),
   }),
+  store: z.nativeEnum(Stores).default(Stores.Kegalle),
   salesPerson: z.number().min(1, 'Sales person is required.'),
   rentDate: z.date().refine((date) => date instanceof Date && !Number.isNaN(date.getTime()), {
     message: 'Rent Date is required and must be a valid Date',
@@ -24,7 +26,6 @@ const baseRentOrderSchema = z.object({
   returnDate: z.date().refine((date) => date instanceof Date && !Number.isNaN(date.getTime()), {
     message: 'Delivery date is required and must be a valid date.',
   }),
-  type: z.nativeEnum(ProductType),
   rentOrderDetails: z.array(
     z.object({
       productId: z.union([z.coerce.number(), z.undefined()]),
@@ -55,7 +56,7 @@ const createRentOrderSchema = baseRentOrderSchema.extend({
 // Define the edit schema with customer and salesPerson as respective schemas
 const editRentOrderSchema = baseRentOrderSchema.extend({
   variant: z.literal('edit'),
-  rentOrderId: z.number().min(1),
+  rentOrderId: z.string().min(1),
 });
 
 // Combine create and edit schemas into a discriminated union schema
@@ -70,10 +71,10 @@ export const defaultRentOrderValues: RentOrderSchema = {
     name: '',
     mobile: '',
   },
+  store: Stores.Kegalle,
   rentDate: new Date(),
   returnDate: new Date(),
   salesPerson: 0,
-  type: ProductType.Coat,
   rentOrderDetails: [],
   totalPrice: 0,
   subTotal: 0,

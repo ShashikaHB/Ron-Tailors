@@ -268,7 +268,16 @@ body {
     margin-bottom: 0;
   }
 
-  .font-weight-bold{
-    font-weight: 700;
+  .otp-area {
+    width: 70%;
+    margin: 20px auto;
+    display: flex;
+    gap: 10px
+  }
+  .otp-input {
+    width: 50px;
+    padding: 10px;
+    outline: none;
+    text-align: center;
   }
 }

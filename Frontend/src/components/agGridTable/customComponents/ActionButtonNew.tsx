@@ -18,11 +18,9 @@ const ActionButtonNew = (props: ActionButtonPropTypes) => {
   const { handleEdit, handleDelete, idType, data, isOrderBook } = props;
 
   const id = data?.[idType];
-  console.log(idType, isOrderBook);
   const handlePrint = () => {
     const baseUrl = import.meta.env.VITE_BASE_URL;
-    const invoiceUrl = `${baseUrl}/invoice/${idType === 'rentOrderId' ? 'rentOrder' : 'salesOrder'}/${id}`;
-    console.log(invoiceUrl);
+    const invoiceUrl = `${baseUrl}/api/v1/invoice/${idType === 'rentOrderId' ? 'rentOrder' : 'salesOrder'}/${id}`;
     window.open(invoiceUrl, '_blank');
   };
 

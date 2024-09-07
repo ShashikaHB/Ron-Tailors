@@ -45,7 +45,7 @@ export type EditRentOrder = {
   variant: 'edit';
   customer: GetCustomer;
   SalesPerson: User;
-  rentOrderId: number;
+  rentOrderId: string;
 };
 
 export type ApiCreateEditRentOrder = RentOrder & (CreateRentOrder | EditRentOrder);

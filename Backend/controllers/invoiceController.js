@@ -5,9 +5,9 @@ import { SalesOrder } from "../models/salesOrderModel.js";
 import { RentOrder } from "../models/rentOrderModel.js";
 
 export const getSalesInvoice = asyncHandler(async (req, res) => {
-  const { orderId } = req.params;
+  const { salesOrderId } = req.params;
 
-  const orderData = await SalesOrder.findOne({ orderId })
+  const orderData = await SalesOrder.findOne({ salesOrderId })
     .lean()
     .populate("customer")
     .populate({
@@ -33,7 +33,7 @@ export const getSalesInvoice = asyncHandler(async (req, res) => {
         .reduce((total, product) => total + product.price, 0)
         .toFixed(2)}`,
     })),
-    orderNo: orderData.orderId,
+    orderNo: orderData.salesOrderId,
     totals: {
       subTotal: `Rs${orderData.subTotal.toFixed(2)}`,
       discount: orderData.discount
@@ -59,9 +59,9 @@ export const getSalesInvoice = asyncHandler(async (req, res) => {
 });
 
 export const getRentInvoice = asyncHandler(async (req, res) => {
-  const { orderId } = req.params;
+  const { rentOrderId } = req.params;
 
-  const orderData = await RentOrder.findOne({ rentOrderId: orderId })
+  const orderData = await RentOrder.findOne({ rentOrderId: rentOrderId })
     .lean()
     .populate("customer")
     .exec();

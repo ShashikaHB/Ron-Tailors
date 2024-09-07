@@ -11,7 +11,7 @@ import router from './router';
 const App = () => {
   return (
     <>
-      <Toaster position="top-right" richColors duration={1000} />
+      <Toaster position="top-right" richColors duration={1500} />
       <RouterProvider router={router} />
     </>
   );

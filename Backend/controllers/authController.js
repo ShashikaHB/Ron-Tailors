@@ -6,6 +6,9 @@ import {
 import * as dotenv from "dotenv";
 import { User } from "../models/userModel.js";
 import asyncHandler from "express-async-handler";
+import { sendSMS } from "../notificationSMS/smsNotification.js";
+import { generateOtp } from "../utils/otp.js";
+import { OTPModel } from "../models/otpModel.js";
 
 dotenv.config();
 
@@ -224,3 +227,67 @@ export const handleLogOut = asyncHandler(async (req, res) => {
     success: true,
   });
 });
+
+export const sendOtp = asyncHandler(async (req, res) => {
+  const { mobile } = req?.body;
+
+  if (!mobile) {
+    throw new Error("Mobile number not found");
+  }
+
+  const duplicates = await User.findOne({ mobile }).lean().exec();
+
+  if (duplicates) {
+    throw new Error("User Already Exists")
+  }
+
+  const otp = generateOtp().toString();
+
+  const messageBody = `Your Ron Tailors verification Code is: ${otp}`;
+
+  try {
+    await sendSMS(messageBody, mobile);
+
+    const otpDoc = await OTPModel.findOne({mobile}).exec()
+
+    if (otpDoc) {
+        otpDoc.otp = otp;
+        otpDoc.save()
+    } else {
+        const newOtpDoc = await OTPModel.create({ mobile, otp });
+        if (!newOtpDoc) {
+            throw new Error("Internal Server Error")
+        }
+    }
+  
+    res.json({
+      message: "OTP sent",
+      success: true,
+    });
+  } catch (error) {
+    res.status(500);
+    throw new Error("OTP sending failed.");
+  }
+});
+
+export const verifyOtp = asyncHandler(async(req,res)=> {
+    const {mobile, otp} = req.body;
+    
+    if (!otp || !mobile) {
+        res.status(404)
+        throw new Error("OTP not found")
+    }
+
+    const otpDoc = OTPModel.findOne({mobile, otp})
+
+    if (!otpDoc) {
+        throw new Error("Invalid OTP")
+    }
+
+    res.json({
+        success: true,
+        message: "OTP verified!"
+    })
+    await OTPModel.findOneAndDelete({ mobile, otp });
+})
+
