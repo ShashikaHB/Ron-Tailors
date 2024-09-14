@@ -7,8 +7,12 @@
 import { Outlet } from 'react-router-dom';
 import Header from '../components/header/Header';
 import SideNav from '../components/sideNav/SideNav';
+import { useAppSelector } from '../redux/reduxHooks/reduxHooks';
+import { loadingState } from '../redux/features/common/commonSlice';
 
 const RootLayout = () => {
+  const isLoading = useAppSelector(loadingState);
+
   return (
     <div className="d-flex flex-grow-1">
       <div className="d-flex flex-column h-100 w-100">
@@ -21,6 +25,7 @@ const RootLayout = () => {
               </div>
               <div className="col-10 flex-grow-1 overflow-hidden d-flex flex-column h-100 main-body-container py-3">
                 <div className="container-fluid h-100 overflow-y-auto ">
+                  {isLoading && <div>Loading...</div>}
                   <Outlet />
                 </div>
               </div>

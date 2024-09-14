@@ -24,7 +24,7 @@ const RHFDropDown = <T extends FieldValues>({ name, options, ...props }: Props<T
       render={({ field, fieldState: { error } }) => (
         <TextField {...field} {...props} select helperText={error?.message} error={!!error} size="small">
           {options?.map((option, index) => (
-            <MenuItem key={index} value={option.value} disabled={option.value === 0}>
+            <MenuItem key={index} value={option.value} disabled={option.value === 0 || option.value === ''}>
               {capitalize(option.label)}
             </MenuItem>
           ))}

@@ -63,8 +63,6 @@ const StockPage = () => {
     { headerName: 'Color', field: 'color' },
     { headerName: 'Available Units', field: 'noOfUnits' },
     { headerName: 'Unit Price', field: 'unitPrice' },
-    { headerName: 'Margin', field: 'marginPercentage' },
-    { headerName: 'Type', field: 'type' },
     {
       headerName: 'Actions',
       field: 'action',

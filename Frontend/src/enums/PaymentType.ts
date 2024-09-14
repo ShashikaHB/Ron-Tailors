@@ -7,6 +7,7 @@
 enum PaymentType {
   Cash = 'Cash',
   Card = 'Card',
+  Bank = 'Bank Transfer',
 }
 
 export default PaymentType;

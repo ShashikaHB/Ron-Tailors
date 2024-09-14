@@ -7,23 +7,23 @@
 import { FormProvider, useForm } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { defaultSalaryValues, SalarySchema, salarySchema } from '../forms/formSchemas/salarySchema';
-import EditSalary from '../forms/salaryEdit/EditSalary';
+import EditPiecePrices from '../forms/piecesEdit/EditPiecePrices';
+import { defaultPiecePrices, piecePricesSchema, PiecePricesSchema } from '../forms/formSchemas/piecesSchema';
 
-const Salary = () => {
-  const methods = useForm<SalarySchema>({
+const PiecePrices = () => {
+  const pieceMethods = useForm<PiecePricesSchema>({
     mode: 'all',
-    resolver: zodResolver(salarySchema),
-    defaultValues: defaultSalaryValues,
+    resolver: zodResolver(piecePricesSchema),
+    defaultValues: defaultPiecePrices,
   });
   return (
-    <FormProvider {...methods}>
+    <FormProvider {...pieceMethods}>
       <div>
-        <EditSalary />
-        <DevTool control={methods.control} />
+        <EditPiecePrices />
+        <DevTool control={pieceMethods.control} />
       </div>
     </FormProvider>
   );
 };
 
-export default Salary;
+export default PiecePrices;

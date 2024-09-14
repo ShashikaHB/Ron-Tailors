@@ -1,6 +1,6 @@
 import express from "express";
 import {
-  createReadyMadeItem,
+  createReadyMadeItemOrder,
   deleteReadyMadeItem,
   getAllReadyMadeItems,
   getSingleReadyMadeItem,
@@ -9,7 +9,7 @@ import {
 
 const router = express.Router();
 
-router.post("/", createReadyMadeItem);
+router.post("/", createReadyMadeItemOrder);
 router.get("/", getAllReadyMadeItems);
 router.get("/:id", getSingleReadyMadeItem);
 router.patch("/:id", updateReadyMadeItem);

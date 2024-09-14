@@ -21,6 +21,7 @@ enum ProductType {
   Cravat = 'Cravat',
   Hanky = 'Hanky',
   Chain = 'Chain',
+  Belt = 'Belt',
 }
 
 export enum ProductCategory {

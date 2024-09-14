@@ -10,7 +10,7 @@ import { ApiResponse } from '../../../types/common';
 export const piecePriceApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // Create piece prices
-    createEditPiecePrices: builder.mutation<ApiResponse<any>, any>({
+    updatePiecePrices: builder.mutation<ApiResponse<any>, any>({
       query: (piecePrices) => ({
         url: '/pieces',
         method: 'POST',
@@ -20,15 +20,15 @@ export const piecePriceApiSlice = apiSlice.injectEndpoints({
     }),
     getAllPiecePrices: builder.query<any, void>({
       query: () => ({
-        url: '/salesOrder',
+        url: '/pieces',
         method: 'GET',
       }),
-      providesTags: ['SalesOrder'],
+      providesTags: ['PiecePrices'],
       transformResponse: (res: ApiResponse<any[]>): any => {
-        return res.data;
+        return { categories: res.data };
       },
     }),
   }),
 });
 
-export const { useCreateEditPiecePricesMutation, useGetAllPiecePricesQuery } = piecePriceApiSlice;
+export const { useUpdatePiecePricesMutation, useGetAllPiecePricesQuery } = piecePriceApiSlice;

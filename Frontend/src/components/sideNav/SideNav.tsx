@@ -72,14 +72,41 @@ export const sideBarConfig: SideBarConfig[] = [
     path: '/secured/users',
   },
   {
+    title: 'Salary',
+    icon: <PaymentsIcon />,
+    children: [
+      {
+        title: 'Salary',
+        path: '/secured/editSalary',
+      },
+      {
+        title: 'Piece Prices',
+        path: '/secured/editPiecePrices',
+      },
+    ],
+  },
+  {
+    title: 'Financial',
+    icon: <CashBookIcon />,
+    children: [
+      {
+        title: 'Cash Book',
+        path: '/secured/cashBook',
+      },
+      {
+        title: 'Accounts',
+        path: '/secured/accounts',
+      },
+      {
+        title: 'Day End',
+        path: '/secured/editPiecePrices',
+      },
+    ],
+  },
+  {
     title: 'Payments',
     icon: <PaymentsIcon />,
     path: '/secured/editSalary',
-  },
-  {
-    title: 'Cash Book',
-    icon: <CashBookIcon />,
-    path: '/secured/cashBook',
   },
   {
     title: 'Reports',

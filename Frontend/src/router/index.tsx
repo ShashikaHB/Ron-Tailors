@@ -25,6 +25,9 @@ import RentBook from '../pages/RentBook';
 import SalesOrderBook from '../pages/SalesOrderBook';
 import Salary from '../pages/Salary';
 import CashBook from '../pages/CashBook';
+import PiecePrices from '../pages/PiecePrices';
+import NewReadyMadeOrder from '../pages/NewReadyMadeOrder';
+import AccountsPage from '../pages/AccountsPage';
 
 const router = createBrowserRouter([
   {
@@ -78,12 +81,20 @@ const router = createBrowserRouter([
             element: <Salary />,
           },
           {
+            path: 'editPiecePrices',
+            element: <PiecePrices />,
+          },
+          {
             path: 'rentReturn',
             element: <NewRentReturn />,
           },
           {
             path: 'newOrder',
             element: <NewOrder />,
+          },
+          {
+            path: 'newReadyMadeOrder',
+            element: <NewReadyMadeOrder />,
           },
           {
             path: 'stock',
@@ -100,6 +111,10 @@ const router = createBrowserRouter([
           {
             path: 'cashBook',
             element: <CashBook />,
+          },
+          {
+            path: 'accounts',
+            element: <AccountsPage />,
           },
           {
             path: 'Reports',
