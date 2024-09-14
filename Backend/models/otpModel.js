@@ -13,7 +13,7 @@ let otpSchema = new mongoose.Schema({
   },
 },{timestamps: true});
 
-otpSchema.index({createdAt: 1},{expireAfterSeconds: 3600});
+otpSchema.index({createdAt: 1},{expireAfterSeconds: 3600}); // Set expiration time to remove the saved OTP.
 
 
 //Export the model

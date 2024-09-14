@@ -5,13 +5,29 @@
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
 enum ProductType {
+  Coat = 'Coat',
+  NationalCoat = 'National Coat',
+  WestCoat = 'West Coat',
   Shirt = 'Shirt',
   Trouser = 'Trouser',
-  Coat = 'Coat',
-  WestCoat = 'West Coat',
-  Cravat = 'Cravat',
-  Bow = 'Bow',
+  DesignedTrouser = 'Designed Trouser',
+  DesignedShirt = 'Designed Shirt',
+  NationalShirt = 'National Shirt',
+  RentCoat = 'Rent Coat',
+  RentWestCoat = 'Rent West Coat',
+  Sarong = 'Sarong',
   Tie = 'Tie',
+  Bow = 'Bow',
+  Cravat = 'Cravat',
+  Hanky = 'Hanky',
+  Chain = 'Chain',
+}
+
+export enum ProductCategory {
+  General = 'General',
+  FullSuit = 'Full Suit',
+  NationalSuit = 'National Suit',
+  RentFullSuit = 'Rent Full Suit',
 }
 
 export default ProductType;

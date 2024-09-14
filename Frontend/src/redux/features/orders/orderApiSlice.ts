@@ -58,7 +58,6 @@ export const orderApiSlice = apiSlice.injectEndpoints({
         url: `/customer/searchCustomer?searchQuery=${customerQuery}`,
         method: 'GET',
       }),
-      providesTags: ['Customer'],
       transformResponse: (res: ApiResponse<CustomerSchema>): CustomerSchema => handleApiResponse(res, 'Customer search successful!'),
     }),
     updateSalesOrder: builder.mutation<ApiResponse<string>, any>({

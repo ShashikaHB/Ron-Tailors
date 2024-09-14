@@ -4,107 +4,47 @@ import { PiecePrices } from "../models/piecePriceModel.js";
 // @desc    Create piece prices
 // @route   POST /api/piecePrices
 // @access  Public
-export const createPiecePrices = asyncHandler(async (req, res) => {
-  const { type, ...prices } = req.body;
+export const createEditPiecePrices = asyncHandler(async (req, res) => {
+  const piecePrices = req.body; // array of {category, items}
 
-  if (!type || !['Cutting', 'Tailoring'].includes(type)) {
-    res.status(400);
-    throw new Error("Valid type ('Cutting' or 'Tailoring') is required.");
+  for (const { category, items } of piecePrices) {
+    // Find existing piece prices by category
+    const existingPiece = await PiecePrices.findOne({ category });
+
+    if (!existingPiece) {
+      // Create a new piece entry if it doesn't exist
+      const newPiece = await PiecePrices.create({ category, items });
+
+      if (!newPiece) {
+        throw new Error(
+          `Failed to create piece prices for category: ${category}`
+        );
+      }
+    } else {
+      // Update the existing piece's items
+      existingPiece.items = items;
+      await existingPiece.save();
+    }
   }
 
-  const existingPiecePrices = await PiecePrices.findOne({ type });
-
-  if (existingPiecePrices) {
-    res.status(400);
-    throw new Error(`Piece prices for ${type} already exist. Use update instead.`);
-  }
-
-  const piecePrices = new PiecePrices({ type, ...prices });
-  await piecePrices.save();
-
+  // Send a response for all processed categories
   res.status(201).json({
-    message: `Piece prices for ${type} created successfully.`,
-    success: true,
-    data: piecePrices,
-  });
-});
-
-// @desc    Update piece prices
-// @route   PATCH /api/piecePrices/:type
-// @access  Public
-export const updatePiecePrices = asyncHandler(async (req, res) => {
-  const { type } = req.params;
-  const { ...prices } = req.body;
-
-  if (!type || !['Cutting', 'Tailoring'].includes(type)) {
-    res.status(400);
-    throw new Error("Valid type ('Cutting' or 'Tailoring') is required.");
-  }
-
-  let piecePrices = await PiecePrices.findOne({ type });
-
-  if (!piecePrices) {
-    res.status(404);
-    throw new Error(`Piece prices for ${type} not found. Use create instead.`);
-  }
-
-  Object.assign(piecePrices, prices);
-  await piecePrices.save();
-
-  res.status(200).json({
-    message: `Piece prices for ${type} updated successfully.`,
-    success: true,
-    data: piecePrices,
-  });
-});
-
-// @desc    Get piece prices by type
-// @route   GET /api/piecePrices/:type
-// @access  Public
-export const getPiecePricesByType = asyncHandler(async (req, res) => {
-  const { type } = req.params;
-
-  if (!['Cutting', 'Tailoring'].includes(type)) {
-    res.status(400);
-    throw new Error("Valid type ('Cutting' or 'Tailoring') is required.");
-  }
-
-  const piecePrices = await PiecePrices.findOne({ type }).lean();
-
-  if (!piecePrices) {
-    res.status(404);
-    throw new Error("Piece prices not found.");
-  }
-
-  res.json({
-    message: "Piece prices fetched successfully.",
-    success: true,
-    data: piecePrices,
-  });
-});
-
-// @desc    Delete piece prices by type
-// @route   DELETE /api/piecePrices/:type
-// @access  Public
-export const deletePiecePricesByType = asyncHandler(async (req, res) => {
-  const { type } = req.params;
-
-  if (!['Cutting', 'Tailoring'].includes(type)) {
-    res.status(400);
-    throw new Error("Valid type ('Cutting' or 'Tailoring') is required.");
-  }
-
-  const piecePrices = await PiecePrices.findOne({ type });
-
-  if (!piecePrices) {
-    res.status(404);
-    throw new Error("Piece prices not found.");
-  }
-
-  await PiecePrices.deleteOne({ type });
-
-  res.json({
-    message: `Piece prices for ${type} deleted successfully.`,
+    message: `Piece prices created/updated successfully.`,
     success: true,
   });
 });
+
+export const getAllPiecePrices = asyncHandler(async(req,res)=> {
+
+    const piecePrices = await PiecePrices.find().select("-__v -_id").lean()
+
+    if (!piecePrices) {
+        throw new Error('No piece prices found!')
+    }
+
+    res.status(201).json({
+        message: `Piece Prices fetched Successfully`,
+        success: true,
+        data: piecePrices
+    })
+})

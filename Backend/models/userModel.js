@@ -23,17 +23,18 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["Cutter", "Tailor", "Sales Person", "Admin"],
+    enum: ["Cutter", "Tailor", "Sales Person", "Admin", "Altering", "Ironing", "Cleaning"],
     default: "Sales Person",
+  },
+  salaryGrade: {
+    type: String,
+    enum: ["A", "B", "C"]
   },
   isActive: {
     type: Boolean,
     default: true,
   },
   salary: {
-    type: String,
-  },
-  refreshToken: {
     type: String,
   },
 });

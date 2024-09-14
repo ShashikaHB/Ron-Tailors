@@ -57,11 +57,19 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   const newOrder = await RentOrder.create(orderData);
 
+  const salesPersonName = await User.findById(salesPersonDoc)
+    .select("name")
+    .lean()
+    .exec();
+
   // Create a credit transaction
   await Transaction.create({
-    type: "Credit",
+    transactionType: "Income",
+    transactionCategory: "Rent Order",
+    paymentType: paymentType,
+    salesPerson: salesPersonName,
     amount: newOrder.subTotal,
-    description: `Rent Order ${newOrder.salesOrderId}`,
+    description: `Rent Order ${newOrder.rentOrderId}`,
   });
 
   // Update the status of each rent item in the order to 'Not Returned'

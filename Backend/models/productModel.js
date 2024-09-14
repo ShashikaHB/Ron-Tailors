@@ -16,42 +16,55 @@ const productSchema = new mongoose.Schema({
       },
     },
   ],
-  style: {
-    type: String,
-  },
   color: {
     type: String,
   },
-  type: {
+  itemCategory: {
     type: String,
-    enum: ["Shirt", "Trouser", "Coat", "West Coat", "Cravat", "Bow", "Tie"],
+    enum: ["General", "Full Suit", "National Suit", "Rent Full Suit"],
+    default: "General",
+  },
+  itemType: {
+    type: String,
+    enum: [
+      "Coat",
+      "National Coat",
+      "West Coat",
+      "Shirt",
+      "Trouser",
+      "Designed Trouser",
+      "Designed Shirt",
+      "National Shirt",
+      "Rent Coat",
+      "Rent West Coat",
+      "Sarong",
+      "Tie",
+      "Bow",
+      "Cravat",
+      "Hanky",
+      "Chain",
+    ],
     required: [true, "Item Type is required."],
   },
   measurement: { type: mongoose.Schema.Types.ObjectId, ref: "Measurements" },
   size: {
     type: Number,
   },
-  cost: {
-    type: Number,
-  },
   price: {
     type: Number,
     required: [true, "Price is required."],
-  },
-  noOfUnits: {
-    type: Number,
   },
   status: {
     type: String,
     enum: [
       "Not Started",
-      "Cutting Started",
       "Cutting Done",
       "Tailoring Started",
       "Tailoring Done",
       "Ready Made",
     ],
     required: [true, "Status is required."],
+    default: "Not Started"
   },
   cutter: {
     type: mongoose.Schema.Types.ObjectId,

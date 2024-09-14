@@ -12,7 +12,7 @@ export const productSchema = z.intersection(
   z.object({
     materials: z.array(
       z.object({
-        material: z.number(),
+        material: z.string(),
         unitsNeeded: z.number().min(1, 'Number of units required.'),
       })
     ),

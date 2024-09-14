@@ -9,9 +9,9 @@ const mapProducts = (inputProducts: any, productsData: any) => {
     const mappedProducts = input.products.map((productId: any) => {
       const product = productsData.find((p: any) => p.productId === productId);
       return {
-        type: product.type,
-        price: product.price,
-        productId: product.productId,
+        type: product?.itemType,
+        price: product?.price,
+        productId: product?.productId,
       };
     });
 

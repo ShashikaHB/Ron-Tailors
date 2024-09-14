@@ -1,41 +1,46 @@
 import mongoose from "mongoose";
 
 const piecePricesSchema = new mongoose.Schema({
-  Shirt: {
-    type: Number,
-    required: [true, "Shirt price is required."],
-  },
-  Trouser: {
-    type: Number,
-    required: [true, "Trouser price is required."],
-  },
-  Coat: {
-    type: Number,
-    required: [true, "Coat price is required."],
-  },
-  WestCoat: {
-    type: Number,
-    required: [true, "West Coat price is required."],
-  },
-  Cravat: {
-    type: Number,
-    required: [true, "Cravat price is required."],
-  },
-  Bow: {
-    type: Number,
-    required: [true, "Bow price is required."],
-  },
-  Tie: {
-    type: Number,
-    required: [true, "Tie price is required."],
-  },
-  type: {
+  category: {
     type: String,
-    required: [true, "Type is required."],
-    enum: ["Cutting", "Tailoring"],
-    unique: true,  // Ensure the 'type' field is unique across the collection
-    default: "Cutting",
+    enum: ["General", "Full Suit", "National Suit", "Rent Full Suit"],
+    required: [true, "Item cutting price is required."],
+    default: "General",
   },
+  items: [
+    {
+      itemType: {
+        type: String,
+        enum: [
+          "Coat",
+          "National Coat",
+          "West Coat",
+          "Shirt",
+          "Trouser",
+          "Designed Trouser",
+          "Designed Shirt",
+          "National Shirt",
+          "Rent Coat",
+          "Rent West Coat",
+          "Sarong",
+          "Tie",
+          "Bow",
+          "Cravat",
+          "Hanky",
+          "Chain",
+        ],
+        required: [true, "Item Type is required."],
+      },
+      cuttingPrice: {
+        type: Number,
+        required: [true, "Item cutting price is required."],
+      },
+      tailoringPrice: {
+        type: Number,
+        required: [true, "Item cutting price is required."],
+      },
+    },
+  ],
 });
 
 export const PiecePrices = mongoose.model("PiecePrices", piecePricesSchema);

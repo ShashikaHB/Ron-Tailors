@@ -29,6 +29,12 @@ const NewOrder = () => {
       image: rentOut,
       link: '/secured/rentReturn',
     },
+    {
+      title: 'Payment',
+      subtitle: 'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
+      image: rentOut,
+      link: '/secured/cashBook',
+    },
   ];
   return (
     <div className="row overflow-y-auto p-3 gap-5 justify-content-center flex-column align-items-center h-100">

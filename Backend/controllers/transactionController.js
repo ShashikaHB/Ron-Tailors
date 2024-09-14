@@ -1,5 +1,6 @@
 import asyncHandler from "express-async-handler";
 import { Transaction } from "../models/transactionModel.js";
+import { getDocId } from '../utils/docIds.js';
 import {
   startOfDay,
   endOfDay,
@@ -15,21 +16,11 @@ export const getAllTransactions = asyncHandler(async (req, res) => {
   if (!transactions) {
     throw new Error("No transactions found!");
   }
-  // Separate the transactions into credits and debits
-  const credits = transactions.filter(
-    (transaction) => transaction.type === "Credit"
-  );
-  const debits = transactions.filter(
-    (transaction) => transaction.type === "Debit"
-  );
 
   res.json({
     message: "All transactions fetched successfully.",
     success: true,
-    data: {
-      credits,
-      debits,
-    },
+    data: transactions
   });
 });
 
@@ -86,22 +77,112 @@ export const getTransactionsByTimePeriod = asyncHandler(async (req, res) => {
 });
 
 export const addCustomTransaction = asyncHandler(async (req, res) => {
-  const { type, amount, description } = req.body;
+  const { transactionType, amount, description, paymentType, salesPerson, transactionCategory } = req.body;
 
-  if (!type || !amount || !description) {
+  if (!transactionType || !amount || !description || !paymentType || !salesPerson || !transactionCategory) {
     res.status(400);
     throw new Error("All fields are required.");
   }
 
-  const newTransaction = await Transaction.create({
-    type,
-    amount,
-    description,
-  });
+  const newTransaction = await Transaction.create(req.body);
+
+  if (!newTransaction) {
+    throw new Error ('Internal server error')
+  }
 
   res.json({
-    message: "Custom transaction added successfully.",
+    message: `${transactionType} added successfully.`,
     success: true,
     data: newTransaction,
   });
 });
+
+export const getSingleCustomTransaction = asyncHandler(async (req, res) => {
+    const { transactionId } = req.params; // Get the transaction ID from URL parameters
+
+    if (!transactionId) {
+        res.status(400);
+        throw new Error("Transaction ID is required.");
+      }  
+
+    const transaction = await Transaction.findOne({transactionId}).lean().exec();
+  
+    if (!transaction) {
+      throw new Error("No transaction found!");
+    }
+  
+    res.json({
+      message: "Transaction fetched successfully.",
+      success: true,
+      data: transaction
+    });
+  });
+
+export const editCustomTransaction = asyncHandler(async (req, res) => {
+    const { transactionId } = req.params; // Get the transaction ID from URL parameters
+    const { transactionType, amount, description, paymentType, salesPerson, transactionCategory } = req.body;
+  
+    // Check if transactionId exists
+    if (!transactionId) {
+      res.status(400);
+      throw new Error("Transaction ID is required.");
+    }
+  
+    // Check if at least one field to update is provided
+    if (!transactionType && !amount && !description && !paymentType && !salesPerson && !transactionCategory) {
+      res.status(400);
+      throw new Error("At least one field to update is required.");
+    }
+
+    const docId = await getDocId(Transaction, 'transactionId', transactionId )
+  
+    // Find the transaction by ID and update with the provided fields
+    const updatedTransaction = await Transaction.findByIdAndUpdate(
+        docId,
+      {
+        $set: req.body, // Update only the fields sent in the body
+      },
+      { new: true, runValidators: true } // Options: return the new document and run validations
+    );
+  
+    // Check if the transaction was found and updated
+    if (!updatedTransaction) {
+      res.status(404);
+      throw new Error("Transaction not found.");
+    }
+  
+    // Return the updated transaction
+    res.json({
+      message: "Transaction updated successfully.",
+      success: true,
+      data: updatedTransaction,
+    });
+  });
+
+  export const deleteCustomTransaction = asyncHandler(async (req, res) => {
+    const { transactionId } = req.params; // Get the transaction ID from URL parameters
+  
+    // Check if transactionId exists
+    if (!transactionId) {
+      res.status(400);
+      throw new Error("Transaction ID is required.");
+    }
+
+    const docId = await getDocId(Transaction, 'transactionId', transactionId )
+
+  
+    // Find the transaction by ID and delete it
+    const deletedTransaction = await Transaction.findByIdAndDelete(docId);
+  
+    // Check if the transaction was found and deleted
+    if (!deletedTransaction) {
+      res.status(404);
+      throw new Error("Transaction not found.");
+    }
+  
+    // Return success message after deletion
+    res.json({
+      message: "Transaction deleted successfully.",
+      success: true,
+    });
+  });

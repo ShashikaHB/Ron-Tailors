@@ -28,6 +28,7 @@ const baseOrderSchema = z.object({
   orderDetails: z.array(
     z.object({
       description: z.string().optional(),
+      category: z.string().optional(),
       products: z.array(z.number()),
     })
   ),
@@ -35,7 +36,12 @@ const baseOrderSchema = z.object({
   totalPrice: z.coerce.number().min(1, 'Total price is required.'),
   subTotal: z.coerce.number().min(1, 'Sub Total is required.'),
   discount: z.coerce.number().optional(),
-  advPayment: z.coerce.number().optional(),
+  advPayment: z.coerce
+    .number()
+    .optional()
+    .refine((value) => !Number.isNaN(value), {
+      message: 'This field must be a valid number',
+    }),
   balance: z.coerce.number().optional(),
   paymentType: z.nativeEnum(PaymentType).default(PaymentType.Cash),
 });

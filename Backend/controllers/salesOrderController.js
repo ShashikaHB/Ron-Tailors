@@ -44,7 +44,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     customer = await Customer.create({ name, mobile });
   }
 
-  const salesPersonDoc = await getDocId(User, "userId", salesPerson);
+  const salesPersonDoc = await User.findOne({userId: salesPerson}).lean().exec()
   if (!salesPersonDoc) {
     res.status(404);
     throw new Error(`No user found for ID ${salesPerson}`);
@@ -65,6 +65,7 @@ export const createOrder = asyncHandler(async (req, res) => {
 
       return {
         description: detail.description,
+        category: detail?.category,
         products: productsData,
       };
     })
@@ -73,7 +74,7 @@ export const createOrder = asyncHandler(async (req, res) => {
   const orderData = {
     ...req.body,
     customer: customer._id,
-    salesPerson: salesPersonDoc,
+    salesPerson: salesPersonDoc._id,
     orderDetails: orderDetailsData,
   };
 
@@ -81,9 +82,12 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   // Create a credit transaction
   await Transaction.create({
-    type: "Credit",
+    transactionType: "Income",
+    transactionCategory: "Sales Order",
+    paymentType: paymentType,
+    salesPerson: salesPersonDoc.name,
     amount: newOrder.subTotal,
-    description: `Sales Order ${newOrder.salesOrderId}`,
+    description: `Sales Order: ${newOrder.salesOrderId}`,
   });
 
   res.json({

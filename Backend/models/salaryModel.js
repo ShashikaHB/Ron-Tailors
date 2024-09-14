@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 // Declare the Schema of the Mongo model
 const salarySchema = new mongoose.Schema({
-  salesMen: {
+  salesPerson: {
     gradeA: {
       type: Number, // Assuming salary is a numeric value
       required: [true, "Grade A salary is required."],
@@ -23,6 +23,10 @@ const salarySchema = new mongoose.Schema({
       type: Number,
       required: [true, "Altering salesmen salary is required."],
     },
+    bonus: {
+        type: Number,
+        required: [true, "Salesmen Bonus salary is required."],
+    }
   },
   cleaningStaff: {
     gradeA: {
@@ -37,6 +41,10 @@ const salarySchema = new mongoose.Schema({
       type: Number,
       required: [true, "Grade C salary is required."],
     },
+    bonus: {
+        type: Number,
+        required: [true, "Salesmen Bonus salary is required."],
+    }
   },
 });
 

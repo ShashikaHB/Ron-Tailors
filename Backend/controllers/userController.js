@@ -66,6 +66,7 @@ export const updateUser = asyncHandler(async (req, res) => {
     {
       name: req?.body?.name,
       mobile: req?.body?.mobile,
+      salaryGrade: req?.body?.salaryGrade,
       role: req?.body?.role,
       isActive: req?.body?.isActive,
       salary: req?.body?.salary,
