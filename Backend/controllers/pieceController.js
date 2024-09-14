@@ -1,6 +1,43 @@
 import asyncHandler from "express-async-handler";
 import { PiecePrices } from "../models/piecePriceModel.js";
 
+export const updatePiecePrices = asyncHandler(async (req, res) => {
+    const { categories } = req.body;
+  
+    // Loop through the categories and update prices
+    for (const category of categories) {
+      const { category: categoryName, items } = category;
+  
+      // Find the corresponding category in the database
+      const existingCategory = await PiecePrices.findOne({ category: categoryName });
+  
+      if (existingCategory) {
+        // Loop through items and update their prices
+        items.forEach((item) => {
+          const existingItem = existingCategory.items.find(i => i.itemType === item.itemType);
+          if (existingItem) {
+            existingItem.cuttingPrice = item.cuttingPrice;
+            existingItem.tailoringPrice = item.tailoringPrice;
+          }
+        });
+  
+        // Save the updated category
+        await existingCategory.save();
+      } else {
+        // If category doesn't exist, create a new entry
+        await PiecePrices.create({
+          category: categoryName,
+          items,
+        });
+      }
+    }
+  
+    res.json({
+        success: true,
+        message: "Piece Prices Updated successfully!"
+    })
+  });
+
 // @desc    Create piece prices
 // @route   POST /api/piecePrices
 // @access  Public

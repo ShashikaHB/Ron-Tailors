@@ -8,38 +8,35 @@ import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import { RiCloseLargeLine } from '@remixicon/react';
 import { useEffect } from 'react';
-import { MaterialSchema, defaultMaterialValues } from '../formSchemas/materialsSchema';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
 import { useAddNewMaterialMutation, useGetSingleMaterialQuery, useUpdateSingleMaterialMutation } from '../../redux/features/material/materialApiSlice';
+import { defaultTransactionValues } from '../formSchemas/transactionSchema';
+import paymentOptions from '../../consts/paymentOptions';
+import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
+import { TransactionCategorySchema } from '../formSchemas/transactionCategorySchema';
 
 type AddMaterialFormProps = {
   handleClose: () => void;
   materialId?: number | null;
 };
 
-const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
-  const { control, unregister, watch, reset, setValue, handleSubmit, getValues } = useFormContext<MaterialSchema>();
+const AddTransactionCategory = ({ handleClose, materialId }: AddMaterialFormProps) => {
+  const { control, unregister, watch, reset, setValue, handleSubmit, getValues } = useFormContext<TransactionCategorySchema>();
 
   const [addNewMaterial] = useAddNewMaterialMutation();
   const [updateMaterial] = useUpdateSingleMaterialMutation();
   const { data: singleMaterial } = useGetSingleMaterialQuery(materialId as number);
 
-  const variant = useWatch({ control, name: 'variant' });
+  const variant = useWatch({ control });
 
   const handleFormClose = (): void => {
     handleClose();
-    reset(defaultMaterialValues);
+    reset(defaultTransactionValues);
   };
 
   const handleClear = (): void => {
-    reset(defaultMaterialValues);
+    reset(defaultTransactionValues);
   };
-
-  useEffect(() => {
-    if (singleMaterial) {
-      reset(singleMaterial);
-    }
-  }, [singleMaterial, reset]);
 
   useEffect(() => {
     const sub = watch((value) => {
@@ -51,7 +48,7 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
     };
   }, [watch]);
 
-  const onSubmit: SubmitHandler<MaterialSchema> = async (data) => {
+  const onSubmit: SubmitHandler<TransactionCategorySchema> = async (data) => {
     try {
       if (variant === 'edit') {
         const response = await updateMaterial(data);
@@ -81,7 +78,7 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
     <div className="modal-dialog modal-dialog-centered">
       <div className="modal-content">
         <div className="modal-header">
-          <h5 className="modal-title"> Add New Material</h5>
+          <h5 className="modal-title"> Add New Transaction</h5>
           <button type="button" aria-label="close-btn" className="icon-button" onClick={handleFormClose}>
             <RiCloseLargeLine size={18} />
           </button>
@@ -89,20 +86,15 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
         <div className="modal-body">
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="inputGroup">
-              <RHFTextField<MaterialSchema> label="Name" name="name" />
-              <RHFTextField<MaterialSchema> label="Color" name="color" />
-              <RHFTextField<MaterialSchema> label="Unit Price" name="unitPrice" type="number" />
-              <RHFTextField<MaterialSchema> label="Available Units" name="noOfUnits" type="number" />
-              <RHFTextField<MaterialSchema> label="Brand" name="brand" />
+              <RHFDropDown<TransactionCategorySchema> options={paymentOptions} name="transactionType" label="Payment Type" />
+              <RHFTextField<TransactionCategorySchema> label="Amount" name="transactionCategory" />
             </div>
             <div className="modal-footer mt-3">
-              {variant === 'create' && (
-                <button className="secondary-button" onClick={handleClear} type="button">
-                  Clear
-                </button>
-              )}
+              <button className="secondary-button" onClick={handleClear} type="button">
+                Clear
+              </button>
               <button className="primary-button" type="submit" onClick={() => console.log('btn clicked')}>
-                {variant === 'create' ? 'Add ' : 'Edit '}
+                Add Transaction
               </button>
             </div>
           </form>
@@ -112,4 +104,4 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
   );
 };
 
-export default AddMaterialForm;
+export default AddTransactionCategory;

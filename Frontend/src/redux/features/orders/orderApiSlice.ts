@@ -70,8 +70,23 @@ export const orderApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: (result, error, args) => (result ? [{ type: 'SalesOrder', id: args.salesOrderId }, { type: 'SalesOrder' }] : []),
     }),
+    addReadyMadeItemOrder: builder.mutation<ApiResponse<string>, any>({
+      query: (data: any) => {
+        return {
+          url: `/readyMade/`,
+          method: 'POST',
+          body: data,
+        };
+      },
+    }),
   }),
 });
 
-export const { useLazySearchCustomerQuery, useAddNewOrderMutation, useGetAllSalesOrdersQuery, useLazyGetSingleSalesOrderQuery, useUpdateSalesOrderMutation } =
-  orderApiSlice;
+export const {
+  useLazySearchCustomerQuery,
+  useAddNewOrderMutation,
+  useGetAllSalesOrdersQuery,
+  useLazyGetSingleSalesOrderQuery,
+  useUpdateSalesOrderMutation,
+  useAddReadyMadeItemOrderMutation,
+} = orderApiSlice;

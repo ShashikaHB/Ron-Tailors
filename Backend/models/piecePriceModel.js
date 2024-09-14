@@ -5,7 +5,7 @@ const piecePricesSchema = new mongoose.Schema({
     type: String,
     enum: ["General", "Full Suit", "National Suit", "Rent Full Suit"],
     required: [true, "Item cutting price is required."],
-    default: "General",
+    unique: true, // This field must be unique
   },
   items: [
     {

@@ -1,21 +1,20 @@
 import { ReadyMadeItem } from "../models/readyMadeItemModel.js";
 import asyncHandler from "express-async-handler";
+import { User } from "../models/userModel.js";
 
-export const createReadyMadeItem = asyncHandler(async (req, res) => {
-  const name = req.body.name;
-
-  const readyMadeItemExists = await ReadyMadeItem.findOne({ name });
-
-  if (!readyMadeItemExists) {
-    const newReadyMadeItem = await ReadyMadeItem.create(req.body);
-    res.json({
-      message: "New material created",
-      success: true,
-      data: newReadyMadeItem,
-    });
-  } else {
-    throw new Error("Material already exists.");
-  }
+export const createReadyMadeItemOrder = asyncHandler(async (req, res) => {
+    const {salesPerson} = req.body
+    const salesPersonDoc = await User.findOne({userId: salesPerson}).lean().exec()
+    if (!salesPersonDoc) {
+      res.status(404);
+      throw new Error(`No user found for ID ${salesPerson}`);
+    }
+  const newReadyMadeItem = await ReadyMadeItem.create({...req.body,salesPerson: salesPersonDoc._id});
+  res.json({
+    message: "New ReadyMade item created",
+    success: true,
+    data: newReadyMadeItem,
+  });
 });
 
 export const getAllReadyMadeItems = asyncHandler(async (req, res) => {

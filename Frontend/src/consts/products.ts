@@ -106,4 +106,39 @@ export const initialProductOptions = [
   },
 ];
 
+export const readyMadeItems = [
+  {
+    value: '',
+    label: `Select a product`,
+  },
+  {
+    value: ProductType.Bow,
+    label: 'Bow',
+  },
+  {
+    value: ProductType.Belt,
+    label: 'Belt',
+  },
+  {
+    value: ProductType.Tie,
+    label: 'Tie',
+  },
+  {
+    value: ProductType.Hanky,
+    label: 'Hanky',
+  },
+  {
+    value: ProductType.Coat,
+    label: 'Coat',
+  },
+  {
+    value: ProductType.Trouser,
+    label: 'Trouser',
+  },
+  {
+    value: ProductType.Shirt,
+    label: 'Shirt',
+  },
+];
+
 export const statusOptions = ['Not Started', 'Cutting Done', 'Tailoring Started', 'Tailoring Done'];

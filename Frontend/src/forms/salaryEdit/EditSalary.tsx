@@ -45,24 +45,27 @@ const EditSalary = () => {
             <div className="col-6">
               <div className="card h-100">
                 <div className="card-header">
-                  <h5>Salesmen Salaries</h5>
+                  <h5>Sales Person Salaries</h5>
                 </div>
                 <div className="card-body">
                   <div className="row">
                     <div className="col-6 mb-3">
-                      <RHFTextField<SalarySchema> label="Grade A" name="salesMen.gradeA" />
+                      <RHFTextField<SalarySchema> label="Grade A" name="salesPerson" />
                     </div>
                     <div className="col-6 mb-3">
-                      <RHFTextField<SalarySchema> label="Grade B" name="salesMen.gradeB" />
+                      <RHFTextField<SalarySchema> label="Grade B" name="salesPerson.gradeB" />
                     </div>
                     <div className="col-6 mb-3">
-                      <RHFTextField<SalarySchema> label="Grade C" name="salesMen.gradeC" />
+                      <RHFTextField<SalarySchema> label="Grade C" name="salesPerson.gradeC" />
                     </div>
                     <div className="col-6 mb-3">
-                      <RHFTextField<SalarySchema> label="Ironing Salesmen" name="salesMen.ironingSalesMen" />
+                      <RHFTextField<SalarySchema> label="Ironing salesPerson" name="salesPerson.ironingSalesMen" />
                     </div>
                     <div className="col-6 mb-3">
-                      <RHFTextField<SalarySchema> label="Altering Salesmen" name="salesMen.alteringSalesMen" />
+                      <RHFTextField<SalarySchema> label="Altering salesPerson" name="salesPerson.alteringSalesMen" />
+                    </div>
+                    <div className="col-6 mb-3">
+                      <RHFTextField<SalarySchema> label="Bonus per Day" name="salesPerson.bonus" />
                     </div>
                   </div>
                 </div>
@@ -83,6 +86,9 @@ const EditSalary = () => {
                     </div>
                     <div className="col-6 mb-3">
                       <RHFTextField<SalarySchema> label="Grade C" name="cleaningStaff.gradeC" />
+                    </div>
+                    <div className="col-6 mb-3">
+                      <RHFTextField<SalarySchema> label="Bonus per Day" name="cleaningStaff.bonus" />
                     </div>
                   </div>
                 </div>

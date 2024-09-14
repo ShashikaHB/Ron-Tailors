@@ -15,26 +15,21 @@
 import { ColDef } from 'ag-grid-community';
 import { useCallback, useEffect, useState } from 'react';
 import { DevTool } from '@hookform/devtools';
-import { Modal, TextField } from '@mui/material';
+import { Modal } from '@mui/material';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useGetAllTransactionsQuery } from '../redux/features/transaction/transactionApiSlice';
 import MemoizedTable from '../components/agGridTable/Table';
-import AddTransaction from '../forms/transactionAddEdit/AddTransaction';
-import { defaultTransactionValues, transactionSchema, TransactionSchema } from '../forms/formSchemas/transactionSchema';
-import SimpleDatePicker from '../components/customFormComponents/simpleDatePicker/SimpleDatePicker';
+import { defaultTransactionCategoryValues, transactionCategorySchema, TransactionCategorySchema } from '../forms/formSchemas/transactionCategorySchema';
+import AddTransactionCategory from '../forms/transactionCategoryAddEdit/AddTransactionCategory';
 
-const CashBook = () => {
+const AccountsPage = () => {
   const { data: transactions, isError: transactionError, isLoading } = useGetAllTransactionsQuery({});
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const handleDateChange = (date: Date | null) => {
-    setSelectedDate(date); // Set the selected date from the child component
-  };
 
-  const methods = useForm<TransactionSchema>({
+  const methods = useForm<TransactionCategorySchema>({
     mode: 'all',
-    resolver: zodResolver(transactionSchema),
-    defaultValues: defaultTransactionValues,
+    resolver: zodResolver(transactionCategorySchema),
+    defaultValues: defaultTransactionCategoryValues,
   });
 
   const [open, setOpen] = useState(false);
@@ -47,12 +42,8 @@ const CashBook = () => {
   const defaultColDef: ColDef = { resizable: true };
 
   const initialColDefs: ColDef<any>[] = [
-    { headerName: 'Date', field: 'date', maxWidth: 400 },
     { headerName: 'Transaction Category', field: 'transactionCategory', maxWidth: 400 },
     { headerName: 'Transaction Type', field: 'transactionType', maxWidth: 400 },
-    { headerName: 'Payment Type', field: 'paymentType', maxWidth: 400 },
-    { headerName: 'Amount', field: 'amount', maxWidth: 400 },
-    { headerName: 'Recorded By', field: 'salesPerson', maxWidth: 400 },
   ];
 
   const [rowData, setRowData] = useState<any>([]);
@@ -67,18 +58,8 @@ const CashBook = () => {
     <div className="h-100 d-flex flex-column gap-3">
       <div className="d-flex justify-content-end">
         <button type="button" className="primary-button" onClick={() => handleOpen()}>
-          + New Transaction
+          + New Category
         </button>
-      </div>
-      <div className="d-flex col-3 gap-3">
-        <SimpleDatePicker label="From Date" onDateChange={handleDateChange} />
-        <SimpleDatePicker label="To Date" onDateChange={handleDateChange} />
-      </div>
-      <div className="d-flex col-9 gap-3">
-        <TextField label="Total Cash Income" />
-        <TextField label="Total Cash Expense " />
-        <TextField label="Total Cash Balance " />
-        <TextField label="Total Credit Card Income" />
       </div>
       <div className="flex-grow-1 overflow-hidden justify-content-center">
         <MemoizedTable rowData={rowData} colDefs={initialColDefs} defaultColDef={defaultColDef} />
@@ -87,7 +68,7 @@ const CashBook = () => {
         <div>
           <FormProvider {...methods}>
             <div>
-              <AddTransaction handleClose={handleClose} />
+              <AddTransactionCategory handleClose={handleClose} />
               <DevTool control={methods.control} />
             </div>
           </FormProvider>
@@ -97,4 +78,4 @@ const CashBook = () => {
   );
 };
 
-export default CashBook;
+export default AccountsPage;

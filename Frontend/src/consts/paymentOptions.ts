@@ -15,6 +15,10 @@ const paymentOptions = [
     value: PaymentType.Card,
     label: 'Card',
   },
+  {
+    value: PaymentType.Bank,
+    label: 'Bank Transfer',
+  },
 ];
 
 export default paymentOptions;

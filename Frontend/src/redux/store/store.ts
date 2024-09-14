@@ -6,14 +6,16 @@
  */
 import { configureStore } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
-import authReducer from '../features/auth/authSlice.ts';
-import orderReducer from '../features/orders/orderSlice.ts';
-import productReducer from '../features/product/productSlice.ts';
+import authReducer from '../features/auth/authSlice';
+import orderReducer from '../features/orders/orderSlice';
+import commonReducer from '../features/common/commonSlice';
+import productReducer from '../features/product/productSlice';
 import apiSlice from '../api/apiSlice.js';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    common: commonReducer,
     [apiSlice.reducerPath]: apiSlice.reducer,
     orders: orderReducer,
     product: productReducer,

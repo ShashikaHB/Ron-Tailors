@@ -2,29 +2,24 @@ import mongoose from "mongoose";
 
 // Declare the Schema of the Mongo model
 const readyMadeItemSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, "Unit price is required."],
+  salesPerson: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: [true, "Sales Person is required."],
   },
-  color: {
-    type: String,
-  },
-  unitPrice: {
+  price: {
     type: Number,
-    required: [true, "Unit price is required."],
+    required: [true, "Price is required."],
   },
-  noOfUnits: {
-    type: Number,
-    required: [true, "Number of units is required."],
-  },
-  cost: {
-    type: Number,
-    required: [true, "Cost Percentage is required."],
-  },
-  type: {
+  itemType: {
     type: String,
-    enum: ["Shirt", "Trouser", "Coat"],
+    enum: ["Shirt", "Trouser", "Coat", "Hanky", "Tie", "Belt", "Bow"],
     required: [true, "Item Type is required."],
+  },
+  paymentType: {
+    type: String,
+    enum: ["Cash", "Card", "Bank Transfer"],
+    required: [true, "Payment Type is required."],
   },
 });
 //Export the model

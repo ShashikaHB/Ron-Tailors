@@ -7,33 +7,37 @@
 import { z } from 'zod';
 
 export const salarySchema = z.object({
-  salesMen: z.object({
+  salesPerson: z.object({
     gradeA: z.coerce.number().min(1, 'Grade A salary is required.'),
     gradeB: z.coerce.number().min(1, 'Grade B salary is required.'),
     gradeC: z.coerce.number().min(1, 'Grade C salary is required.'),
     ironingSalesMen: z.coerce.number().min(1, 'Ironing salesmen salary is required.'),
     alteringSalesMen: z.coerce.number().min(1, 'Altering salesmen salary is required.'),
+    bonus: z.coerce.number().min(1, 'Bonus is required.'),
   }),
   cleaningStaff: z.object({
     gradeA: z.coerce.number().min(1, 'Grade A salary is required.'),
     gradeB: z.coerce.number().min(1, 'Grade B salary is required.'),
     gradeC: z.coerce.number().min(1, 'Grade C salary is required.'),
+    bonus: z.coerce.number().min(1, 'Bonus is required.'),
   }),
 });
 
 export type SalarySchema = z.infer<typeof salarySchema>;
 
 export const defaultSalaryValues: SalarySchema = {
-  salesMen: {
+  salesPerson: {
     gradeA: 0,
     gradeB: 0,
     gradeC: 0,
     ironingSalesMen: 0,
     alteringSalesMen: 0,
+    bonus: 0,
   },
   cleaningStaff: {
     gradeA: 0,
     gradeB: 0,
     gradeC: 0,
+    bonus: 0,
   },
 };
