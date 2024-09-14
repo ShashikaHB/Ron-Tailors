@@ -5,7 +5,7 @@
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
 import { useCallback, useEffect, useState } from 'react';
-import { Modal, TextField } from '@mui/material';
+import { capitalize, FormControl, FormGroup, FormLabel, MenuItem, Modal, Select, TextField } from '@mui/material';
 import { FaSearch } from 'react-icons/fa';
 import { toast } from 'sonner';
 import { FormProvider, SubmitHandler, useForm, useFormContext, useWatch } from 'react-hook-form';
@@ -20,18 +20,16 @@ import {
   useLazySearchCustomerQuery,
   useUpdateSalesOrderMutation,
 } from '../../redux/features/orders/orderApiSlice';
-import { OptionCheckBox } from '../../types/common';
 import RHFDatePicker from '../../components/customFormComponents/customDatePicker/RHFDatePricker';
 import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
 import AddEditProduct from '../productAddEdit/AddEditProduct';
 import { ProductSchema, defaultProductValues, productSchema } from '../formSchemas/productSchema';
-import CheckBoxGroup from '../../components/customFormComponents/checkboxGroup/CheckBoxGroup';
 import Table from '../../components/agGridTable/Table';
 import { MeasurementSchema, defaultMeasurementValues, measurementSchema } from '../formSchemas/measurementSchema';
 import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
-import { setProductType, setSelectedProduct } from '../../redux/features/product/productSlice';
-import { removeOrderProducts, resetOderProducts, selectOrderItems, setOrderProducts, setOrderProductsBulk } from '../../redux/features/orders/orderSlice';
-import { useGetAllProductsQuery } from '../../redux/features/product/productApiSlice';
+import { setSelectedProduct } from '../../redux/features/product/productSlice';
+import { removeOrderProducts, selectOrderItems, setOrderProductsBulk } from '../../redux/features/orders/orderSlice';
+import { useAddNewProductMutation, useGetAllProductsQuery } from '../../redux/features/product/productApiSlice';
 import mapProducts from '../../utils/productUtils';
 import ProductRenderer from '../../components/agGridTable/customComponents/ProductRenderer';
 import AddEditMeasurement from '../measurementAddEdit/AddEditMeasurement';
@@ -40,7 +38,9 @@ import { allUsers } from '../../redux/features/auth/authSlice';
 import getUserRoleBasedOptions from '../../utils/userUtils';
 import { Roles } from '../../enums/Roles';
 import paymentOptions from '../../consts/paymentOptions';
-import { initialProductOptions } from '../../consts/products';
+import { productCategoryItemMap } from '../../consts/products';
+import { CheckBoxWithInput } from '../../components/customFormComponents/checkboxGroup/CheckBoxGroup';
+import { ProductCategory } from '../../enums/ProductType';
 
 const AddEditOrder = () => {
   const { control, watch, reset, setValue, handleSubmit, clearErrors, getValues } = useFormContext<OrderSchema>();
@@ -61,11 +61,16 @@ const AddEditOrder = () => {
     defaultValues: defaultMeasurementValues,
   });
 
+  const [selectedCategory, setSelectedCategory] = useState<any>(ProductCategory.General);
+  const [productOptions, setProductOptions] = useState<any>([]);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [disableCheckboxes, setDisableCheckboxes] = useState(false);
+
   const [openProducts, setOpenProducts] = useState(false);
-  const [rowData, setRowData] = useState([]);
   const [openMeasurement, setOpenMeasurement] = useState(false);
+  const [rowData, setRowData] = useState([]);
   const [description, setDescription] = useState('');
-  const [productOptions, setProductOptions] = useState<OptionCheckBox[]>(initialProductOptions);
+  //   const [productOptions, setProductOptions] = useState<OptionCheckBox[]>(initialProductOptions);
 
   const total = useWatch({ control, name: 'totalPrice' });
   const advance = useWatch({ control, name: 'advPayment' });
@@ -81,10 +86,82 @@ const AddEditOrder = () => {
   const [updateSalesOrder] = useUpdateSalesOrderMutation();
   const [getSalesOrderData, { data: salesOrderData }] = useLazyGetSingleSalesOrderQuery();
   const { data: productsData, isLoading: productsLoading } = useGetAllProductsQuery({});
+  const [addProduct] = useAddNewProductMutation();
 
   const [addOrder, { data: newOrder }] = useAddNewOrderMutation();
 
   const [customerSearchQuery, setCustomerSearchQuery] = useState('');
+
+  // Handle category selection
+  const handleCategoryChange = (event: any) => {
+    const category = event.target.value as string;
+    setSelectedCategory(category);
+    const categoryItems = productCategoryItemMap.find((cat) => cat.category === category)?.items || [];
+    setProductOptions(
+      categoryItems.map((item) => ({
+        id: item,
+        label: capitalize(item),
+        checked: false,
+        price: '', // Default price to empty
+      }))
+    );
+    if (category === ProductCategory.General) {
+      setDisableCheckboxes(false);
+    }
+  };
+
+  // Handle checkbox change
+  const handleCheckBoxChange = (id) => {
+    setProductOptions((prevOptions) => {
+      // Toggle the checked state of the clicked checkbox
+      const updatedOptions = prevOptions.map((option) => (option.id === id ? { ...option, checked: !option.checked } : option));
+
+      // For the 'General' category, check if any checkbox is checked
+      if (selectedCategory === 'General') {
+        const isAnyChecked = updatedOptions.some((option) => option.checked); // true if one checkbox is checked
+
+        // Enable or disable checkboxes based on the current checked state
+        setDisableCheckboxes(isAnyChecked);
+      }
+
+      return updatedOptions;
+    });
+  };
+  // Handle input change (price input)
+  const handleInputChange = (id, price) => {
+    setProductOptions((prevOptions) => prevOptions.map((option) => (option.id === id ? { ...option, price } : option)));
+  };
+
+  // Handle Add Items button click
+  const handleAddItems = async () => {
+    const selectedProducts = productOptions
+      .filter((option) => option.checked && option.price) // Only include checked items with a price
+      .map((option) => ({
+        productType: option.id,
+        price: option.price,
+      }));
+
+    if (selectedProducts.length > 0 && selectedCategory) {
+      const productIds = await Promise.all(
+        selectedProducts.map(async (product) => {
+          const response = await addProduct({
+            itemType: product.productType,
+            itemCategory: selectedCategory,
+            price: product.price,
+          }).unwrap(); // Get the API response and unwrap if necessary
+          return response; // Assuming productId is returned from the API
+        })
+      );
+
+      const newItem = {
+        category: selectedCategory,
+        description,
+        products: productIds,
+      };
+      setSelectedItems([...selectedItems, newItem]);
+      clearOrderItems();
+    }
+  };
 
   const handleClose = useCallback(() => setOpenProducts(false), []);
   const handleMeasurementClose = useCallback(() => setOpenMeasurement(false), []);
@@ -136,31 +213,31 @@ const AddEditOrder = () => {
     trigger(customerSearchQuery);
   };
 
-  const handleCheckBoxSelect = (id: string) => {
-    setProductOptions((prevOptions) => {
-      const newOptions = prevOptions.map((option) => {
-        if (option.id === id) {
-          if (!option.checked) {
-            // Only set open to true if the checkbox is being checked
-            setOpenProducts(true);
-          }
-          return { ...option, checked: !option.checked };
-        }
-        return option;
-      });
-      return newOptions;
-    });
-    dispatch(setProductType(id));
-  };
+  //   const handleCheckBoxSelect = (id: string) => {
+  //     setProductOptions((prevOptions) => {
+  //       const newOptions = prevOptions.map((option) => {
+  //         if (option.id === id) {
+  //           if (!option.checked) {
+  //             // Only set open to true if the checkbox is being checked
+  //             setOpenProducts(true);
+  //           }
+  //           return { ...option, checked: !option.checked };
+  //         }
+  //         return option;
+  //       });
+  //       return newOptions;
+  //     });
+  //     dispatch(setProductType(id));
+  //   };
 
-  const handleAddItems = () => {
-    dispatch(setOrderProducts(description));
-    setProductOptions(initialProductOptions);
-    setDescription('');
-  };
+  //   const handleAddItems = () => {
+  //     dispatch(setOrderProducts(description));
+  //     setProductOptions(initialProductOptions);
+  //     setDescription('');
+  //   };
 
   const clearOrderItems = () => {
-    setProductOptions(initialProductOptions);
+    setProductOptions([]);
     setDescription('');
   };
 
@@ -170,7 +247,8 @@ const AddEditOrder = () => {
 
   const handleOrderFormReset = () => {
     reset(defaultOrderValues);
-    dispatch(resetOderProducts());
+    setSelectedItems([]);
+    // dispatch(resetOderProducts());
   };
 
   useEffect(() => {
@@ -190,16 +268,16 @@ const AddEditOrder = () => {
 
   useEffect(() => {
     if (productsData) {
-      const newRowData = mapProducts(orderItems, productsData);
+      const newRowData = mapProducts(selectedItems, productsData);
       setRowData(newRowData);
       console.log(newRowData);
       const totalAmount = newRowData.reduce((sum: number, row: any) => sum + (row.amount || 0), 0);
       setValue('totalPrice', totalAmount);
     }
-    if (orderItems) {
-      setValue('orderDetails', orderItems);
+    if (selectedItems) {
+      setValue('orderDetails', selectedItems);
     }
-  }, [productsData, orderItems]);
+  }, [productsData, selectedItems]);
 
   useEffect(() => {
     const validDiscount = discount ?? 0;
@@ -361,8 +439,33 @@ const AddEditOrder = () => {
                   <div className="col-12 mb-3">
                     <TextField label="Description" value={description} onChange={(e) => setDescription(e?.target?.value)} />
                   </div>
+                  <div className="col-6 mb-3">
+                    <FormControl sx={{ m: 1, maxWidth: 165 }} size="small">
+                      <Select value={selectedCategory} onChange={handleCategoryChange}>
+                        {productCategoryItemMap.map((option) => (
+                          <MenuItem key={option.category} value={option.category}>
+                            {option.category}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </div>
                 </div>
-                <CheckBoxGroup options={productOptions} handleCheckBoxSelect={handleCheckBoxSelect} />
+                <FormControl component="fieldset">
+                  <FormLabel component="legend">Select Products</FormLabel>
+                  <FormGroup>
+                    {productOptions?.length &&
+                      productOptions.map((option) => (
+                        <CheckBoxWithInput
+                          key={option.id}
+                          option={option}
+                          handleCheckBoxChange={handleCheckBoxChange}
+                          handleInputChange={handleInputChange}
+                          disableCheckboxes={disableCheckboxes && selectedCategory === 'General'}
+                        />
+                      ))}
+                  </FormGroup>
+                </FormControl>
                 <div className="d-flex justify-content-end">
                   <button className="secondary-button mx-2" type="button" disabled={isAddItemButtonDisabled} onClick={clearOrderItems}>
                     Clear Items

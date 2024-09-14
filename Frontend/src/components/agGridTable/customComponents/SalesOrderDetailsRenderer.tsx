@@ -5,15 +5,20 @@
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
 
-import { ICellRendererParams } from 'ag-grid-community';
 import { toast } from 'sonner';
 import { CircularProgress, FormControl, MenuItem, Select } from '@mui/material';
 import { useUpdateProductStatusMutation } from '../../../redux/features/product/productApiSlice';
 import { statusOptions } from '../../../consts/products';
 import { getStatusColor } from '../../../utils/productUtils';
 
-const SalesOrderDetailsRenderer = (props: ICellRendererParams) => {
-  const { orderDetails } = props?.data ?? '';
+type SalesOrderDetailsRendererProps = {
+  data: any;
+  handleOpenMeasurement: (id: number) => void;
+  handleOpenProductEdit: (id: number) => void;
+};
+
+const SalesOrderDetailsRenderer = ({ data, handleOpenMeasurement, handleOpenProductEdit }: SalesOrderDetailsRendererProps) => {
+  const { orderDetails } = data ?? '';
 
   const [updateStatus, { data: updateStatusData, isLoading: loading }] = useUpdateProductStatusMutation();
 
@@ -37,14 +42,20 @@ const SalesOrderDetailsRenderer = (props: ICellRendererParams) => {
           <div key={index}>
             <div>Description: {description}</div>
             {products?.map((product: any) => {
-              const { productId, status, type } = product;
+              const { productId, status, itemType } = product;
               const handleChange = async (event: React.ChangeEvent<{ value: unknown }>) => {
                 const newStatus = event.target.value as string;
                 await handleStatusChange(productId, newStatus);
               };
               return (
                 <div className="d-flex gap-2 mx-3" key={productId}>
-                  <p>{type}</p>
+                  <p>{itemType}</p>
+                  <button type="button" aria-label="close-btn" className="icon-button" onClick={() => handleOpenMeasurement(product.productId)}>
+                    M
+                  </button>
+                  <button type="button" aria-label="close-btn" className="icon-button" onClick={() => handleOpenProductEdit(product.productId)}>
+                    P
+                  </button>
                   <FormControl sx={{ m: 1, maxWidth: 165 }} size="small">
                     <Select
                       value={status}

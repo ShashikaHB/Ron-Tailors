@@ -6,19 +6,40 @@
  */
 
 import { ColDef } from 'ag-grid-community';
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { useCallback, useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import { TextField } from '@mui/material';
+import { Modal, TextField } from '@mui/material';
+import { DevTool } from '@hookform/devtools';
+import { FormProvider, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import MemoizedTable from '../components/agGridTable/Table';
 import CustomerRenderer from '../components/agGridTable/customComponents/CustomerRenderer';
 import { useGetAllSalesOrdersQuery } from '../redux/features/orders/orderApiSlice';
 import SalesOrderDetailsRenderer from '../components/agGridTable/customComponents/SalesOrderDetailsRenderer';
 import ActionButtonNew from '../components/agGridTable/customComponents/ActionButtonNew';
+import AddEditMeasurement from '../forms/measurementAddEdit/AddEditMeasurement';
+import AddEditProduct from '../forms/productAddEdit/AddEditProduct';
+import { MeasurementSchema, measurementSchema, defaultMeasurementValues } from '../forms/formSchemas/measurementSchema';
+import { ProductSchema, productSchema, defaultProductValues } from '../forms/formSchemas/productSchema';
+import { setSelectedProduct } from '../redux/features/product/productSlice';
+import { useAppDispatch } from '../redux/reduxHooks/reduxHooks';
 
 const SalesOrderBook = () => {
   const { data: salesOrders, isError: salesOrderError, isLoading } = useGetAllSalesOrdersQuery('');
+
+  const dispatch = useAppDispatch();
+
+  const methods = useForm<ProductSchema>({
+    mode: 'all',
+    resolver: zodResolver(productSchema),
+    defaultValues: defaultProductValues,
+  });
+  const measurementMethods = useForm<MeasurementSchema>({
+    mode: 'all',
+    resolver: zodResolver(measurementSchema),
+    defaultValues: defaultMeasurementValues,
+  });
 
   const nagivate = useNavigate();
 
@@ -28,10 +49,29 @@ const SalesOrderBook = () => {
     nagivate(`/secured/addSalesOrder/${id}`);
   };
 
+  const [openProducts, setOpenProducts] = useState(false);
+  const [openMeasurement, setOpenMeasurement] = useState(false);
+
+  const handleOpenMeasurement = useCallback((productId: number) => {
+    setOpenMeasurement(true);
+    dispatch(setSelectedProduct(productId));
+  }, []);
+  const handleOpenProductEdit = useCallback((productId: number) => {
+    setOpenProducts(true);
+    dispatch(setSelectedProduct(productId));
+  }, []);
+
   const initialColDefs: ColDef<any>[] = [
     { headerName: 'Order Id', field: 'salesOrderId' },
     { headerName: 'Customer', field: 'customer', cellRenderer: CustomerRenderer, autoHeight: true },
-    { headerName: 'Order Details', field: 'orderDetails', cellRenderer: SalesOrderDetailsRenderer, autoHeight: true, minWidth: 400 },
+    {
+      headerName: 'Order Details',
+      field: 'orderDetails',
+      cellRenderer: SalesOrderDetailsRenderer,
+      cellRendererParams: { handleOpenMeasurement, handleOpenProductEdit },
+      autoHeight: true,
+      minWidth: 400,
+    },
     { headerName: 'Order Date', field: 'orderDate', valueFormatter: (params) => format(params.value as Date, 'dd-MM-yyyy') },
     { headerName: 'Delivery Date', field: 'deliveryDate', valueFormatter: (params) => format(params.value as Date, 'dd-MM-yyyy') },
     {
@@ -54,15 +94,15 @@ const SalesOrderBook = () => {
     nagivate('/secured/addSalesOrder');
   };
 
+  const handleClose = useCallback(() => setOpenProducts(false), []);
+  const handleMeasurementClose = useCallback(() => setOpenMeasurement(false), []);
+
   useEffect(() => {
     if (salesOrders) {
       const transformedRentOrders = salesOrders.map((item: any) => ({ ...item, action: 'action' }));
       setRowData(transformedRentOrders);
     }
-    if (salesOrderError) {
-      toast.error('Error when fetching Rent Orders');
-    }
-  }, [salesOrders, salesOrderError]);
+  }, [salesOrders]);
 
   useEffect(() => {
     if (orderSearchQuery !== '') {
@@ -99,6 +139,26 @@ const SalesOrderBook = () => {
       <div className="flex-grow-1 overflow-hidden">
         <MemoizedTable rowData={rowData} colDefs={colDefs} defaultColDef={defaultColDef} />
       </div>
+      <Modal open={openProducts} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+        <div>
+          <FormProvider {...methods}>
+            <div>
+              <AddEditProduct handleClose={handleClose} />
+              <DevTool control={methods.control} />
+            </div>
+          </FormProvider>
+        </div>
+      </Modal>
+      <Modal open={openMeasurement} onClose={handleMeasurementClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+        <div>
+          <FormProvider {...measurementMethods}>
+            <div>
+              <AddEditMeasurement handleClose={handleMeasurementClose} />
+              <DevTool control={measurementMethods.control} />
+            </div>
+          </FormProvider>
+        </div>
+      </Modal>
     </div>
   );
 };

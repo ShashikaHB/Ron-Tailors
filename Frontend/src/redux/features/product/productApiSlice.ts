@@ -5,14 +5,13 @@
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
 import { toast } from 'sonner';
-import { ProductSchema } from '../../../forms/formSchemas/productSchema';
 import { ApiResponse } from '../../../types/common';
 import apiSlice from '../../api/apiSlice';
 import { ApiGetRentItem } from '../../../types/rentItem';
 
 export const productApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    addNewProduct: builder.mutation<any, ProductSchema>({
+    addNewProduct: builder.mutation<any, any>({
       query: (newProduct) => ({
         url: '/product',
         method: 'POST',
@@ -22,7 +21,7 @@ export const productApiSlice = apiSlice.injectEndpoints({
         if (!res.success) {
           toast.error('Product creation failed!');
         }
-        return res.data.productId;
+        return res.data;
       },
       invalidatesTags: ['Products'],
     }),
@@ -80,7 +79,6 @@ export const productApiSlice = apiSlice.injectEndpoints({
         url: `/rentItem/searchRentItem?searchQuery=${rentItemId}`,
         method: 'GET',
       }),
-      providesTags: ['Products'],
       transformResponse: (res: ApiResponse<ApiGetRentItem>): ApiGetRentItem => {
         if (!res.success) {
           toast.error('Product search failed!');

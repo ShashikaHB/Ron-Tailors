@@ -4,9 +4,10 @@ import { getDocId } from "../utils/docIds.js";
 
 export const createMaterial = asyncHandler(async (req, res) => {
   const brand = req.body.brand;
-  const type = req.body.type;
+  const name = req.body.name;
+  const store = req.body.store;
 
-  const materialExists = await Material.findOne({ brand, type }).lean().exec();
+  const materialExists = await Material.findOne({ brand, name, store }).lean().exec();
 
   if (!materialExists) {
     const newMaterial = await Material.create(req.body);
@@ -110,3 +111,26 @@ export const deleteMaterial = asyncHandler(async (req, res) => {
     throw new Error(error);
   }
 });
+
+export const deductMaterialUnits = async (materials) => {
+    await Promise.all(
+      materials.map(async ({ material: materialId, unitsNeeded }) => {
+        const material = await Material.findOne({ materialId }).exec();
+        
+        if (!material) {
+          throw new Error(`Material with ID ${materialId} not found.`);
+        }
+  
+        // Check if there are enough units
+        if (material.noOfUnits < unitsNeeded) {
+          throw new Error(`Insufficient units for material ID ${materialId}. Available: ${material.noOfUnits}, Needed: ${unitsNeeded}`);
+        }
+  
+        // Deduct units
+        material.noOfUnits -= unitsNeeded;
+  
+        // Save the updated material
+        await material.save();
+      })
+    );
+  };

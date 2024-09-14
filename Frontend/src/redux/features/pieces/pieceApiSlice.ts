@@ -10,7 +10,7 @@ import { ApiResponse } from '../../../types/common';
 export const piecePriceApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // Create piece prices
-    createPiecePrices: builder.mutation<ApiResponse<any>, any>({
+    createEditPiecePrices: builder.mutation<ApiResponse<any>, any>({
       query: (piecePrices) => ({
         url: '/pieces',
         method: 'POST',
@@ -18,37 +18,17 @@ export const piecePriceApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['PiecePrices'],
     }),
-
-    // Update piece prices by type
-    updatePiecePrices: builder.mutation<ApiResponse<any>, { type: string; prices: any }>({
-      query: ({ type, prices }) => ({
-        url: `/pieces/${type}`,
-        method: 'PATCH',
-        body: prices,
-      }),
-      invalidatesTags: ['PiecePrices'],
-    }),
-
-    // Get piece prices by type
-    getPiecePricesByType: builder.query<ApiResponse<any>, string>({
-      query: (type) => ({
-        url: `/pieces/${type}`,
+    getAllPiecePrices: builder.query<any, void>({
+      query: () => ({
+        url: '/salesOrder',
         method: 'GET',
       }),
-      providesTags: ['PiecePrices'],
-      transformResponse: (res: ApiResponse<any>): any => res.data,
-    }),
-
-    // Delete piece prices by type
-    deletePiecePricesByType: builder.mutation<ApiResponse<any>, string>({
-      query: (type) => ({
-        url: `/pieces/${type}`,
-        method: 'DELETE',
-      }),
-      invalidatesTags: ['PiecePrices'],
+      providesTags: ['SalesOrder'],
+      transformResponse: (res: ApiResponse<any[]>): any => {
+        return res.data;
+      },
     }),
   }),
 });
 
-export const { useCreatePiecePricesMutation, useUpdatePiecePricesMutation, useGetPiecePricesByTypeQuery, useDeletePiecePricesByTypeMutation } =
-  piecePriceApiSlice;
+export const { useCreateEditPiecePricesMutation, useGetAllPiecePricesQuery } = piecePriceApiSlice;

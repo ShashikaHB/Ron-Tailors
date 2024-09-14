@@ -1,19 +1,26 @@
-import twilio from "twilio";
+import axios from "axios";
 
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-const twilioNumber = process.env.TWILIO_PHONE_NUMBER;
+const authToken = process.env.SMS_API_AUTH_TOKEN;
+const callerId = process.env.SMS_API_PHONE_NUMBER;
 
-const client = twilio(accountSid, authToken);
 export const sendSMS = async (messageBody, recipientNumber) => {
-    const transformedNumber = recipientNumber.replace(/^0/, '+94')
+  const transformedNumber = recipientNumber.replace(/^0/, "+94");
   try {
-    const message = await client.messages.create({
-      body: messageBody,
-      from: twilioNumber,
-      to: transformedNumber,
+    const response = await axios({
+      method: "post",
+      url: "https://dashboard.smsapi.lk/api/v3/sms/send",
+      headers: { 
+        Authorization: `Bearer ${authToken}`,
+        'Content-Type': 'application/json', // Explicitly set the Content-Type header if needed
+      },
+      data: {
+        recipient: transformedNumber,
+        sender_id: `${callerId}`,
+        type: "plain",
+        message: messageBody,
+      },
     });
-    return message.body;
+    return response.data;
   } catch (error) {
     throw new Error(`Failed to send SMS: ${error.message}`);
   }

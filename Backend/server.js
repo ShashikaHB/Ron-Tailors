@@ -16,6 +16,7 @@ import productRouter from "./routes/productRoutes.js";
 import pieceRouter from "./routes/pieceRoutes.js";
 import salaryRouter from "./routes/salaryRoutes.js";
 import transactionRouter from "./routes/transactionRoutes.js";
+import transactionCategoryRouter from "./routes/transactionCategoryRoutes.js";
 import invoiceRouter from "./routes/invoiceRoutes.js";
 import connectDB from "./database/dbConnection.js";
 import bodyParser from "body-parser";
@@ -64,6 +65,7 @@ app.use("/api/v1/product", productRouter);
 app.use("/api/v1/pieces", pieceRouter);
 app.use("/api/v1/salary", salaryRouter);
 app.use("/api/v1/transaction", transactionRouter);
+app.use("/api/v1/transactionCategory", transactionCategoryRouter);
 
 app.get("/", (req, res) => {
   return res.status(200).send("<h1>welcome to node server</h1>");

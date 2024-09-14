@@ -8,30 +8,18 @@ const workLogSchema = new mongoose.Schema({
     },
     action: {
       type: String,
-      enum: ["Cutting Started", "Cutting Done", "Tailoring Started", "Tailoring Done"],
+      enum: ["Not Started", "Cutting Done", "Tailoring Started", "Tailoring Done"],
       required: true,
-    },
-    pieceType: {
-      type: String,
-      enum: ["Shirt", "Trouser", "Coat", "West Coat", "Cravat", "Bow", "Tie"],
-      required: true,
+      default: "Not Started"
     },
     productId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Product",
       required: true,
     },
-    piecePrice: {
-      type: Number,
-      required: true, // Ensure piece price is always stored
-    },
-    completed: {
-      type: Boolean,
-      default: false,
-    },
     date: {
       type: Date,
-      default: Date.now,
+      default: Date.now(),
     },
   });
   

@@ -4,91 +4,41 @@ import { User } from "../models/userModel.js";
 import { Measurement } from "../models/measurementModel.js";
 import { Material } from "../models/materialModel.js";
 import { getDocId } from "../utils/docIds.js";
-import { logWork } from "../utils/logWork.js";
+import { PiecePrices } from "../models/piecePriceModel.js";
+import { logWork } from "./workLogController.js";
+import { updateUserSummaryWithPieceType } from "./monthlySummaryController.js";
+import { fetchMaterialById, fetchUserById } from "../utils/product.js";
+import { deductMaterialUnits } from "./materialController.js";
 
 // @desc    Create a new product
 // @route   POST /api/products
 // @access  Public
 export const createProduct = asyncHandler(async (req, res) => {
-  const measurementId = req.body?.measurement;
-  const cutterId = req.body?.cutter;
-  const tailorId = req.body?.tailor;
-  const measurerId = req.body?.measurer;
-  const materials = req.body?.materials;
+  const { itemType, itemCategory, price } = req.body;
 
-  if (!cutterId | !tailorId | !measurerId | !materials) {
+  if (!itemType || !itemCategory || !price) {
     res.status(400);
     throw new Error("Required fields are not provided.");
   }
-  let measurement;
-  if (measurementId) {
-    measurement = await Measurement.findOne({ measurementId }).lean().exec();
+
+  const newProduct = await Product.create(req.body);
+
+  if (!newProduct) {
+    throw new Error("Internal server error product not created.");
   }
 
-  if (measurementId && !measurement) {
-    res.status(404);
-    throw new Error(`No measurement found for ID ${measurementId}`);
-  }
-
-  const cutter = await User.findOne({ userId: cutterId }).lean().exec();
-  if (!cutter) {
-    res.status(404);
-    throw new Error(`No user found for ID ${cutterId}`);
-  }
-
-  const tailor = await User.findOne({ userId: tailorId }).lean().exec();
-  if (!tailor) {
-    res.status(404);
-    throw new Error(`No user found for ID ${tailorId}`);
-  }
-
-  const measurer = await User.findOne({ userId: measurerId }).lean().exec();
-  if (!measurer) {
-    res.status(404);
-    throw new Error(`No user found for ID ${measurerId}`);
-  }
-
-  // Loop through the materials array and replace materialId with the corresponding _id
-  const materialsData = await Promise.all(
-    materials.map(async (materialEntry) => {
-      const material = await Material.findOne({
-        materialId: materialEntry.material,
-      })
-        .lean()
-        .exec();
-      if (!material) {
-        throw new Error(`No material found for ID ${materialEntry.material}`);
-      }
-      return {
-        material: material._id,
-        unitsNeeded: materialEntry.unitsNeeded,
-      };
-    })
-  );
-
-  const productData = {
-    ...req.body,
-    cutter: cutter._id,
-    tailor: tailor._id,
-    measurer: measurer._id,
-    measurement: measurement?._id,
-    materials: materialsData,
-  };
-
-  const newProduct = await Product.create(productData);
-
-  const populatedProduct = await Product.findById(newProduct._id)
-    .populate("cutter", "name") // Replace 'name' with the fields you want to populate
-    .populate("tailor", "name")
-    .populate("measurer", "name")
-    .populate("materials.material")
-    .lean()
-    .exec();
+  //   const populatedProduct = await Product.findById(newProduct._id)
+  //     .populate("cutter", "name") // Replace 'name' with the fields you want to populate
+  //     .populate("tailor", "name")
+  //     .populate("measurer", "name")
+  //     .populate("materials.material")
+  //     .lean()
+  //     .exec();
 
   res.json({
     message: "New product created Successfully.",
     success: true,
-    data: populatedProduct,
+    data: newProduct.productId,
   });
 });
 
@@ -180,39 +130,78 @@ export const getSingleProduct = asyncHandler(async (req, res) => {
 });
 
 export const updateProduct = asyncHandler(async (req, res) => {
-  const { productId } = req?.params;
-  const { status, measurement } = req.body;
+  const { productId } = req.params;
+  const {
+    status,
+    measurement: measurementId,
+    cutter: cutterId,
+    tailor: tailorId,
+    measurer: measurerId,
+    materials,
+    ...rest
+  } = req.body;
 
-  if (!status && !measurement) {
-    res.status(400);
-    throw new Error("Status or measurement required.");
+    // Fetch the product to update
+    const product = await Product.findOne({productId});
+    if (!product) {
+      req.statusCode = 404;
+      throw new Error("Product not found.");
+    }
+
+  // Fetch measurement if provided
+  let measurement = null;
+  if (measurementId) {
+    measurement = await Measurement.findOne({ measurementId }).lean().exec();
+    if (!measurement) {
+      throw new Error(`No measurement found for ID ${measurementId}`);
+    }
   }
 
-  const product = await Product.findById(productId);
+  // Conditionally fetch cutter, tailor, and measurer
+  const [cutter, tailor, measurer] = await Promise.all([
+    cutterId ? fetchUserById(cutterId, "cutter") : null,
+    tailorId ? fetchUserById(tailorId, "tailor") : null,
+    measurerId ? fetchUserById(measurerId, "measurer") : null,
+  ]);
 
-  if (!product) {
-    res.status(404);
-    throw new Error("Product not found.");
+  // Conditionally fetch materials if provided
+  let materialsData = [];
+  if (materials && materials.length > 0) {
+    materialsData = await Promise.all(
+      materials.map(async ({ material: materialId, unitsNeeded }) => {
+        const material = await fetchMaterialById(materialId);
+        if (material) {
+          return { material: material._id, unitsNeeded };
+        }
+      })
+    );
+    await deductMaterialUnits(materials); // Deduct units from materials
   }
 
-  if (status) {
-    // Update the status field only
-    product.status = status;
-  } else if (measurement) {
-    product.measurement = measurement;
-  }
+  // Update product fields only if provided
+  if (status) product.status = status;
+  if (measurement) product.measurement = measurement._id;
+  if (cutter) product.cutter = cutter._id;
+  if (tailor) product.tailor = tailor._id;
+  if (measurer) product.measurer = measurer._id;
+  if (materialsData.length > 0) product.materials = materialsData;
 
+  Object.assign(product, rest);
+
+  // Save the updated product
   const updatedProduct = await product.save();
 
+  // Populate references for the response
   const populatedProduct = await Product.findById(updatedProduct._id)
-    .populate("cutter", "name") // Replace 'name' with the fields you want to populate
+    .populate("cutter", "name")
     .populate("tailor", "name")
     .populate("measurer", "name")
     .populate("measurement")
-    .populate("materials.material"); // Populate materials array with material details
+    .populate("materials.material");
 
+  // Send the response
   res.json({
-    message: "Product status updated successfully.",
+    message: "Product updated successfully.",
     success: true,
     data: populatedProduct,
   });
@@ -282,7 +271,7 @@ export const updateProductStatus = asyncHandler(async (req, res) => {
   const { productId } = req.params;
   const { status } = req.body;
 
-  if (!status) {
+  if (!status || !productId) {
     res.status(400);
     throw new Error("Status is required.");
   }
@@ -296,35 +285,72 @@ export const updateProductStatus = asyncHandler(async (req, res) => {
 
   product.status = status;
 
-  // Handle work log creation or update based on status
-  if (status === "Cutting Started") {
-    await logWork(product.cutter, "Cutting Started", product.type, product._id);
-  } else if (status === "Cutting Done") {
-    await logWork(product.cutter, "Cutting Done", product.type, product._id);
-    // Deduct material stock when cutting is done
-    for (const materialEntry of product.materials) {
-      const material = await Material.findById(materialEntry.material._id);
+  let user = null;
+  let piecePrice = 0;
 
-      if (material) {
-        material.noOfUnits -= materialEntry.unitsNeeded;
-
-        if (material.noOfUnits < 0) {
-          material.noOfUnits = 0; // Prevent negative stock
-        }
-
-        await material.save();
-      }
-    }
-  } else if (status === "Tailoring Started") {
-    await logWork(
-      product.tailor,
-      "Tailoring Started",
-      product.type,
-      product._id
-    );
+  if (status === "Cutting Done") {
+    user = product.cutter;
+    const pieceData = await PiecePrices.findOne({
+      "items.itemType": product.itemType,
+    });
+    piecePrice =
+      pieceData?.items.find((item) => item.itemType === product.itemType)
+        ?.cuttingPrice || 0;
   } else if (status === "Tailoring Done") {
-    await logWork(product.tailor, "Tailoring Done", product.type, product._id);
+    user = product.tailor;
+    const pieceData = await PiecePrices.findOne({
+      "items.itemType": product.itemType,
+    });
+    piecePrice =
+      pieceData?.items.find((item) => item.itemType === product.itemType)
+        ?.tailoringPrice || 0;
   }
+
+  const logWork = await logWork(
+    user._id,
+    status,
+    product.itemType,
+    product.productId,
+    piecePrice
+  );
+
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  const updateMonthlySalary = await updateUserSummaryWithPieceType(
+    user._id,
+    currentMonth,
+    product.itemType,
+    status
+  );
+
+  //   // Handle work log creation or update based on status
+  //   if (status === "Cutting Started") {
+  //     await logWork(product.cutter, "Cutting Started", product.type, product._id);
+  //   } else if (status === "Cutting Done") {
+  //     await logWork(product.cutter, "Cutting Done", product.type, product._id);
+  //     // Deduct material stock when cutting is done
+  //     for (const materialEntry of product.materials) {
+  //       const material = await Material.findById(materialEntry.material._id);
+
+  //       if (material) {
+  //         material.noOfUnits -= materialEntry.unitsNeeded;
+
+  //         if (material.noOfUnits < 0) {
+  //           material.noOfUnits = 0; // Prevent negative stock
+  //         }
+
+  //         await material.save();
+  //       }
+  //     }
+  //   } else if (status === "Tailoring Started") {
+  //     await logWork(
+  //       product.tailor,
+  //       "Tailoring Started",
+  //       product.type,
+  //       product._id
+  //     );
+  //   } else if (status === "Tailoring Done") {
+  //     await logWork(product.tailor, "Tailoring Done", product.type, product._id);
+  //   }
 
   const updatedProduct = await product.save();
 

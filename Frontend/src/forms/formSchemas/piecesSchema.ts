@@ -4,28 +4,23 @@
  * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
+
 import { z } from 'zod';
 
-export const piecePricesSchema = z.object({
-  type: z.enum(['Cutting', 'Tailoring']),
-  Shirt: z.coerce.number().min(0, 'Shirt price is required'),
-  Trouser: z.coerce.number().min(0, 'Trouser price is required'),
-  Coat: z.coerce.number().min(0, 'Coat price is required'),
-  WestCoat: z.coerce.number().min(0, 'West Coat price is required'),
-  Cravat: z.coerce.number().min(0, 'Cravat price is required'),
-  Bow: z.coerce.number().min(0, 'Bow price is required'),
-  Tie: z.coerce.number().min(0, 'Tie price is required'),
+// Schema for each item type inside a category
+const itemSchema = z.object({
+  itemType: z.string(),
+  cuttingPrice: z.coerce.number().min(0, 'Cutting price is required and must be a positive number'),
+  tailoringPrice: z.coerce.number().min(0, 'Tailoring price is required and must be a positive number'),
 });
 
-export type PiecePricesSchema = z.infer<typeof piecePricesSchema>;
+// Schema for each category containing multiple items
+const categorySchema = z.object({
+  category: z.string(),
+  items: z.array(itemSchema),
+});
 
-export const defaultPiecePricesValues: PiecePricesSchema = {
-  type: 'Cutting', // default type, could be 'Cutting' or 'Tailoring'
-  Shirt: 0,
-  Trouser: 0,
-  Coat: 0,
-  WestCoat: 0,
-  Cravat: 0,
-  Bow: 0,
-  Tie: 0,
-};
+// Main schema that represents the entire response
+export const piecePricesResponseSchema = z.array(categorySchema);
+
+export type PiecePricesResponseSchema = z.infer<typeof piecePricesResponseSchema>;

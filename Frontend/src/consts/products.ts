@@ -12,7 +12,61 @@
  * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
-import ProductType from '../enums/ProductType';
+import ProductType, { ProductCategory } from '../enums/ProductType';
+
+export const productCategoryItemMap = [
+  {
+    category: ProductCategory.FullSuit,
+    items: [
+      ProductType.Coat,
+      ProductType.Shirt,
+      ProductType.Trouser,
+      ProductType.WestCoat,
+      ProductType.Cravat,
+      ProductType.Bow,
+      ProductType.Tie,
+      ProductType.Hanky,
+    ],
+  },
+  {
+    category: ProductCategory.NationalSuit,
+    items: [ProductType.NationalCoat, ProductType.NationalShirt, ProductType.Sarong, ProductType.Trouser, ProductType.Hanky],
+  },
+  {
+    category: ProductCategory.RentFullSuit,
+    items: [
+      ProductType.RentCoat,
+      ProductType.Shirt,
+      ProductType.Trouser,
+      ProductType.RentWestCoat,
+      ProductType.Cravat,
+      ProductType.Bow,
+      ProductType.Tie,
+      ProductType.Hanky,
+    ],
+  },
+  {
+    category: ProductCategory.General,
+    items: [
+      ProductType.Coat,
+      ProductType.NationalCoat,
+      ProductType.WestCoat,
+      ProductType.Shirt,
+      ProductType.Trouser,
+      ProductType.DesignedTrouser,
+      ProductType.DesignedShirt,
+      ProductType.NationalShirt,
+      ProductType.RentCoat,
+      ProductType.RentWestCoat,
+      ProductType.Sarong,
+      ProductType.Tie,
+      ProductType.Bow,
+      ProductType.Cravat,
+      ProductType.Hanky,
+      ProductType.Chain,
+    ],
+  },
+];
 
 export const initialProductOptions = [
   {
@@ -52,4 +106,4 @@ export const initialProductOptions = [
   },
 ];
 
-export const statusOptions = ['Not Started', 'Cutting Started', 'Cutting Done', 'Tailoring Started', 'Tailoring Done'];
+export const statusOptions = ['Not Started', 'Cutting Done', 'Tailoring Started', 'Tailoring Done'];

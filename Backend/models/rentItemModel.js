@@ -17,14 +17,36 @@ const rentItemSchema = new mongoose.Schema({
     type: String,
     required: [true, "Total price is required."],
   },
-  type: {
+  itemCategory: {
     type: String,
-    enum: ["Shirt", "Trouser", "Coat", "West Coat", "Cravat", "Bow", "Tie"],
+    enum: ["General", "Full Suit", "National Suit", "Rent Full Suit"],
+    default: "General",
+  },
+  itemType: {
+    type: String,
+    enum: [
+      "Coat",
+      "National Coat",
+      "West Coat",
+      "Shirt",
+      "Trouser",
+      "Designed Trouser",
+      "Designed Shirt",
+      "National Shirt",
+      "Rent Coat",
+      "Rent West Coat",
+      "Sarong",
+      "Tie",
+      "Bow",
+      "Cravat",
+      "Hanky",
+      "Chain",
+    ],
     required: [true, "Item Type is required."],
   },
   status: {
     type: String,
-    enum: ['Not Returned', 'Available'],
+    enum: ['Rented', 'Available'],
     default: 'Available'
   }
 });

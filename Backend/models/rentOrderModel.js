@@ -43,9 +43,31 @@ const rentOrderSchema = new mongoose.Schema({
         type: Number,
         required: [true, "Rent Item Id is required"],
       },
-      type: {
+      itemCategory: {
         type: String,
-        enum: ["Shirt", "Trouser", "Coat", "West Coat", "Cravat", "Bow", "Tie"],
+        enum: ["General", "Full Suit", "National Suit", "Rent Full Suit"],
+        default: "General",
+      },
+      itemType: {
+        type: String,
+        enum: [
+          "Coat",
+          "National Coat",
+          "West Coat",
+          "Shirt",
+          "Trouser",
+          "Designed Trouser",
+          "Designed Shirt",
+          "National Shirt",
+          "Rent Coat",
+          "Rent West Coat",
+          "Sarong",
+          "Tie",
+          "Bow",
+          "Cravat",
+          "Hanky",
+          "Chain",
+        ],
         required: [true, "Item Type is required."],
       },
       handLength: { type: String },
@@ -72,7 +94,7 @@ const rentOrderSchema = new mongoose.Schema({
   },
   paymentType: {
     type: String,
-    enum: ["Cash", "Card"],
+    enum: ["Cash", "Card", "Bank Transfer"],
     required: [true, "Payment Type is required."],
   },
   stakeOption: {
@@ -80,9 +102,12 @@ const rentOrderSchema = new mongoose.Schema({
     enum: ["NIC", "Deposit"],
     required: [true, "Payment Type is required."],
   },
+  stakeAmount : {
+    type: Number,
+  },
   orderStatus: {
     type: String,
-    enum: ["Completed", "AdvancePaid", "Incomplete"],
+    enum: ["Completed", "Advanced", "Incomplete"],
     default: "Incomplete",
   },
 });
@@ -90,7 +115,7 @@ const rentOrderSchema = new mongoose.Schema({
 rentOrderSchema.plugin(AutoIncrement, {
   inc_field: "rentOrderSeq",
   id: "rentOrders",
-  start_seq: 10,
+  start_seq: 100,
 });
 
 rentOrderSchema.post("save", function (doc, next) {

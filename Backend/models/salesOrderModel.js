@@ -7,13 +7,13 @@ const AutoIncrement = mongooseSequence(mongoose);
 // Declare the Schema of the Mongo model
 const salesOrderSchema = new mongoose.Schema(
   {
+    salesOrderId: {
+        type: String,
+        unique: true,
+      },
     customer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Customer",
-    },
-    salesOrderId: {
-      type: String,
-      unique: true,
     },
     store: {
       enum: ["RW", "KE"],
@@ -41,6 +41,9 @@ const salesOrderSchema = new mongoose.Schema(
           type: String,
           required: [true, "Type is required"],
         },
+        category: {
+            type: String,
+          },
         products: [
           {
             type: mongoose.Schema.Types.ObjectId,
@@ -73,12 +76,13 @@ const salesOrderSchema = new mongoose.Schema(
     },
     paymentType: {
       type: String,
-      enum: ["Cash", "Card"],
+      enum: ["Cash", "Card", "Bank Transfer"],
       required: [true, "Payment Type is required."],
     },
     orderStatus: {
       type: String,
       enum: ["Pending", "Completed"],
+      default: "Pending"
     },
   },
   { timestamps: true }

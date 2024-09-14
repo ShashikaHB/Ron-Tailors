@@ -5,10 +5,10 @@ const AutoIncrement = mongooseSequence(mongoose);
 
 // Declare the Schema of the Materials
 const measurementSchema = new mongoose.Schema({
-  //   customer: {
-  //     type: mongoose.Schema.Types.ObjectId,
-  //     ref: "Customer",
-  //   },
+  customer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Customer",
+  },
   style: {
     type: String,
   },
@@ -17,14 +17,36 @@ const measurementSchema = new mongoose.Schema({
   },
   isNecessary: {
     type: Boolean,
-    required: [true, "Material unit price is required."],
+    default: false,
   },
   estimatedReleaseDate: {
     type: Date,
   },
+  itemCategory: {
+    type: String,
+    enum: ["General", "Full Suit", "National Suit", "Rent Full Suit"],
+    default: "General",
+  },
   itemType: {
     type: String,
-    enum: ["Shirt", "Trouser", "Coat", "West Coat", "Cravat", "Bow", "Tie"],
+    enum: [
+      "Coat",
+      "National Coat",
+      "West Coat",
+      "Shirt",
+      "Trouser",
+      "Designed Trouser",
+      "Designed Shirt",
+      "National Shirt",
+      "Rent Coat",
+      "Rent West Coat",
+      "Sarong",
+      "Tie",
+      "Bow",
+      "Cravat",
+      "Hanky",
+      "Chain",
+    ],
     required: [true, "Item Type is required."],
   },
   measurements: [{ type: String }],

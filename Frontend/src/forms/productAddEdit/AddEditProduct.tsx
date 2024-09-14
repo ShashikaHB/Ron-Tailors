@@ -7,10 +7,9 @@
 import { useEffect, useState } from 'react';
 import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
-import { MenuItem, TextField } from '@mui/material';
+import { FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { ColDef } from 'ag-grid-community';
 import { RiCloseLargeLine } from '@remixicon/react';
-import { capitalize } from 'lodash';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
 import { ProductSchema } from '../formSchemas/productSchema';
 import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
@@ -89,9 +88,19 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
   const handleMaterialAdd = () => {
     dispatch(setMaterials(material));
     setMaterial({
-      material: 0,
+      material: '',
       unitsNeeded: 0,
     });
+  };
+  const materialAddEnabled = material.material !== '0' && material.unitsNeeded > 0;
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Prevent the form submission
+      if (materialAddEnabled) {
+        handleMaterialAdd();
+      }
+    }
   };
 
   const onSubmit: SubmitHandler<ProductSchema> = async (data) => {
@@ -177,39 +186,41 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
                 <h5 className="modal-title pt-1">Materials</h5>
                 <div className="d-flex gap-4 align-items-end mb-3">
                   <div className="col-4">
-                    <TextField
-                      select
-                      size="small"
-                      label="Material"
-                      defaultValue={{
-                        value: 0,
-                        label: `Select a material`,
-                      }}
-                      onChange={(e) =>
-                        setMaterial((prev) => ({
-                          ...prev,
-                          material: Number(e.target.value),
-                        }))
-                      }
-                    >
-                      {materialOptions?.map((option, index) => (
-                        <MenuItem key={index} value={option.value} disabled={option.value === 0}>
-                          {capitalize(option.label)}
-                        </MenuItem>
-                      ))}
-                    </TextField>
+                    <FormControl fullWidth size="small">
+                      <InputLabel id="material-select-label">Material</InputLabel>
+                      <Select
+                        labelId="material-select-label"
+                        value={material?.material || '0'} // Set value to the selected material, default to 0
+                        label="Material"
+                        onChange={(e) =>
+                          setMaterial((prev) => ({
+                            ...prev,
+                            material: e.target.value,
+                          }))
+                        }
+                      >
+                        {/* Map through the materialOptions */}
+                        {materialOptions?.map((option, index) => (
+                          <MenuItem key={index} value={option.value} disabled={option.value === '0'}>
+                            {option.label} {/* Display option label */}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
                   </div>
                   <TextField
                     label="Units needed"
                     value={material.unitsNeeded}
+                    type="number"
                     onChange={(e) =>
                       setMaterial((prev) => ({
                         ...prev,
                         unitsNeeded: Number(e.target.value),
                       }))
                     }
+                    onKeyDown={handleKeyPress}
                   />
-                  <button className="primary-button" type="button" onClick={() => handleMaterialAdd()}>
+                  <button className="primary-button" type="button" disabled={!materialAddEnabled} onClick={() => handleMaterialAdd()}>
                     Add
                   </button>
                 </div>

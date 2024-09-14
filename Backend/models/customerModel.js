@@ -14,6 +14,9 @@ const customerSchema = new mongoose.Schema({
     required: [true, "Mobile number is required."],
     unique: [true, "Mobile number already exists."],
   },
+  otherPhoneNumbers: [{
+    type: String,
+  }]
 });
 
 customerSchema.plugin(AutoIncrement, {

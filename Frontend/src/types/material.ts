@@ -28,6 +28,6 @@ export type GetMaterial = Material & EditMaterial;
 export type MaterialTableScheme = GetMaterial & { action: string };
 
 export type MaterialNeededforProduct = {
-  material: number;
+  material: string;
   unitsNeeded: number;
 };

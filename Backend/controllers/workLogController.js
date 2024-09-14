@@ -10,10 +10,14 @@ export const logWork = async (
   if (!user) return;
 
   const workLog = await WorkLog.create({
-    user: user._id,
+    user,
     action,
     pieceType,
     productId,
     piecePrice, // Store the piece price
   });
+
+  if (!workLog) {
+    throw new Error("Internal server Error!");
+  }
 };
