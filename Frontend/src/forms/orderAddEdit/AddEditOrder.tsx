@@ -61,8 +61,15 @@ const AddEditOrder = () => {
     defaultValues: defaultMeasurementValues,
   });
 
+  const initialProductOptions = (productCategoryItemMap.find((cat) => cat.category === ProductCategory.General)?.items || []).map((item) => ({
+    id: item,
+    label: capitalize(item),
+    checked: false,
+    price: '', // Default price to empty
+  }));
+
   const [selectedCategory, setSelectedCategory] = useState<any>(ProductCategory.General);
-  const [productOptions, setProductOptions] = useState<any>([]);
+  const [productOptions, setProductOptions] = useState<any>(initialProductOptions);
   const [selectedItems, setSelectedItems] = useState([]);
   const [disableCheckboxes, setDisableCheckboxes] = useState(false);
 
