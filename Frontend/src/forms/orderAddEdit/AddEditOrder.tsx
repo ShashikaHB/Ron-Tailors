@@ -458,7 +458,7 @@ const AddEditOrder = () => {
                     </FormControl>
                   </div>
                 </div>
-                <div className='flex-grow-1 overflow-auto'>
+                <div className="flex-grow-1 overflow-auto">
                   <FormControl component="fieldset">
                     <FormLabel component="legend">Select Products</FormLabel>
                     <FormGroup>

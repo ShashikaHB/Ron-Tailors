@@ -99,7 +99,7 @@ export const sideBarConfig: SideBarConfig[] = [
       },
       {
         title: 'Day End',
-        path: '/secured/editPiecePrices',
+        path: '/secured/dailySummary',
       },
     ],
   },
