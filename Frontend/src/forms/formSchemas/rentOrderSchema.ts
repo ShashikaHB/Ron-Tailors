@@ -46,6 +46,7 @@ const baseRentOrderSchema = z.object({
   balance: z.coerce.number().optional(),
   paymentType: z.nativeEnum(PaymentType).default(PaymentType.Cash),
   stakeOption: z.nativeEnum(StakeOptions),
+  stakeAmount: z.coerce.number().optional(),
 });
 
 // Define the create schema with customer and salesPerson as numbers
@@ -82,6 +83,7 @@ export const defaultRentOrderValues: RentOrderSchema = {
   advPayment: 0,
   balance: 0,
   paymentType: PaymentType.Cash,
-  stakeOption: StakeOptions.Deposit,
+  stakeOption: StakeOptions.NIC,
+  stakeAmount: 0,
   // orderId is required only for 'edit' variant
 };

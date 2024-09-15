@@ -7,13 +7,19 @@
 import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import { RiCloseLargeLine } from '@remixicon/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
-import { useAddNewMaterialMutation, useGetSingleMaterialQuery, useUpdateSingleMaterialMutation } from '../../redux/features/material/materialApiSlice';
 import { defaultTransactionValues, TransactionSchema } from '../formSchemas/transactionSchema';
 import paymentOptions from '../../consts/paymentOptions';
 import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
 import RHFDatePicker from '../../components/customFormComponents/customDatePicker/RHFDatePricker';
+import { useAddCustomTransactionMutation, useGetAllTransactionCategoriesQuery } from '../../redux/features/transaction/transactionApiSlice';
+import transactionType from '../../consts/transactionTypes';
+import { Roles } from '../../enums/Roles';
+import { allUsers } from '../../redux/features/auth/authSlice';
+import { useAppSelector } from '../../redux/reduxHooks/reduxHooks';
+import getUserRoleBasedOptions from '../../utils/userUtils';
+import stores from '../../consts/stores';
 
 type AddMaterialFormProps = {
   handleClose: () => void;
@@ -23,11 +29,15 @@ type AddMaterialFormProps = {
 const AddTransaction = ({ handleClose, materialId }: AddMaterialFormProps) => {
   const { control, unregister, watch, reset, setValue, handleSubmit, getValues } = useFormContext<TransactionSchema>();
 
-  const [addNewMaterial] = useAddNewMaterialMutation();
-  const [updateMaterial] = useUpdateSingleMaterialMutation();
-  const { data: singleMaterial } = useGetSingleMaterialQuery(materialId as number);
+  // Fetch transactions with the selected date range
+  const { data: transactionCategories, isLoading } = useGetAllTransactionCategoriesQuery({});
+  const [addTransaction] = useAddCustomTransactionMutation();
+  const [categories, setCategories] = useState([]);
+  const selectedTransactionType = useWatch({ control, name: 'transactionType' });
 
-  const variant = useWatch({ control });
+  const users = useAppSelector(allUsers);
+
+  const salesPeople = getUserRoleBasedOptions(users, Roles.SalesPerson);
 
   const handleFormClose = (): void => {
     handleClose();
@@ -48,29 +58,28 @@ const AddTransaction = ({ handleClose, materialId }: AddMaterialFormProps) => {
     };
   }, [watch]);
 
+  useEffect(() => {
+    if (transactionCategories) {
+      const filteredCategories = transactionCategories
+        .filter((category: any) => category.transactionType === selectedTransactionType)
+        .map((category: any) => ({
+          value: category.transactionCategory,
+          label: category.transactionCategory,
+        }));
+
+      setCategories(filteredCategories);
+    }
+  }, [transactionCategories, selectedTransactionType]);
+
   const onSubmit: SubmitHandler<TransactionSchema> = async (data) => {
     try {
-      if (variant === 'edit') {
-        const response = await updateMaterial(data);
-        if (response.error) {
-          toast.error('Material Update Failed');
-          console.log(response.error);
-        } else {
-          toast.success('Material Updated.');
-          reset();
-        }
-      } else {
-        const response = await addNewMaterial(data);
-        if (response.error) {
-          toast.error('Material Adding Failed');
-          console.log(response.error);
-        } else {
-          toast.success('New material Added.');
-          reset();
-        }
+      const response = await addTransaction(data);
+      if (response?.data?.success) {
+        toast.success('Transaction Recorded!');
+        reset(defaultTransactionValues);
       }
     } catch (error) {
-      toast.error(`Material Action Failed. ${error.message}`);
+      toast.error(`Transaction addition Failed. ${error.message}`);
     }
   };
 
@@ -86,18 +95,19 @@ const AddTransaction = ({ handleClose, materialId }: AddMaterialFormProps) => {
         <div className="modal-body">
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="inputGroup">
-              <RHFDropDown<TransactionSchema> options={paymentOptions} name="transactionType" label="Payment Type" />
-              <RHFDropDown<TransactionSchema> options={paymentOptions} name="transactionCategory" label="Payment Type" />
-              <RHFTextField<TransactionSchema> label="Unit Price" name="description" type="Transaction Description" />
+              <RHFDropDown<TransactionSchema> options={transactionType} name="transactionType" label="Transaction Type" />
+              <RHFDropDown<TransactionSchema> options={categories} name="transactionCategory" label="Transaction Category" />
+              <RHFDropDown<TransactionSchema> options={stores} name="store" label="Store" />
+              <RHFTextField<TransactionSchema> label="Description" name="description" type="Transaction Description" />
               <RHFDatePicker<TransactionSchema> name="date" label="Transaction Date" />
               <RHFDropDown<TransactionSchema> options={paymentOptions} name="paymentType" label="Payment Type" />
-              <RHFTextField<TransactionSchema> label="Amount" name="amount" />
+              <RHFTextField<TransactionSchema> label="Amount" name="amount" type="number" />
+              <RHFDropDown<TransactionSchema> options={salesPeople} name="salesPerson" label="Sales Person" />
             </div>
             <div className="modal-footer mt-3">
               <button className="secondary-button" onClick={handleClear} type="button">
                 Clear
               </button>
-
               <button className="primary-button" type="submit" onClick={() => console.log('btn clicked')}>
                 Add Transaction
               </button>

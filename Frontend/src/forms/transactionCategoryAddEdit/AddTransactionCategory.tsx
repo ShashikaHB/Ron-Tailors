@@ -4,16 +4,16 @@
  * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
-import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
-import { toast } from 'sonner';
+import { SubmitHandler, useFormContext } from 'react-hook-form';
 import { RiCloseLargeLine } from '@remixicon/react';
 import { useEffect } from 'react';
+import { toast } from 'sonner';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
-import { useAddNewMaterialMutation, useGetSingleMaterialQuery, useUpdateSingleMaterialMutation } from '../../redux/features/material/materialApiSlice';
 import { defaultTransactionValues } from '../formSchemas/transactionSchema';
-import paymentOptions from '../../consts/paymentOptions';
 import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
 import { TransactionCategorySchema } from '../formSchemas/transactionCategorySchema';
+import transactionType from '../../consts/transactionTypes';
+import { useAddCustomTransactionCategoryMutation } from '../../redux/features/transaction/transactionApiSlice';
 
 type AddMaterialFormProps = {
   handleClose: () => void;
@@ -23,11 +23,7 @@ type AddMaterialFormProps = {
 const AddTransactionCategory = ({ handleClose, materialId }: AddMaterialFormProps) => {
   const { control, unregister, watch, reset, setValue, handleSubmit, getValues } = useFormContext<TransactionCategorySchema>();
 
-  const [addNewMaterial] = useAddNewMaterialMutation();
-  const [updateMaterial] = useUpdateSingleMaterialMutation();
-  const { data: singleMaterial } = useGetSingleMaterialQuery(materialId as number);
-
-  const variant = useWatch({ control });
+  const [addTransactionCategory] = useAddCustomTransactionCategoryMutation();
 
   const handleFormClose = (): void => {
     handleClose();
@@ -50,27 +46,13 @@ const AddTransactionCategory = ({ handleClose, materialId }: AddMaterialFormProp
 
   const onSubmit: SubmitHandler<TransactionCategorySchema> = async (data) => {
     try {
-      if (variant === 'edit') {
-        const response = await updateMaterial(data);
-        if (response.error) {
-          toast.error('Material Update Failed');
-          console.log(response.error);
-        } else {
-          toast.success('Material Updated.');
-          reset();
-        }
-      } else {
-        const response = await addNewMaterial(data);
-        if (response.error) {
-          toast.error('Material Adding Failed');
-          console.log(response.error);
-        } else {
-          toast.success('New material Added.');
-          reset();
-        }
+      const response = await addTransactionCategory(data).unwrap();
+      if (response.success) {
+        toast.success('Transaction Category Added.');
+        reset();
       }
     } catch (error) {
-      toast.error(`Material Action Failed. ${error.message}`);
+      toast.error(`Transaction Category Action Failed. ${error.message}`);
     }
   };
 
@@ -78,7 +60,7 @@ const AddTransactionCategory = ({ handleClose, materialId }: AddMaterialFormProp
     <div className="modal-dialog modal-dialog-centered">
       <div className="modal-content">
         <div className="modal-header">
-          <h5 className="modal-title"> Add New Transaction</h5>
+          <h5 className="modal-title"> Add New Transaction Category</h5>
           <button type="button" aria-label="close-btn" className="icon-button" onClick={handleFormClose}>
             <RiCloseLargeLine size={18} />
           </button>
@@ -86,15 +68,15 @@ const AddTransactionCategory = ({ handleClose, materialId }: AddMaterialFormProp
         <div className="modal-body">
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="inputGroup">
-              <RHFDropDown<TransactionCategorySchema> options={paymentOptions} name="transactionType" label="Payment Type" />
-              <RHFTextField<TransactionCategorySchema> label="Amount" name="transactionCategory" />
+              <RHFDropDown<TransactionCategorySchema> options={transactionType} name="transactionType" label="Transaction Type" />
+              <RHFTextField<TransactionCategorySchema> label="Transaction Category" name="transactionCategory" />
             </div>
             <div className="modal-footer mt-3">
               <button className="secondary-button" onClick={handleClear} type="button">
                 Clear
               </button>
               <button className="primary-button" type="submit" onClick={() => console.log('btn clicked')}>
-                Add Transaction
+                Add Transaction Category
               </button>
             </div>
           </form>

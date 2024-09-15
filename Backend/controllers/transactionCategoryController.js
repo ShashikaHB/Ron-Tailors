@@ -119,16 +119,16 @@ export const editTransactionCategory = asyncHandler(async (req, res) => {
 // @route   DELETE /api/transactionCategories/:transactionCategory
 // @access  Public
 export const deleteTransactionCategory = asyncHandler(async (req, res) => {
-  const { transactionCategory } = req.params;
+  const { transactionCategory } = req.body;
 
   if (!transactionCategory) {
     res.status(400);
     throw new Error("Category ID is required.");
   }
 
-  const docId = await getDocId(TransactionCategory, 'transactionCategory', transactionCategory);
+  const transactionCategoryDoc = await TransactionCategory.findOne({transactionCategory}).lean().exec()
 
-  const deletedCategory = await TransactionCategory.findByIdAndDelete(docId);
+  const deletedCategory = await TransactionCategory.findByIdAndDelete(transactionCategoryDoc._id);
 
   if (!deletedCategory) {
     res.status(404);

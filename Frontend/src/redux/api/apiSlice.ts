@@ -59,7 +59,20 @@ const baseQueryWithReAuth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
 const apiSlice = createApi({
   baseQuery: baseQueryWithReAuth,
   endpoints: (builder) => ({}),
-  tagTypes: ['Materials', 'Customer', 'Users', 'Products', 'SalesOrder', 'RentOrder', 'RentItem', 'RentItemList', 'PiecePrices', 'Salary', 'Transactions'],
+  tagTypes: [
+    'Materials',
+    'Customer',
+    'Users',
+    'Products',
+    'SalesOrder',
+    'RentOrder',
+    'RentItem',
+    'RentItemList',
+    'PiecePrices',
+    'Salary',
+    'Transactions',
+    'TransactionCategory',
+  ],
 });
 
 export default apiSlice;

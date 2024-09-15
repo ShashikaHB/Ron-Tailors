@@ -1,6 +1,6 @@
 import asyncHandler from "express-async-handler";
 import { Transaction } from "../models/transactionModel.js";
-import { getDocId } from '../utils/docIds.js';
+import { getDocId } from "../utils/docIds.js";
 import {
   startOfDay,
   endOfDay,
@@ -9,6 +9,8 @@ import {
   startOfYear,
   endOfYear,
 } from "date-fns";
+import { DailySummary } from "../models/dailySummaryModel.js";
+import { updateDailySummary } from "../utils/updateDailySummary.js";
 
 export const getAllTransactions = asyncHandler(async (req, res) => {
   const transactions = await Transaction.find().lean().exec();
@@ -20,9 +22,66 @@ export const getAllTransactions = asyncHandler(async (req, res) => {
   res.json({
     message: "All transactions fetched successfully.",
     success: true,
-    data: transactions
+    data: transactions,
   });
 });
+
+export const getFilteredTransactions = asyncHandler(async (req, res) => {
+  const { fromDate, toDate, store } = req.body;
+
+  // Validate that fromDate and toDate are provided
+  if (!fromDate || !toDate || !store) {
+    return res.status(400).json({
+      message: 'Both fromDate and toDate are required.',
+      success: false,
+    });
+  }
+
+  // Convert fromDate and toDate to JavaScript Date objects
+  const from = new Date(fromDate);
+  const to = new Date(toDate);
+
+  let query = { store }; 
+
+  // If fromDate and toDate are the same (ignoring the time part)
+  if (from.toDateString() === to.toDateString()) {
+    // Query for transactions that occurred on that specific day (between 00:00:00 and 23:59:59)
+    query.date = {
+      $gte: new Date(from.setHours(0, 0, 0, 0)),  // Start of the day (00:00:00)
+      $lte: new Date(from.setHours(23, 59, 59, 999))  // End of the day (23:59:59)
+    };
+  } else {
+    // Query for transactions within the range from fromDate to toDate
+    query.date = {
+      $gte: new Date(from.setHours(0, 0, 0, 0)), // Start of fromDate
+      $lte: new Date(to.setHours(23, 59, 59, 999)) // End of toDate
+    };
+  }
+
+  // Fetch filtered transactions based on the query
+  const transactions = await Transaction.find(query).lean().exec();
+
+  // If no transactions are found
+  if (!transactions || transactions.length === 0) {
+    return res.status(404).json({
+      message: 'No transactions found for the specified date range.',
+      success: false,
+    });
+  }
+
+  const formattedTransactions = transactions.map(transaction => ({
+    ...transaction,
+    date: new Date(transaction.date).toISOString().split('T')[0] // Format to YYYY-MM-DD
+  }));
+
+  // Return the filtered transactions
+  res.json({
+    message: 'Transactions fetched successfully.',
+    success: true,
+    data: formattedTransactions,
+  });
+});
+
 
 // @desc    Get transactions by time period (today, monthly, annual)
 // @route   GET /api/transactions
@@ -77,17 +136,35 @@ export const getTransactionsByTimePeriod = asyncHandler(async (req, res) => {
 });
 
 export const addCustomTransaction = asyncHandler(async (req, res) => {
-  const { transactionType, amount, description, paymentType, salesPerson, transactionCategory } = req.body;
+  const {
+    transactionType,
+    amount,
+    description,
+    paymentType,
+    store,
+    salesPerson,
+    transactionCategory,
+  } = req.body;
 
-  if (!transactionType || !amount || !description || !paymentType || !salesPerson || !transactionCategory) {
+  if (
+    !transactionType ||
+    !amount ||
+    !description ||
+    !store ||
+    !paymentType ||
+    !salesPerson ||
+    !transactionCategory
+  ) {
     res.status(400);
     throw new Error("All fields are required.");
   }
 
   const newTransaction = await Transaction.create(req.body);
 
+  await updateDailySummary(newTransaction);
+
   if (!newTransaction) {
-    throw new Error ('Internal server error')
+    throw new Error("Internal server error");
   }
 
   res.json({
@@ -98,91 +175,209 @@ export const addCustomTransaction = asyncHandler(async (req, res) => {
 });
 
 export const getSingleCustomTransaction = asyncHandler(async (req, res) => {
-    const { transactionId } = req.params; // Get the transaction ID from URL parameters
+  const { transactionId } = req.params; // Get the transaction ID from URL parameters
 
-    if (!transactionId) {
-        res.status(400);
-        throw new Error("Transaction ID is required.");
-      }  
+  if (!transactionId) {
+    res.status(400);
+    throw new Error("Transaction ID is required.");
+  }
 
-    const transaction = await Transaction.findOne({transactionId}).lean().exec();
-  
-    if (!transaction) {
-      throw new Error("No transaction found!");
-    }
-  
-    res.json({
-      message: "Transaction fetched successfully.",
-      success: true,
-      data: transaction
-    });
+  const transaction = await Transaction.findOne({ transactionId })
+    .lean()
+    .exec();
+
+  if (!transaction) {
+    throw new Error("No transaction found!");
+  }
+
+  res.json({
+    message: "Transaction fetched successfully.",
+    success: true,
+    data: transaction,
   });
+});
 
 export const editCustomTransaction = asyncHandler(async (req, res) => {
-    const { transactionId } = req.params; // Get the transaction ID from URL parameters
-    const { transactionType, amount, description, paymentType, salesPerson, transactionCategory } = req.body;
-  
-    // Check if transactionId exists
-    if (!transactionId) {
-      res.status(400);
-      throw new Error("Transaction ID is required.");
-    }
-  
-    // Check if at least one field to update is provided
-    if (!transactionType && !amount && !description && !paymentType && !salesPerson && !transactionCategory) {
-      res.status(400);
-      throw new Error("At least one field to update is required.");
-    }
+  const { transactionId } = req.params; // Get the transaction ID from URL parameters
+  const {
+    transactionType,
+    amount,
+    description,
+    paymentType,
+    salesPerson,
+    transactionCategory,
+  } = req.body;
 
-    const docId = await getDocId(Transaction, 'transactionId', transactionId )
+  // Check if transactionId exists
+  if (!transactionId) {
+    res.status(400);
+    throw new Error("Transaction ID is required.");
+  }
+
+  // Check if at least one field to update is provided
+  if (
+    !transactionType &&
+    !amount &&
+    !description &&
+    !paymentType &&
+    !salesPerson &&
+    !transactionCategory
+  ) {
+    res.status(400);
+    throw new Error("At least one field to update is required.");
+  }
+
+  const docId = await getDocId(Transaction, "transactionId", transactionId);
+
+  // Find the transaction by ID and update with the provided fields
+  const updatedTransaction = await Transaction.findByIdAndUpdate(
+    docId,
+    {
+      $set: req.body, // Update only the fields sent in the body
+    },
+    { new: true, runValidators: true } // Options: return the new document and run validations
+  );
+
+  // Check if the transaction was found and updated
+  if (!updatedTransaction) {
+    res.status(404);
+    throw new Error("Transaction not found.");
+  }
+
+  // Return the updated transaction
+  res.json({
+    message: "Transaction updated successfully.",
+    success: true,
+    data: updatedTransaction,
+  });
+});
+
+export const deleteCustomTransaction = asyncHandler(async (req, res) => {
+  const { transactionId } = req.params; // Get the transaction ID from URL parameters
+
+  // Check if transactionId exists
+  if (!transactionId) {
+    res.status(400);
+    throw new Error("Transaction ID is required.");
+  }
+
+  const docId = await getDocId(Transaction, "transactionId", transactionId);
+
+  // Find the transaction by ID and delete it
+  const deletedTransaction = await Transaction.findByIdAndDelete(docId);
+
+  // Check if the transaction was found and deleted
+  if (!deletedTransaction) {
+    res.status(404);
+    throw new Error("Transaction not found.");
+  }
+
+  // Return success message after deletion
+  res.json({
+    message: "Transaction deleted successfully.",
+    success: true,
+  });
+});
+
+// Controller to get a single day's summary
+export const getDayEndRecord = asyncHandler(async (req, res) => {
+    const { date } = req.query;
   
-    // Find the transaction by ID and update with the provided fields
-    const updatedTransaction = await Transaction.findByIdAndUpdate(
-        docId,
-      {
-        $set: req.body, // Update only the fields sent in the body
-      },
-      { new: true, runValidators: true } // Options: return the new document and run validations
-    );
-  
-    // Check if the transaction was found and updated
-    if (!updatedTransaction) {
-      res.status(404);
-      throw new Error("Transaction not found.");
+    // Validate that a date is provided
+    if (!date) {
+      return res.status(400).json({
+        message: 'Date is required.',
+        success: false,
+      });
     }
   
-    // Return the updated transaction
+    // Convert date to ISO format without time (e.g., '2024-09-15')
+    const transactionDate = new Date(date).toISOString().split('T')[0];
+  
+    // Find the daily summary for the given date
+    const dailySummary = await DailySummary.findOne({
+      date: transactionDate,
+    }).exec();
+  
+    // If no summary found for the date, return an error
+    if (!dailySummary) {
+      return res.status(404).json({
+        message: `No summary found for the date ${transactionDate}.`,
+        success: false,
+      });
+    }
+  
+    // Return the daily summary
     res.json({
-      message: "Transaction updated successfully.",
+      message: 'Daily summary fetched successfully.',
       success: true,
-      data: updatedTransaction,
+      data: dailySummary,
     });
   });
 
-  export const deleteCustomTransaction = asyncHandler(async (req, res) => {
-    const { transactionId } = req.params; // Get the transaction ID from URL parameters
+export const getAllDayEndRecords = asyncHandler(async (req, res) => {
   
-    // Check if transactionId exists
-    if (!transactionId) {
-      res.status(400);
-      throw new Error("Transaction ID is required.");
-    }
-
-    const docId = await getDocId(Transaction, 'transactionId', transactionId )
-
+    // Find the daily summary for the given date
+    const dailySummary = await DailySummary.find().lean();
   
-    // Find the transaction by ID and delete it
-    const deletedTransaction = await Transaction.findByIdAndDelete(docId);
-  
-    // Check if the transaction was found and deleted
-    if (!deletedTransaction) {
-      res.status(404);
-      throw new Error("Transaction not found.");
+    // If no summary found for the date, return an error
+    if (!dailySummary) {
+      return res.status(404).json({
+        message: `No summary found`,
+        success: false,
+      });
     }
   
-    // Return success message after deletion
+    // Return the daily summary
     res.json({
-      message: "Transaction deleted successfully.",
+      message: 'Daily summary fetched successfully.',
       success: true,
+      data: dailySummary,
     });
   });
+
+export const updateCashInHand = asyncHandler(async (req, res) => {
+  const { date, countedCash } = req.body;
+
+  // Validate inputs
+  if (!date || cashInHand === undefined) {
+    return res.status(400).json({
+      message: "Date and cashInHand are required.",
+      success: false,
+    });
+  }
+
+  // Convert date to ISO format without time (e.g., '2024-09-15')
+  const transactionDate = new Date(date).toISOString().split("T")[0];
+
+  // Find the daily summary for the given date
+  let dailySummary = await DailySummary.findOne({
+    date: transactionDate,
+  }).exec();
+
+  // If no summary found for the date, return an error
+  if (!dailySummary) {
+    return res.status(404).json({
+      message: `No summary found for the date ${transactionDate}.`,
+      success: false,
+    });
+  }
+
+  // Update counted cash
+  dailySummary.countedCash = countedCash;
+
+  // Calculate the difference between countedCash and cashInHand
+  dailySummary.difference = countedCash - dailySummary.cashInHand;
+
+  // Save the updated summary
+  await dailySummary.save();
+
+  // Return the updated summary
+  res.json({
+    message: "Cash in hand updated successfully.",
+    success: true,
+    data: dailySummary,
+  });
+});
+
+

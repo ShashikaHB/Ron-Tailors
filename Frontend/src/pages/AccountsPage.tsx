@@ -18,13 +18,15 @@ import { DevTool } from '@hookform/devtools';
 import { Modal } from '@mui/material';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useGetAllTransactionsQuery } from '../redux/features/transaction/transactionApiSlice';
+import { toast } from 'sonner';
+import { useDeleteTransactionCategoryMutation, useGetAllTransactionCategoriesQuery } from '../redux/features/transaction/transactionApiSlice';
 import MemoizedTable from '../components/agGridTable/Table';
 import { defaultTransactionCategoryValues, transactionCategorySchema, TransactionCategorySchema } from '../forms/formSchemas/transactionCategorySchema';
 import AddTransactionCategory from '../forms/transactionCategoryAddEdit/AddTransactionCategory';
+import SimpleActionButton from '../components/agGridTable/customComponents/SimpleActionButton';
 
 const AccountsPage = () => {
-  const { data: transactions, isError: transactionError, isLoading } = useGetAllTransactionsQuery({});
+  const { data: transactionCategories, isError: transactionError, isLoading } = useGetAllTransactionCategoriesQuery({});
 
   const methods = useForm<TransactionCategorySchema>({
     mode: 'all',
@@ -34,25 +36,42 @@ const AccountsPage = () => {
 
   const [open, setOpen] = useState(false);
 
+  const [deleteCategory] = useDeleteTransactionCategoryMutation();
+
   const handleClose = useCallback(() => setOpen(false), []);
   const handleOpen = useCallback(() => {
     setOpen(true);
   }, []);
+
+  const handleRemove = async (transactionCategory: string) => {
+    const response = await deleteCategory(transactionCategory);
+    if (response.data.success) {
+      toast.success(response.data.message);
+    }
+  };
 
   const defaultColDef: ColDef = { resizable: true };
 
   const initialColDefs: ColDef<any>[] = [
     { headerName: 'Transaction Category', field: 'transactionCategory', maxWidth: 400 },
     { headerName: 'Transaction Type', field: 'transactionType', maxWidth: 400 },
+    {
+      headerName: '',
+      cellRenderer: SimpleActionButton,
+      cellRendererParams: {
+        handleRemove,
+        idField: 'transactionCategory',
+      },
+    },
   ];
 
   const [rowData, setRowData] = useState<any>([]);
 
   useEffect(() => {
-    if (transactions) {
-      setRowData(transactions);
+    if (transactionCategories) {
+      setRowData(transactionCategories);
     }
-  }, [transactions]);
+  }, [transactionCategories]);
 
   return (
     <div className="h-100 d-flex flex-column gap-3">

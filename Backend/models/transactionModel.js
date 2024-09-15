@@ -23,6 +23,11 @@ const transactionSchema = new mongoose.Schema(
         type: Date,
         default: new Date()
     },
+    store: {
+        enum: ["RW", "KE"],
+        type: String,
+        required: [true, "Store Location is required."],
+      },
     amount: {
       type: Number,
       required: [true, 'Amount is required.'],

@@ -106,7 +106,16 @@ export const sideBarConfig: SideBarConfig[] = [
   {
     title: 'Payments',
     icon: <PaymentsIcon />,
-    path: '/secured/editSalary',
+    children: [
+      {
+        title: 'Sales/ Rent Order',
+        path: '/secured/editSalary',
+      },
+      {
+        title: 'Ready Made',
+        path: '/secured/newReadyMadeOrder',
+      },
+    ],
   },
   {
     title: 'Reports',

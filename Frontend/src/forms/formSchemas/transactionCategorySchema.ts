@@ -14,6 +14,6 @@ export const transactionCategorySchema = z.object({
 export type TransactionCategorySchema = z.infer<typeof transactionCategorySchema>;
 
 export const defaultTransactionCategoryValues: TransactionCategorySchema = {
-  transactionType: '',
+  transactionType: '0',
   transactionCategory: '',
 };

@@ -4,21 +4,18 @@
  * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
-import Stores from '../enums/Stores';
-
-const stores = [
+const transactionType = [
   {
     value: '',
-    label: 'Select a Store',
+    label: 'Select a transaction Type',
   },
   {
-    value: Stores.Kegalle,
-    label: 'Kegalle',
+    value: 'Income',
+    label: 'Income',
   },
   {
-    value: Stores.Ranwala,
-    label: 'Ranwala',
+    value: 'Expense',
+    label: 'Expense',
   },
 ];
-
-export default stores;
+export default transactionType;
