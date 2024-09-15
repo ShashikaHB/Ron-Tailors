@@ -25,6 +25,7 @@ body {
   }
 
   .sidebar {
+    overflow-y: auto;
     ul {
       list-style: none;
       padding: 0;
@@ -190,6 +191,7 @@ body {
 
       .MuiFormControl-root {
         width: 100%;
+        margin: 0 !important;
       }
     }
   }
@@ -267,7 +269,29 @@ body {
     margin-top: 0;
     margin-bottom: 0;
   }
-
+  .add-order-card{
+    .card-body{
+      height: 400px;
+      .MuiFormGroup-root{
+        .MuiFormControl-root{
+          flex-direction: row !important;
+          gap: 8px;
+          align-items: center;
+          flex-grow: 1;
+            .MuiFormLabel-root{
+              padding-bottom: 0 !important;
+            }
+        }
+      }
+      .checkbox-container{
+        display: flex;
+        align-items: center;
+      }
+      fieldset{
+        padding-left: 12px;
+      }
+    }
+  }
   .otp-area {
     width: 70%;
     margin: 20px auto;

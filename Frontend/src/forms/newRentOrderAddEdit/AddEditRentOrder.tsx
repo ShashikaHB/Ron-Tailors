@@ -360,7 +360,7 @@ const NewRentOut = () => {
                     <button
                       className="secondary-button"
                       type="submit"
-                      //   onClick={handleCancelOrder}
+                    //   onClick={handleCancelOrder}
                     >
                       Cancel Order
                     </button>
@@ -396,34 +396,38 @@ const NewRentOut = () => {
                       </span>
                     </button>
                   </div>
-                  <div className="col-12 mb-3 d-flex gap-4">
-                    <div className="col-2">
-                      <TextField label="Color" value={rentItemDetails.color} inputProps={{ readOnly: true }} />
-                    </div>
-                    <div className="col-2">
-                      <TextField label="Size" type="number" value={rentItemDetails.size ?? ''} inputProps={{ readOnly: true }} />
-                    </div>
-                    <div className="col-3">
-                      <TextField label="Description" value={rentItemDetails.description} inputProps={{ readOnly: true }} />
-                    </div>
-                    <div className="col-3">
-                      <TextField
-                        label="Hand length"
-                        value={rentItemDetails.handLength}
-                        onChange={(e) => handleRentItemDetailsChange(RentItemDetailTypes.handLength, e.target.value)}
-                      />
+                  <div className="col-12 mb-3 d-flex">
+                    <div className="row gap-2 mx-0 g-0">
+                      <div className="col">
+                        <TextField label="Color" value={rentItemDetails.color} inputProps={{ readOnly: true }} />
+                      </div>
+                      <div className="col">
+                        <TextField label="Size" type="number" value={rentItemDetails.size ?? ''} inputProps={{ readOnly: true }} />
+                      </div>
+                      <div className="col">
+                        <TextField label="Description" value={rentItemDetails.description} inputProps={{ readOnly: true }} />
+                      </div>
+                      <div className="col">
+                        <TextField
+                          label="Hand length"
+                          value={rentItemDetails.handLength}
+                          onChange={(e) => handleRentItemDetailsChange(RentItemDetailTypes.handLength, e.target.value)}
+                        />
+                      </div>
                     </div>
                   </div>
                   <div className="col-12 mb-3 d-flex gap-4">
-                    <div className="col-9">
-                      <TextField
-                        label="Notes"
-                        value={rentItemDetails.notes}
-                        onChange={(e) => handleRentItemDetailsChange(RentItemDetailTypes.notes, e.target.value)}
-                      />
-                    </div>
-                    <div className="col-2">
-                      <TextField label="Amount" type="number" value={rentItemDetails.amount} onChange={(e) => handleAmountChange(e)} />
+                    <div className="row gap-2 mx-0 g-0 w-100">
+                      <div className="col">
+                        <TextField
+                          label="Notes"
+                          value={rentItemDetails.notes}
+                          onChange={(e) => handleRentItemDetailsChange(RentItemDetailTypes.notes, e.target.value)}
+                        />
+                      </div>
+                      <div className="col-4">
+                        <TextField label="Amount" type="number" value={rentItemDetails.amount} onChange={(e) => handleAmountChange(e)} />
+                      </div>
                     </div>
                   </div>
                 </div>

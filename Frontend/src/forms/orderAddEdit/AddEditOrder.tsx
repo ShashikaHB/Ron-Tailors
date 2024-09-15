@@ -437,11 +437,11 @@ const AddEditOrder = () => {
       <div className="col-12">
         <div className="row">
           <div className="col-6">
-            <div className="card">
+            <div className="card add-order-card">
               <div className="card-header">
                 <h5>Add order Items</h5>
               </div>
-              <div className="card-body">
+              <div className="card-body d-flex flex-column">
                 <div className="row">
                   <div className="col-12 mb-3">
                     <TextField label="Description" value={description} onChange={(e) => setDescription(e?.target?.value)} />
@@ -458,21 +458,23 @@ const AddEditOrder = () => {
                     </FormControl>
                   </div>
                 </div>
-                <FormControl component="fieldset">
-                  <FormLabel component="legend">Select Products</FormLabel>
-                  <FormGroup>
-                    {productOptions?.length &&
-                      productOptions.map((option) => (
-                        <CheckBoxWithInput
-                          key={option.id}
-                          option={option}
-                          handleCheckBoxChange={handleCheckBoxChange}
-                          handleInputChange={handleInputChange}
-                          disableCheckboxes={disableCheckboxes && selectedCategory === 'General'}
-                        />
-                      ))}
-                  </FormGroup>
-                </FormControl>
+                <div className='flex-grow-1 overflow-auto'>
+                  <FormControl component="fieldset">
+                    <FormLabel component="legend">Select Products</FormLabel>
+                    <FormGroup>
+                      {productOptions?.length &&
+                        productOptions.map((option) => (
+                          <CheckBoxWithInput
+                            key={option.id}
+                            option={option}
+                            handleCheckBoxChange={handleCheckBoxChange}
+                            handleInputChange={handleInputChange}
+                            disableCheckboxes={disableCheckboxes && selectedCategory === 'General'}
+                          />
+                        ))}
+                    </FormGroup>
+                  </FormControl>
+                </div>
                 <div className="d-flex justify-content-end">
                   <button className="secondary-button mx-2" type="button" disabled={isAddItemButtonDisabled} onClick={clearOrderItems}>
                     Clear Items

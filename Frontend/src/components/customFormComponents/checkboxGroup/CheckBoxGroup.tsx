@@ -34,7 +34,7 @@ const CheckBoxGroup = ({ options, handleCheckBoxSelect }: CheckBoxGroupProps) =>
 // CheckBoxWithInput component for rendering checkbox + input fields
 export const CheckBoxWithInput = ({ option, handleCheckBoxChange, handleInputChange, disableCheckboxes }) => {
   return (
-    <div className="mb-2">
+    <div className="mb-1 checkbox-container">
       <FormControlLabel
         control={<Checkbox disabled={disableCheckboxes && !option.checked} checked={option.checked} onChange={() => handleCheckBoxChange(option.id)} />}
         label={option.label}
