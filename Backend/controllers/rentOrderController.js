@@ -67,6 +67,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     transactionType: "Income",
     transactionCategory: "Rent Order",
     paymentType: paymentType,
+    store: req.body?.store,
     salesPerson: salesPersonName,
     amount: newOrder.subTotal,
     description: `Rent Order ${newOrder.rentOrderId}`,

@@ -17,6 +17,7 @@ import paymentOptions from '../../consts/paymentOptions';
 import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
 import { readyMadeItems } from '../../consts/products';
 import { useAddReadyMadeItemOrderMutation } from '../../redux/features/orders/orderApiSlice';
+import stores from '../../consts/stores';
 
 const AddReadyMadeOrderForm = () => {
   const { control, unregister, watch, reset, setValue, handleSubmit, getValues } = useFormContext<ReadyMadeItemSchema>();
@@ -61,6 +62,9 @@ const AddReadyMadeOrderForm = () => {
                     </div>
                     <div className="col-6 mb-3">
                       <RHFDropDown<ReadyMadeItemSchema> options={salesPeople} name="salesPerson" label="Sales Person" />
+                    </div>
+                    <div className="col-6 mb-3">
+                      <RHFDropDown<ReadyMadeItemSchema> options={stores} name="store" label="Store" />
                     </div>
                   </div>
                 </div>

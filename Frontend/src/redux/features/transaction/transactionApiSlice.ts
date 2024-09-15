@@ -16,6 +16,15 @@ export const transactionApiSlice = apiSlice.injectEndpoints({
       providesTags: ['Transactions'],
       transformResponse: (response: any) => response.data,
     }),
+    getFilteredTransactions: builder.query({
+      query: (dates) => ({
+        url: '/transaction/filteredTransactions',
+        method: 'POST',
+        body: dates,
+      }),
+      providesTags: ['Transactions'],
+      transformResponse: (response: any) => response.data,
+    }),
     getTransactionsByTimePeriod: builder.query({
       query: (timePeriod) => ({
         url: `/transactions?timePeriod=${timePeriod}`,
@@ -24,15 +33,51 @@ export const transactionApiSlice = apiSlice.injectEndpoints({
       providesTags: ['Transactions'],
       transformResponse: (response: any) => response.data,
     }),
+
     addCustomTransaction: builder.mutation({
       query: (transaction) => ({
-        url: '/transactions',
+        url: '/transaction',
         method: 'POST',
         body: transaction,
       }),
       invalidatesTags: ['Transactions'],
     }),
+
+    getAllTransactionCategories: builder.query({
+      query: () => ({
+        url: '/transactionCategory',
+        method: 'GET',
+      }),
+      providesTags: ['TransactionCategory'],
+      transformResponse: (response: any) => response.data,
+    }),
+
+    addCustomTransactionCategory: builder.mutation({
+      query: (transactionCategory) => ({
+        url: '/transactionCategory',
+        method: 'POST',
+        body: transactionCategory,
+      }),
+      invalidatesTags: ['TransactionCategory'],
+    }),
+
+    deleteTransactionCategory: builder.mutation({
+      query: (transactionCategory) => ({
+        url: `/transactionCategory`,
+        method: 'DELETE',
+        body: { transactionCategory },
+      }),
+      invalidatesTags: ['TransactionCategory'],
+    }),
   }),
 });
 
-export const { useGetAllTransactionsQuery, useAddCustomTransactionMutation, useLazyGetTransactionsByTimePeriodQuery } = transactionApiSlice;
+export const {
+  useGetAllTransactionsQuery,
+  useAddCustomTransactionMutation,
+  useLazyGetTransactionsByTimePeriodQuery,
+  useAddCustomTransactionCategoryMutation,
+  useDeleteTransactionCategoryMutation,
+  useGetAllTransactionCategoriesQuery,
+  useGetFilteredTransactionsQuery,
+} = transactionApiSlice;

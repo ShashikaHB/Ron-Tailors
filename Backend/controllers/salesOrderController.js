@@ -86,6 +86,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     transactionCategory: "Sales Order",
     paymentType: paymentType,
     salesPerson: salesPersonDoc.name,
+    store: req.body?.store,
     amount: newOrder.subTotal,
     description: `Sales Order: ${newOrder.salesOrderId}`,
   });

@@ -30,6 +30,7 @@ import { allUsers } from '../../redux/features/auth/authSlice';
 import getUserRoleBasedOptions from '../../utils/userUtils';
 import { Roles } from '../../enums/Roles';
 import stores from '../../consts/stores';
+import StakeOptions from '../../enums/StakeOptions';
 
 // const salesPeople = [
 //   {
@@ -64,6 +65,17 @@ const paymentOptions = [
   },
   {
     value: PaymentType.Card,
+    label: 'Card',
+  },
+];
+
+const stakeOptions = [
+  {
+    value: StakeOptions.NIC,
+    label: 'NIC',
+  },
+  {
+    value: StakeOptions.Deposit,
     label: 'Card',
   },
 ];
@@ -343,6 +355,7 @@ const NewRentOut = () => {
                     <div className="col-6 mb-3">
                       <RHFDropDown<RentOrderSchema> label="Payment Options" options={paymentOptions} name="paymentType" />
                     </div>
+
                     <div className="col-6 mb-3">
                       <RHFTextField<RentOrderSchema> label="Advance" name="advPayment" />
                     </div>
@@ -354,6 +367,12 @@ const NewRentOut = () => {
                     </div>
                     <div className="col-6 mb-3">
                       <RHFTextField<RentOrderSchema> label="Balance" name="balance" disabled />
+                    </div>
+                    <div className="col-6 mb-3">
+                      <RHFDropDown<RentOrderSchema> label="Stake Options" options={stakeOptions} name="stakeOption" />
+                    </div>
+                    <div className="col-6 mb-3">
+                      <RHFTextField<RentOrderSchema> label="Amount" name="stakeAmount" />
                     </div>
                   </div>
                   <div className="d-flex justify-content-end gap-2">

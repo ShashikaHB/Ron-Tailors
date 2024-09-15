@@ -13,6 +13,6 @@ router.get('/', getAllTransactionCategories);
 router.post('/', addTransactionCategory);
 router.get('/:transactionCategory', getSingleTransactionCategory);
 router.patch('/:transactionCategory', editTransactionCategory);
-router.delete('/:transactionCategory', deleteTransactionCategory);
+router.delete('/', deleteTransactionCategory);
 
 export default router;

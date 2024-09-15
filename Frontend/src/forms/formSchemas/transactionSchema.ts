@@ -6,11 +6,14 @@
  */
 import { z } from 'zod';
 import PaymentType from '../../enums/PaymentType';
+import Stores from '../../enums/Stores';
 
 export const transactionSchema = z.object({
   transactionType: z.string().min(1, 'Transaction Type is required.'),
   transactionCategory: z.string().min(1, 'Transaction category is required.'),
   description: z.string().min(1, 'Transaction category is required.'),
+  salesPerson: z.number().min(1, 'Sales person is required.'),
+  store: z.nativeEnum(Stores).default(Stores.Kegalle),
   amount: z.coerce.number().min(1, 'Transaction amount is required.'),
   date: z.date().refine((date) => date instanceof Date && !Number.isNaN(date.getTime()), {
     message: 'Date is required and must be a valid date.',
@@ -23,7 +26,9 @@ export type TransactionSchema = z.infer<typeof transactionSchema>;
 export const defaultTransactionValues: TransactionSchema = {
   transactionType: '',
   transactionCategory: '',
-  description: '0',
+  description: '',
+  salesPerson: 0,
+  store: Stores.Kegalle,
   amount: 0,
   date: new Date(),
   paymentType: PaymentType.Cash,

@@ -11,6 +11,7 @@ const transactionCategorySchema = new mongoose.Schema(
     transactionCategory: {
         type: String,
         required: [true, 'Transaction Category is required.'],
+        unique: [true, 'Transaction Category already exists']
       },
   },
   { timestamps: false }
