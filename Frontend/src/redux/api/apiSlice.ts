@@ -72,6 +72,7 @@ const apiSlice = createApi({
     'Salary',
     'Transactions',
     'TransactionCategory',
+    'DayEnd',
   ],
 });
 

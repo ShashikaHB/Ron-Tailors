@@ -281,10 +281,10 @@ export const deleteCustomTransaction = asyncHandler(async (req, res) => {
 
 // Controller to get a single day's summary
 export const getDayEndRecord = asyncHandler(async (req, res) => {
-    const { date } = req.query;
+    const { date, store } = req.body;
   
     // Validate that a date is provided
-    if (!date) {
+    if (!date || !store) {
       return res.status(400).json({
         message: 'Date is required.',
         success: false,
@@ -297,7 +297,7 @@ export const getDayEndRecord = asyncHandler(async (req, res) => {
     // Find the daily summary for the given date
     const dailySummary = await DailySummary.findOne({
       date: transactionDate,
-    }).exec();
+    }).lean().exec();
   
     // If no summary found for the date, return an error
     if (!dailySummary) {
@@ -316,9 +316,15 @@ export const getDayEndRecord = asyncHandler(async (req, res) => {
   });
 
 export const getAllDayEndRecords = asyncHandler(async (req, res) => {
+
+    const {store} = req.params
+
+    if (!store) {
+        throw new Error ("Store is required!")
+    }
   
     // Find the daily summary for the given date
-    const dailySummary = await DailySummary.find().lean();
+    const dailySummary = await DailySummary.find({store}).lean();
   
     // If no summary found for the date, return an error
     if (!dailySummary) {
@@ -337,12 +343,12 @@ export const getAllDayEndRecords = asyncHandler(async (req, res) => {
   });
 
 export const updateCashInHand = asyncHandler(async (req, res) => {
-  const { date, countedCash } = req.body;
+  const { date, countedCash, store } = req.body;
 
   // Validate inputs
-  if (!date || cashInHand === undefined) {
+  if (!date || countedCash === undefined) {
     return res.status(400).json({
-      message: "Date and cashInHand are required.",
+      message: "Date and countedCash are required.",
       success: false,
     });
   }
@@ -353,6 +359,7 @@ export const updateCashInHand = asyncHandler(async (req, res) => {
   // Find the daily summary for the given date
   let dailySummary = await DailySummary.findOne({
     date: transactionDate,
+    store
   }).exec();
 
   // If no summary found for the date, return an error
@@ -366,8 +373,8 @@ export const updateCashInHand = asyncHandler(async (req, res) => {
   // Update counted cash
   dailySummary.countedCash = countedCash;
 
-  // Calculate the difference between countedCash and cashInHand
-  dailySummary.difference = countedCash - dailySummary.cashInHand;
+  // Calculate the difference between countedCash and countedCash
+  dailySummary.difference = countedCash - dailySummary.countedCash;
 
   // Save the updated summary
   await dailySummary.save();

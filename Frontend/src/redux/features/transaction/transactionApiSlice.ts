@@ -69,6 +69,32 @@ export const transactionApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['TransactionCategory'],
     }),
+    getAllDayEndRecords: builder.query({
+      query: (store) => ({
+        url: `/transaction/dayend/${store}`,
+        method: 'GET',
+      }),
+      providesTags: ['DayEnd'],
+      transformResponse: (response: any) => response.data,
+    }),
+    getSingleDayEndRecords: builder.query({
+      query: (data) => ({
+        url: '/transaction/dayend',
+        method: 'POST',
+        body: { date: data.selectedDate, store: data.selectedStore },
+      }),
+      providesTags: ['DayEnd'],
+      transformResponse: (response: any) => response.data,
+    }),
+    updateCashInHand: builder.mutation({
+      query: (data) => ({
+        url: '/transaction/dayend/update',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['DayEnd'],
+      transformResponse: (response: any) => response.data,
+    }),
   }),
 });
 
@@ -80,4 +106,7 @@ export const {
   useDeleteTransactionCategoryMutation,
   useGetAllTransactionCategoriesQuery,
   useGetFilteredTransactionsQuery,
+  useGetAllDayEndRecordsQuery,
+  useGetSingleDayEndRecordsQuery,
+  useUpdateCashInHandMutation,
 } = transactionApiSlice;

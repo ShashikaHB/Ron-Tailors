@@ -28,6 +28,7 @@ import CashBook from '../pages/CashBook';
 import PiecePrices from '../pages/PiecePrices';
 import NewReadyMadeOrder from '../pages/NewReadyMadeOrder';
 import AccountsPage from '../pages/AccountsPage';
+import DailySummary from '../pages/DailySummary';
 
 const router = createBrowserRouter([
   {
@@ -115,6 +116,10 @@ const router = createBrowserRouter([
           {
             path: 'accounts',
             element: <AccountsPage />,
+          },
+          {
+            path: 'dailySummary',
+            element: <DailySummary />,
           },
           {
             path: 'Reports',

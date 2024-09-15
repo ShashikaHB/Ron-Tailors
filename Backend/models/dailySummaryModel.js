@@ -5,7 +5,6 @@ const dailySummarySchema = new mongoose.Schema(
     date: {
       type: Date,
       required: true,
-      unique: true, // Ensures one record per day
     },
     store: {
         enum: ["RW", "KE"],

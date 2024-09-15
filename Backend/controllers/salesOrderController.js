@@ -10,6 +10,7 @@ import {
 } from "../utils/docIds.js";
 import { Material } from "../models/materialModel.js";
 import { Transaction } from "../models/transactionModel.js";
+import { updateDailySummary } from "../utils/updateDailySummary.js";
 
 export const createOrder = asyncHandler(async (req, res) => {
   const {
@@ -81,7 +82,7 @@ export const createOrder = asyncHandler(async (req, res) => {
   const newOrder = await SalesOrder.create(orderData);
 
   // Create a credit transaction
-  await Transaction.create({
+  const newTransaction = await Transaction.create({
     transactionType: "Income",
     transactionCategory: "Sales Order",
     paymentType: paymentType,
@@ -90,6 +91,8 @@ export const createOrder = asyncHandler(async (req, res) => {
     amount: newOrder.subTotal,
     description: `Sales Order: ${newOrder.salesOrderId}`,
   });
+
+  await updateDailySummary(newTransaction);
 
   res.json({
     message: "New order created successfully.",

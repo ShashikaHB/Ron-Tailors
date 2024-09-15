@@ -458,21 +458,23 @@ const AddEditOrder = () => {
                     </FormControl>
                   </div>
                 </div>
-                <FormControl component="fieldset">
-                  <FormLabel component="legend">Select Products</FormLabel>
-                  <FormGroup>
-                    {productOptions?.length &&
-                      productOptions.map((option) => (
-                        <CheckBoxWithInput
-                          key={option.id}
-                          option={option}
-                          handleCheckBoxChange={handleCheckBoxChange}
-                          handleInputChange={handleInputChange}
-                          disableCheckboxes={disableCheckboxes && selectedCategory === 'General'}
-                        />
-                      ))}
-                  </FormGroup>
-                </FormControl>
+                <div className="flex-grow-1 overflow-auto">
+                  <FormControl component="fieldset">
+                    <FormLabel component="legend">Select Products</FormLabel>
+                    <FormGroup>
+                      {productOptions?.length &&
+                        productOptions.map((option) => (
+                          <CheckBoxWithInput
+                            key={option.id}
+                            option={option}
+                            handleCheckBoxChange={handleCheckBoxChange}
+                            handleInputChange={handleInputChange}
+                            disableCheckboxes={disableCheckboxes && selectedCategory === 'General'}
+                          />
+                        ))}
+                    </FormGroup>
+                  </FormControl>
+                </div>
                 <div className="d-flex justify-content-end">
                   <button className="secondary-button mx-2" type="button" disabled={isAddItemButtonDisabled} onClick={clearOrderItems}>
                     Clear Items
