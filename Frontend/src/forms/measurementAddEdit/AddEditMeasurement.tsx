@@ -16,9 +16,8 @@ import RHFDatePicker from '../../components/customFormComponents/customDatePicke
 import { useAppSelector } from '../../redux/reduxHooks/reduxHooks';
 import { selectSelectedProduct } from '../../redux/features/product/productSlice';
 import { useLazyGetSingleProductQuery, useUpdateSingleProductMutation } from '../../redux/features/product/productApiSlice';
-import Loader from '../../components/loderComponent/Loader';
 import { useCreateMeasurementMutation, useUpdateMeasurementMutation } from '../../redux/features/measurement/measurementApiSlice';
-import { selectCustomerId } from '../../redux/features/common/commonSlice';
+import { selectCustomerId, selectProductId } from '../../redux/features/common/commonSlice';
 
 type AddEditProductProps = {
   handleClose: () => void;
@@ -28,6 +27,8 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
   const { control, unregister, watch, reset, setValue, handleSubmit, getValues, clearErrors } = useFormContext<MeasurementSchema>();
 
   const [triggerGetProduct, { data: productData, isLoading: productDataLoading }] = useLazyGetSingleProductQuery();
+
+  const productId = useAppSelector(selectProductId);
 
   useEffect(() => {
     const sub = watch((value) => {
@@ -146,85 +147,80 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
               <div>Copy form other Measurement</div>
             </div>
           </div>
-          {isLoading ? (
-            <div className="d-flex justify-content-center">
-              <Loader />
+
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="inputGroup">
+              <div>
+                <br />
+                <div style={{ border: '1px solid black', marginTop: '20px' }} />
+              </div>
+              <div className="d-flex gap-1">
+                <button className="primary-button" type="button" onClick={() => addText('SB')}>
+                  SB
+                </button>
+                <button className="primary-button" type="button" onClick={() => addText('DB')}>
+                  DB
+                </button>
+                <button className="primary-button" type="button" onClick={() => addText('Hinec')}>
+                  Hinec
+                </button>
+              </div>
+              <div className="d-flex gap-1">
+                <button className="primary-button" type="button" onClick={() => addText('1 BT')}>
+                  1 BT
+                </button>
+                <button className="primary-button" type="button" onClick={() => addText('2 BT')}>
+                  2 BT
+                </button>
+                <button className="primary-button" type="button" onClick={() => addText('3 BT')}>
+                  3 BT
+                </button>
+              </div>
+              <div className="d-flex gap-1">
+                <button className="primary-button" type="button" onClick={() => addText('Normal')}>
+                  Normal
+                </button>
+                <button className="primary-button" type="button" onClick={() => addText('Half Satting')}>
+                  Half Satting
+                </button>
+                <button className="primary-button" type="button" onClick={() => addText('Full Satting')}>
+                  Full Satting
+                </button>
+              </div>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="inputGroup">
-                <div>
-                  <br />
-                  <div style={{ border: '1px solid black', marginTop: '20px' }} />
-                </div>
-                <div className="d-flex gap-1">
-                  <button className="primary-button" type="button" onClick={() => addText('SB')}>
-                    SB
-                  </button>
-                  <button className="primary-button" type="button" onClick={() => addText('DB')}>
-                    DB
-                  </button>
-                  <button className="primary-button" type="button" onClick={() => addText('Hinec')}>
-                    Hinec
-                  </button>
-                </div>
-                <div className="d-flex gap-1">
-                  <button className="primary-button" type="button" onClick={() => addText('1 BT')}>
-                    1 BT
-                  </button>
-                  <button className="primary-button" type="button" onClick={() => addText('2 BT')}>
-                    2 BT
-                  </button>
-                  <button className="primary-button" type="button" onClick={() => addText('3 BT')}>
-                    3 BT
-                  </button>
-                </div>
-                <div className="d-flex gap-1">
-                  <button className="primary-button" type="button" onClick={() => addText('Normal')}>
-                    Normal
-                  </button>
-                  <button className="primary-button" type="button" onClick={() => addText('Half Satting')}>
-                    Half Satting
-                  </button>
-                  <button className="primary-button" type="button" onClick={() => addText('Full Satting')}>
-                    Full Satting
-                  </button>
-                </div>
+            <div className="inputGroup my-3 w-30 d-flex flex-direction-row">
+              <RHFTextField<MeasurementSchema> label="Style" name="style" />
+            </div>
+            <h6>Add Measurements</h6>
+            <div className="my-3">
+              <div className="d-flex gap-1 mb-1">
+                {[0, 1, 2, 3, 4].map((index) => (
+                  <TextField key={index} value={measurements[index]} onChange={(e) => addMeasurements(index, e.target.value)} />
+                ))}
               </div>
-              <div className="inputGroup my-3 w-30 d-flex flex-direction-row">
-                <RHFTextField<MeasurementSchema> label="Style" name="style" />
+              <div className="d-flex gap-1 mb-1">
+                {[5, 6, 7, 8, 9].map((index) => (
+                  <TextField key={index} value={measurements[index]} onChange={(e) => addMeasurements(index, e.target.value)} />
+                ))}
               </div>
-              <h6>Add Measurements</h6>
-              <div className="my-3">
-                <div className="d-flex gap-1 mb-1">
-                  {[0, 1, 2, 3, 4].map((index) => (
-                    <TextField key={index} value={measurements[index]} onChange={(e) => addMeasurements(index, e.target.value)} />
-                  ))}
-                </div>
-                <div className="d-flex gap-1 mb-1">
-                  {[5, 6, 7, 8, 9].map((index) => (
-                    <TextField key={index} value={measurements[index]} onChange={(e) => addMeasurements(index, e.target.value)} />
-                  ))}
-                </div>
-              </div>
-              <div className="inputGroup">
-                <RHFTextField<MeasurementSchema> label="Remarks" name="remarks" />
-                <RHFSwitch<MeasurementSchema> name="isNecessary" label="Necessary on the release date" />
-                <RHFDatePicker<MeasurementSchema> name="estimatedReleaseDate" label="Estimated release date" />
-              </div>
-              <div className="modal-footer mt-3">
-                <button className="secondary-button" type="button" onClick={() => handleClear()}>
-                  Clear
-                </button>
-                <button className="secondary-button" type="button" onClick={() => validate()}>
-                  validate
-                </button>
-                <button className="primary-button" type="submit">
-                  Save
-                </button>
-              </div>
-            </form>
-          )}
+            </div>
+            <div className="inputGroup">
+              <RHFTextField<MeasurementSchema> label="Remarks" name="remarks" />
+              <RHFSwitch<MeasurementSchema> name="isNecessary" label="Necessary on the release date" />
+              <RHFDatePicker<MeasurementSchema> name="estimatedReleaseDate" label="Estimated release date" />
+            </div>
+            <div className="modal-footer mt-3">
+              <button className="secondary-button" type="button" onClick={() => handleClear()}>
+                Clear
+              </button>
+              <button className="secondary-button" type="button" onClick={() => validate()}>
+                validate
+              </button>
+              <button className="primary-button" type="submit">
+                Save
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
