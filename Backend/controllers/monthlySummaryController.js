@@ -58,8 +58,8 @@ export const updateUserSummaryWithPieceType = async (
     category: category,
   });
 
- if (piecePrice) {
-    const item = piecePrice.items.find(item => item.itemType === itemType);
+  if (piecePrice) {
+    const item = piecePrice.items.find((item) => item.itemType === itemType);
 
     if (actionType === "Cutting Done") {
       summary.totalSalary += item?.cuttingPrice || 0;
@@ -178,5 +178,14 @@ export const getMonthlySalaryReport = asyncHandler(async (req, res) => {
     message: `Salary report for ${month}`,
     success: true,
     data: report,
+  });
+});
+
+export const getAllMonthlyRecords = asyncHandler(async (req, res) => {
+  const monthlyRecords = await MonthlySummary.find().lean();
+
+  res.json({
+    message: "Monthly summary fetched",
+    data: monthlyRecords,
   });
 });

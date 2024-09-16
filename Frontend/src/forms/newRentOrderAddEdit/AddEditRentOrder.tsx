@@ -55,7 +55,7 @@ const initialRentItemDetails: RentItemDetails = {
   handLength: '',
   notes: '',
   amount: 0,
-  type: ProductType.Coat,
+  itemType: ProductType.Coat,
 };
 
 const paymentOptions = [
@@ -103,6 +103,7 @@ const NewRentOut = () => {
   const advance = useWatch({ control, name: 'advPayment' });
   const discount = useWatch({ control, name: 'discount' });
   const variant = useWatch({ control, name: 'variant' });
+  const stakeOption = useWatch({ control, name: 'stakeOption' });
 
   const users = useAppSelector(allUsers);
 
@@ -192,6 +193,20 @@ const NewRentOut = () => {
     const rentDate = data?.rentDate ? new Date(data.rentDate) : null;
     const returnDate = data?.returnDate ? new Date(data.returnDate) : null;
     return { ...data, salesPerson, rentDate, returnDate };
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Prevent the form submission
+      handleSearchCustomer();
+    }
+  };
+
+  const handleKeyPressProductSearch = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Prevent the form submission
+      handleSearchProduct();
+    }
   };
 
   useEffect(() => {
@@ -311,6 +326,7 @@ const NewRentOut = () => {
                         placeholder="Search the customer by mobile or name"
                         value={customerSearchQuery}
                         onChange={(e) => setCustomerSearchQuery(e.target.value)}
+                        onKeyDown={handleKeyPress}
                       />
                       <button className="icon-button" type="button" aria-label="search_customer" onClick={() => handleSearchCustomer()}>
                         <span>
@@ -372,14 +388,14 @@ const NewRentOut = () => {
                       <RHFDropDown<RentOrderSchema> label="Stake Options" options={stakeOptions} name="stakeOption" />
                     </div>
                     <div className="col-6 mb-3">
-                      <RHFTextField<RentOrderSchema> label="Amount" name="stakeAmount" />
+                      <RHFTextField<RentOrderSchema> label="Amount" name="stakeAmount" disabled={stakeOption === StakeOptions.NIC} />
                     </div>
                   </div>
                   <div className="d-flex justify-content-end gap-2">
                     <button
                       className="secondary-button"
                       type="submit"
-                    //   onClick={handleCancelOrder}
+                      //   onClick={handleCancelOrder}
                     >
                       Cancel Order
                     </button>
@@ -408,6 +424,7 @@ const NewRentOut = () => {
                       placeholder="Search the product by barcode"
                       value={productSearchQuery}
                       onChange={(e) => setProductSearchQuery(e.target.value)}
+                      onKeyDown={handleKeyPressProductSearch}
                     />
                     <button className="icon-button" type="button" aria-label="search_product" onClick={() => handleSearchProduct()}>
                       <span>

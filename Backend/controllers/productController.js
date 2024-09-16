@@ -330,12 +330,18 @@ export const updateProductStatus = asyncHandler(async (req, res) => {
     piecePrice =
       pieceData?.items?.find((item) => item.itemType === product.itemType)
         ?.cuttingPrice || 0;
-  } else if (status === "Tailoring Started") {
-    if (!product.tailor) {
-        throw new Error ('Tailor is not defined for the product!')
-    }
   } 
-  else if (status === "Tailoring Done") {
+  if (status === "Tailoring Started") {
+    product.status = status;
+    const updatedProduct = await product.save();
+
+    return res.json({
+      message: 'Product status updated successfully to "Tailoring Started".',
+      success: true,
+      data: updatedProduct,
+    });
+  }
+  if (status === "Tailoring Done") {
     if (!product.tailor) {
         throw new Error ('Tailor is not defined for the product!')
     }

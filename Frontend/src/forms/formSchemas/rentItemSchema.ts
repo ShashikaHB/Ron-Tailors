@@ -31,6 +31,6 @@ export const defaultRentItemValues: RentItemSchema = {
   variant: 'create',
   color: '',
   size: null,
-  type: ProductType.Coat,
+  itemType: ProductType.Coat,
   description: '',
 };

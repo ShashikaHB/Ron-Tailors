@@ -7,6 +7,7 @@
 
 import { toast } from 'sonner';
 import { CircularProgress, FormControl, MenuItem, Select } from '@mui/material';
+import { useState } from 'react';
 import { useUpdateProductStatusMutation } from '../../../redux/features/product/productApiSlice';
 import { statusOptions } from '../../../consts/products';
 import { getStatusColor } from '../../../utils/productUtils';
@@ -22,7 +23,8 @@ type SalesOrderDetailsRendererProps = {
 const SalesOrderDetailsRenderer = ({ data, handleOpenMeasurement, handleOpenProductEdit }: SalesOrderDetailsRendererProps) => {
   const { orderDetails } = data ?? '';
 
-  const [updateStatus, { data: updateStatusData, isLoading: loading }] = useUpdateProductStatusMutation();
+  const [updateStatus, { data: updateStatusData }] = useUpdateProductStatusMutation();
+  const [loadingMap, setLoadingMap] = useState<{ [key: number]: boolean }>({}); // Track loading for each product
 
   const dispatch = useAppDispatch();
 
@@ -32,19 +34,23 @@ const SalesOrderDetailsRenderer = ({ data, handleOpenMeasurement, handleOpenProd
       updateStatus({ status: newStatus, productId }).then((res) => {
         if (res.success) {
           toast.success(`Status updated to ${newStatus}`);
+          setLoadingMap((prev) => ({ ...prev, [productId]: false }));
         }
       });
     } catch (error) {
       console.log(error);
+      setLoadingMap((prev) => ({ ...prev, [productId]: false }));
     }
   };
   return (
     <div>
       {orderDetails?.map((order: any, index: number) => {
-        const { products, description } = order;
+        const { products, description, category } = order;
         return (
           <div key={index}>
-            <div>Description: {description}</div>
+            <div>
+              Description: {description}: ({category})
+            </div>
             {products?.map((product: any) => {
               const { productId, status, itemType } = product;
               const handleChange = async (event: React.ChangeEvent<{ value: unknown }>) => {
@@ -80,7 +86,7 @@ const SalesOrderDetailsRenderer = ({ data, handleOpenMeasurement, handleOpenProd
                     <Select
                       value={status}
                       onChange={handleChange}
-                      disabled={loading}
+                      disabled={loadingMap[productId]}
                       sx={{
                         backgroundColor: getStatusColor(status),
                         color: 'black',
@@ -93,7 +99,7 @@ const SalesOrderDetailsRenderer = ({ data, handleOpenMeasurement, handleOpenProd
                       ))}
                     </Select>
                   </FormControl>
-                  {loading && <CircularProgress size={24} />}
+                  {loadingMap[productId] && <CircularProgress size={24} />}
                 </div>
               );
             })}

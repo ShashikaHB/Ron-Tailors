@@ -13,33 +13,27 @@ const NewOrder = () => {
   const cardConfig: CardConfig[] = [
     {
       title: 'Sales Order',
-      subtitle: 'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
+      subtitle: 'Sales orders can be initiated from here',
       image: sales,
       link: '/secured/addSalesOrder',
     },
     {
       title: 'Rent Out',
-      subtitle: 'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
+      subtitle: 'Rent out orders can be initiated from here',
       image: rentOut,
       link: '/secured/addRentOrder',
     },
     {
       title: 'Rent Return',
-      subtitle: 'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
+      subtitle: 'Rent Returns are handled from here',
       image: rentOut,
       link: '/secured/rentReturn',
     },
     {
       title: 'Payment',
-      subtitle: 'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
+      subtitle: 'Make Payments easy',
       image: rentOut,
-      link: '/secured/cashBook',
-    },
-    {
-      title: 'Ready Made Order',
-      subtitle: 'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur',
-      image: rentOut,
-      link: '/secured/newReadyMadeOrder',
+      link: '/secured/salesOrRentOrderPayment',
     },
   ];
   return (

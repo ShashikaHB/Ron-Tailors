@@ -41,13 +41,13 @@ export const rentOutApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: ['RentOrder'],
     }),
-    searchRentOrderByItem: builder.query<ApiGetRentOrder, string>({
+    searchRentOrderByItem: builder.query<any, string>({
       query: (rentItemId: string) => ({
         url: `/rentOrder/searchItem/${rentItemId}`,
         method: 'GET',
       }),
       providesTags: (result, error, args) => (result ? [{ type: 'RentOrder', id: args?.toString() }] : []),
-      transformResponse: (res: ApiResponse<ApiGetRentOrder>): any => {
+      transformResponse: (res: ApiResponse<any>): any => {
         return { ...res.data, variant: 'edit' };
       },
     }),

@@ -16,13 +16,13 @@ export type RentItemDetails = {
   handLength: string;
   notes: string;
   amount: number;
-  type: ProductType;
+  itemType: ProductType;
 };
 
 export type RentItem = {
   color: string;
   size: number | undefined;
-  type: ProductType;
+  itemType: ProductType;
   description: string;
 };
 

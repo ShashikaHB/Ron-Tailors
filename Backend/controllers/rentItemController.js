@@ -139,6 +139,10 @@ export const searchRentItem = asyncHandler(async (req, res) => {
       throw new Error("Rent Item not found.");
     }
 
+    if (rentItem.status !== 'Available') {
+        throw new Error ("Item already Rented")
+    }
+
     res.json({
       message: "Rent Item data fetched successfully.",
       success: true,

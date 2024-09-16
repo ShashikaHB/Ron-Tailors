@@ -10,9 +10,10 @@ import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { useLazySearchRentOrderByItemQuery, useRentReturnMutation } from '../redux/features/rentOrder/rentOrderApiSlice';
+import StakeOptions from '../enums/StakeOptions';
 
 const NewRentReturn = () => {
-  const [triggerSearchRentOrder, { data: rentOrderData }] = useLazySearchRentOrderByItemQuery({});
+  const [triggerSearchRentOrder, { data }] = useLazySearchRentOrderByItemQuery({});
   const [returnRent, { data: rentReturnData }] = useRentReturnMutation();
   const [rentItemSearchQuery, setRentItemSearchQuery] = useState('');
   const [rentOrderDetails, setRentOrderDetails] = useState(null);
@@ -22,9 +23,15 @@ const NewRentReturn = () => {
     setRentItemSearchQuery('');
   };
 
+  const handleRentItemSearch = () => {
+    if (rentItemSearchQuery.trim()) {
+      triggerSearchRentOrder(rentItemSearchQuery);
+    }
+  };
+
   const handleRentReturn = async () => {
     try {
-      const result = await returnRent(rentOrderData?.rentOrderId as string);
+      const result = await returnRent(data.rentOrder?.rentOrderId as string);
       if (result?.data?.success) {
         toast.success('Rent return successful!');
         handleReset();
@@ -35,12 +42,19 @@ const NewRentReturn = () => {
   };
 
   useEffect(() => {
-    if (rentOrderData) {
-      setRentOrderDetails(rentOrderData);
+    if (data?.rentOrder) {
+      setRentOrderDetails(data?.rentOrder);
     } else {
       handleReset();
     }
-  }, [rentOrderData]);
+  }, [data]);
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Prevent the form submission
+      handleRentItemSearch();
+    }
+  };
 
   return (
     <div>
@@ -52,17 +66,9 @@ const NewRentReturn = () => {
               placeholder="Search the product by Barcode"
               value={rentItemSearchQuery}
               onChange={(e) => setRentItemSearchQuery(e.target.value)}
+              onKeyDown={handleKeyPress}
             />
-            <button
-              className="icon-button"
-              type="button"
-              aria-label="search_customer"
-              onClick={() => {
-                if (rentItemSearchQuery.trim()) {
-                  triggerSearchRentOrder(rentItemSearchQuery);
-                }
-              }}
-            >
+            <button className="icon-button" type="button" aria-label="search_customer" onClick={handleRentItemSearch}>
               <span>
                 <FaSearch />
               </span>
@@ -70,22 +76,6 @@ const NewRentReturn = () => {
           </div>
         </div>
         <div className="row">
-          <div className="col-5">
-            <div className="card">
-              <div className="card-header">
-                <h5>Customer Details</h5>
-              </div>
-              {rentOrderDetails ? (
-                <div className="card-body">
-                  <p>Customer :&nbsp;{rentOrderDetails?.customer?.name}</p>
-                  <p>Rent Date :&nbsp;{format(rentOrderDetails?.rentDate as Date, 'MM/dd/yyyy')}</p>
-                  <p>Return Date :&nbsp;{format(rentOrderDetails?.returnDate as Date, 'MM/dd/yyyy')}</p>
-                </div>
-              ) : (
-                <div className="card-body">No data available</div>
-              )}
-            </div>
-          </div>
           <div className="col-5">
             <div className="card">
               <div className="card-header">
@@ -98,6 +88,12 @@ const NewRentReturn = () => {
                     <p>Description:&nbsp;{item.description}</p>
                     <p>Color: &nbsp;{item.color}</p>
                     <p>Size: &nbsp;{item.size}</p>
+                    <p>
+                      Stake Option: &nbsp;
+                      {rentOrderDetails.stakeOption === StakeOptions.NIC
+                        ? rentOrderDetails.stakeOption
+                        : `${rentOrderDetails.stakeOption} - ${rentOrderDetails.stakeAmount}`}
+                    </p>
                     {rentOrderDetails?.rentOrderDetails?.length > 1 && rentOrderDetails?.rentOrderDetails?.length - 1 !== index && (
                       <div style={{ borderTop: '1px solid black' }} />
                     )}
@@ -107,23 +103,64 @@ const NewRentReturn = () => {
                 <div className="card-body">No data Available</div>
               )}
             </div>
+            <div className="row">
+              <div className="col-10 d-flex justify-content-end gap-2">
+                <button type="button" className="secondary-button">
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="primary-button"
+                  disabled={!rentOrderDetails || rentOrderDetails.orderStatus === 'Completed'}
+                  onClick={handleRentReturn}
+                >
+                  Rent Return
+                </button>
+              </div>
+            </div>
+          </div>
+          <div className="col-5">
+            <div className="card">
+              <div className="card-header">
+                <h5>Customer Details</h5>
+              </div>
+              {rentOrderDetails ? (
+                <div className="card-body">
+                  <p>Customer :&nbsp;{rentOrderDetails?.customer?.name}</p>
+                  <p>Rent Date :&nbsp;{format(rentOrderDetails?.rentDate as Date, 'MM/dd/yyyy')}</p>
+                  <p>Return Date :&nbsp;{format(rentOrderDetails?.returnDate as Date, 'MM/dd/yyyy')}</p>
+                  <br />
+                </div>
+              ) : (
+                <div className="card-body">No data available</div>
+              )}
+            </div>
           </div>
         </div>
-        <div className="row">
-          <div className="col-10 d-flex justify-content-end gap-2">
-            <button type="button" className="secondary-button">
-              Cancel
-            </button>
-            <button
-              type="button"
-              className="primary-button"
-              disabled={!rentOrderDetails || rentOrderDetails.orderStatus === 'Completed'}
-              onClick={handleRentReturn}
-            >
-              Rent Return
-            </button>
+        {data?.relatedItems?.length > 0 && (
+          <div className="row">
+            <div className="col-10">
+              <div className="card">
+                <div className="card-header">
+                  <h5>Other Rented Items</h5>
+                </div>
+                <div className="card-body">
+                  {data.relatedItems.map((relatedItem, index) => (
+                    <div key={index}>
+                      <p>Item Id:&nbsp;{relatedItem.rentItemId}</p>
+                      <p>Description:&nbsp;{relatedItem.description}</p>
+                      <p>Color: &nbsp;{relatedItem.color}</p>
+                      <p>Size: &nbsp;{relatedItem.size}</p>
+                      {relatedItem !== data.relatedItems[data.relatedItems.length - 1] && (
+                        <div style={{ borderTop: '1px solid black', marginBottom: '10px' }} />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

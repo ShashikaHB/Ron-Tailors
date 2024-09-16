@@ -13,14 +13,12 @@ const RentOrderDetailsRenderer = (props: ICellRendererParams) => {
   return (
     <div>
       {rentOrderDetails?.map((order: RentItemDetails, index: number) => {
-        const {
-          rentItemId, description, type, color, notes,
-        } = order;
+        const { rentItemId, description, itemType, color, notes } = order;
         return (
           <div key={index}>
             <div>{rentItemId}</div>
             <div className="d-flex gap-2 font-weight-bold">
-              <p>{type}</p>
+              <p>{itemType}</p>
               <p>{description}</p>
               <p>
                 Color:

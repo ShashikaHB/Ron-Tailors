@@ -43,34 +43,31 @@ export const createOrder = asyncHandler(async (req, res) => {
     customer = await Customer.create({ name, mobile });
   }
 
-  const salesPersonDoc = await getDocId(User, "userId", salesPerson);
-  if (!salesPersonDoc) {
-    res.status(404);
-    throw new Error(`No user found for ID ${salesPerson}`);
-  }
+  const salesPersonDoc = await User.findOne({ userId: salesPerson })
+  .lean()
+  .exec();
+if (!salesPersonDoc) {
+  res.status(404);
+  throw new Error(`No user found for ID ${salesPerson}`);
+}
 
   const orderData = {
     ...req.body,
     customer: customer._id,
-    salesPerson: salesPersonDoc,
+    salesPerson: salesPersonDoc._id,
   };
 
   const newOrder = await RentOrder.create(orderData);
 
-  const salesPersonName = await User.findById(salesPersonDoc)
-    .select("name")
-    .lean()
-    .exec();
-
   // Create a credit transaction
-  await Transaction.create({
+  const newTransaction = await Transaction.create({
     transactionType: "Income",
     transactionCategory: "Rent Order",
     paymentType: paymentType,
+    salesPerson: salesPersonDoc.name,
     store: req.body?.store,
-    salesPerson: salesPersonName,
     amount: newOrder.subTotal,
-    description: `Rent Order ${newOrder.rentOrderId}`,
+    description: `Rent Order: ${newOrder.rentOrderId}`,
   });
 
   // Update the status of each rent item in the order to 'Not Returned'
@@ -163,11 +160,43 @@ export const searchSingleOrder = asyncHandler(async (req, res) => {
   if (!rentOrder) {
     throw new Error("No orders found!");
   }
-  res.json({
-    message: "Rent Order search successful!",
-    success: true,
-    data: rentOrder,
-  });
+  // Now that we have the customer's ID, find all other items rented by the same customer
+  const customerId = rentOrder.customer._id;
+
+  // Find all orders for this customer (including completed ones)
+  const customerOrders = await RentOrder.find({
+    customer: customerId,
+    "rentOrderDetails.rentItemId": { $ne: rentItemId }, // Exclude the searched item itself
+  })
+    .select("-_id -__v")
+    .populate({
+      path: "rentOrderDetails.rentItemId",
+      select: "description itemCategory itemType status",
+    })
+    .lean();
+
+  if (!customerOrders || customerOrders.length === 0) {
+    res.json({
+      message: "Rent Order found, but no other items rented by the same customer.",
+      success: true,
+      data: {
+        rentOrder,
+        relatedItems: [],
+      },
+    });
+  } else {
+    // Extract all related items rented by the customer
+    const relatedItems = customerOrders.map((order) => order.rentOrderDetails).flat();
+
+    res.json({
+      message: "Rent Order and related rent items found successfully!",
+      success: true,
+      data: {
+        rentOrder,
+        relatedItems,
+      },
+    });
+  }
 });
 
 export const rentReturn = asyncHandler(async (req, res) => {
