@@ -67,14 +67,14 @@ const AddReadyMadeOrderForm = () => {
                       <RHFDropDown<ReadyMadeItemSchema> options={stores} name="store" label="Store" />
                     </div>
                   </div>
-                </div>
-                <div className="modal-footer mt-3">
-                  <button className="secondary-button" onClick={() => reset()} type="button">
-                    Clear
-                  </button>
-                  <button className="primary-button" type="submit" onClick={() => console.log('btn clicked')}>
-                    Save
-                  </button>
+                  <div className="d-flex gap-2 justify-content-end">
+                    <button className="secondary-button" onClick={() => reset()} type="button">
+                      Clear
+                    </button>
+                    <button className="primary-button" type="submit" onClick={() => console.log('btn clicked')}>
+                      Save
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

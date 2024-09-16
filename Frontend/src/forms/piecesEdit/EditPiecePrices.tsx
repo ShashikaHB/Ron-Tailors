@@ -73,30 +73,31 @@ const EditPiecePrices = () => {
 
   return (
     <div className="row">
-      <div className="col-12 mb-3">
+      <div className="col-12">
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="row">
             {productCategoryItemMap.map((category, categoryIndex) => (
-              <div className="col-6" key={categoryIndex}>
-                <div className="card h-100">
+              <div className="col-6 mb-3" key={categoryIndex}>
+                <div className="edit-peice-prices-card card h-100">
                   <div className="card-header">
                     <h5>{category.category} Prices</h5>
                   </div>
                   <div className="card-body">
-                    <div className="row">
-                      {category.items.map((itemType, itemIndex) => (
-                        <div key={itemIndex} className="col-6 mb-3">
+                    <div className='overflow-y-auto overflow-x-hidden h-100'>
+                    {category.items.map((itemType, itemIndex) => (
+                      <div key={itemIndex} className="row mx-0">
+                        <div className="col-12 mb-1">
                           <div>
                             <h6>{itemType}</h6>
                           </div>
-                          <div className="row">
-                            <div className="col-6 mb-3">
+                          <div className="row gap-2 mx-0 g-0">
+                            <div className="col mb-3">
                               <RHFTextField<PiecePricesSchema>
                                 label="Cutting Price"
                                 name={`categories.${categoryIndex}.items.${itemIndex}.cuttingPrice` as const} // Using 'as const'
                               />
                             </div>
-                            <div className="col-6 mb-3">
+                            <div className="col mb-3">
                               {/* Tailoring Price */}
                               <RHFTextField<PiecePricesSchema>
                                 label="Tailoring Price"
@@ -106,7 +107,8 @@ const EditPiecePrices = () => {
                             {/* Cutting Price */}
                           </div>
                         </div>
-                      ))}
+                      </div>
+                    ))}
                     </div>
                   </div>
                 </div>

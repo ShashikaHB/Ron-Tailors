@@ -70,21 +70,25 @@ const DailySummary = () => {
 
   return (
     <div className="h-100 d-flex flex-column gap-3">
-      <div className="d-flex justify-content-end">
-        <div>
-          <FormControl sx={{ m: 1, maxWidth: 165 }} size="small">
-            <Select value={selectedStore} onChange={handleStoreChange}>
-              {stores.map((option) => (
-                <MenuItem key={option.value} value={option.value} disabled={!option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+      <div className="d-flex">
+        <div className="row w-100 justify-content-end mx-0 g-0 gap-3">
+          <div className="col-3">
+            <FormControl sx={{ m: 1, maxWidth: 165 }} size="small">
+              <Select value={selectedStore} onChange={handleStoreChange}>
+                {stores.map((option) => (
+                  <MenuItem key={option.value} value={option.value} disabled={!option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
+          <div className="col-auto">
+            <button type="button" className="primary-button" onClick={() => handleOpen()}>
+              + Add Day End
+            </button>
+          </div>
         </div>
-        <button type="button" className="primary-button" onClick={() => handleOpen()}>
-          + Add Day End
-        </button>
       </div>
       <div className="flex-grow-1 overflow-hidden justify-content-center">
         <MemoizedTable rowData={rowData} colDefs={initialColDefs} defaultColDef={defaultColDef} />

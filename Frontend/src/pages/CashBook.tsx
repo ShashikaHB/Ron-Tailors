@@ -151,47 +151,90 @@ const CashBook = () => {
 
   return (
     <div className="h-100 d-flex flex-column gap-3">
-      <div className="d-flex col-3 gap-3">
-        <SimpleDatePicker label="From Date" onDateChange={handleFromDateChange} />
-        <SimpleDatePicker label="To Date" onDateChange={handleToDateChange} />
-        <FormControl sx={{ m: 1, maxWidth: 165 }} size="small">
-          <Select value={selectedStore} onChange={handleStoreChange}>
-            {stores.map((option) => (
-              <MenuItem key={option.value} value={option.value} disabled={!option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+      <div className="d-flex col-12">
+        <div className="row w-100 align-items-end">
+          <div className="col-3">
+            <SimpleDatePicker label="From Date" onDateChange={handleFromDateChange} />
+          </div>
+          <div className="col-3">
+            <SimpleDatePicker label="To Date" onDateChange={handleToDateChange} />
+          </div>
+          <div className="col-3">
+            <FormControl sx={{ m: 1, maxWidth: 165 }} size="small">
+              <Select value={selectedStore} onChange={handleStoreChange}>
+                {stores.map((option) => (
+                  <MenuItem key={option.value} value={option.value} disabled={!option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
+        </div>
       </div>
       {/* Income Section */}
-      <div className="d-flex col-9 gap-3">
-        <TextField label="Cash Income" value={totalCashIncome} disabled />
-        <TextField label="Card Income" value={totalCardIncome} disabled />
-        <TextField label="Bank Transfer Income" value={totalBankTransferIncome} disabled />
-        <TextField label="Total Income" value={totalIncome} disabled />
+      <div className="d-flex col-12">
+        <div className="row w-100">
+          <div className="col-3">
+            <TextField label="Cash Income" value={totalCashIncome} disabled />
+          </div>
+          <div className="col-3">
+            <TextField label="Card Income" value={totalCardIncome} disabled />
+          </div>
+          <div className="col-3">
+            <TextField label="Bank Transfer Income" value={totalBankTransferIncome} disabled />
+          </div>
+          <div className="col-3">
+            <TextField label="Total Income" value={totalIncome} disabled />
+          </div>
+        </div>
       </div>
 
       {/* Expense Section */}
-      <div className="d-flex col-9 gap-3">
-        <TextField label="Cash Expense" value={totalCashExpense} disabled />
-        <TextField label="Card Expense" value={totalCardExpense} disabled />
-        <TextField label="Bank Transfer Expense" value={totalBankTransferExpense} disabled />
-        <TextField label="Total Expense" value={totalExpense} disabled />
+      <div className="d-flex col-12 gap-3">
+        <div className="row w-100">
+          <div className="col-3">
+            <TextField label="Cash Expense" value={totalCashExpense} disabled />
+          </div>
+          <div className="col-3">
+            <TextField label="Card Expense" value={totalCardExpense} disabled />
+          </div>
+          <div className="col-3">
+            <TextField label="Bank Transfer Expense" value={totalBankTransferExpense} disabled />
+          </div>
+          <div className="col-3">
+            <TextField label="Total Expense" value={totalExpense} disabled />
+          </div>
+        </div>
       </div>
 
       {/* Balance Section */}
-      <div className="d-flex col-9 gap-3">
-        <TextField label="Cash Balance" value={totalCashIncome - totalCashExpense} disabled />
-        <TextField label="Card Balance" value={totalCardIncome - totalCardExpense} disabled />
-        <TextField label="Bank Account Balance" value={totalBankTransferIncome - totalBankTransferExpense} disabled />
-        <TextField label="Total Balance" value={totalIncome - totalExpense} disabled />
+      <div className="d-flex col-12">
+        <div className="row w-100">
+          <div className="col-3">
+            <TextField label="Cash Balance" value={totalCashIncome - totalCashExpense} disabled />
+          </div>
+          <div className="col-3">
+            <TextField label="Card Balance" value={totalCardIncome - totalCardExpense} disabled />
+          </div>
+          <div className="col-3">
+            <TextField label="Bank Account Balance" value={totalBankTransferIncome - totalBankTransferExpense} disabled />
+          </div>
+          <div className="col-3">
+            <TextField label="Total Balance" value={totalIncome - totalExpense} disabled />
+          </div>
+        </div>
       </div>
-      <div className="d-flex justify-content-end">
-        <button type="button" className="primary-button" onClick={() => handleOpen()}>
-          + New Transaction
-        </button>
+      <div className="row">
+        <div className="col-12">
+          <div className="d-flex justify-content-end">
+            <button type="button" className="primary-button" onClick={() => handleOpen()}>
+              + New Transaction
+            </button>
+          </div>
+        </div>
       </div>
+
       <div className="flex-grow-1 overflow-hidden justify-content-center">
         <MemoizedTable rowData={rowData} colDefs={initialColDefs} defaultColDef={defaultColDef} />
       </div>

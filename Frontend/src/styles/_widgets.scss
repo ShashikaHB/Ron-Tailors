@@ -192,6 +192,7 @@ body {
       .MuiFormControl-root {
         width: 100%;
         margin: 0 !important;
+        max-width: inherit !important;
       }
     }
   }
@@ -303,5 +304,11 @@ body {
     padding: 10px;
     outline: none;
     text-align: center;
+  }
+
+  .edit-peice-prices-card{
+    .card-body{
+      height: 500px;
+    }
   }
 }
