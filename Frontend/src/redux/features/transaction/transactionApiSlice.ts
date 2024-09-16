@@ -58,7 +58,7 @@ export const transactionApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body: transactionCategory,
       }),
-      invalidatesTags: ['TransactionCategory'],
+      invalidatesTags: ['TransactionCategory', 'DayEnd'],
     }),
 
     deleteTransactionCategory: builder.mutation({

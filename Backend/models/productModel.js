@@ -61,7 +61,6 @@ const productSchema = new mongoose.Schema({
       "Cutting Done",
       "Tailoring Started",
       "Tailoring Done",
-      "Ready Made",
     ],
     required: [true, "Status is required."],
     default: "Not Started"
@@ -83,6 +82,7 @@ const productSchema = new mongoose.Schema({
   },
   isNewRentOut: {
     type: Boolean,
+    default: false
   },
 });
 

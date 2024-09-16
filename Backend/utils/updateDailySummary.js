@@ -31,6 +31,10 @@ export const updateDailySummary = async (transaction) => {
       }
     } else if (transactionType === 'Expense') {
       dailySummary.totalExpense += amount;
+
+        if (paymentType === 'Cash') {
+            dailySummary.cashExpense += amount;
+        }
     }
   
     // Save the updated daily summary

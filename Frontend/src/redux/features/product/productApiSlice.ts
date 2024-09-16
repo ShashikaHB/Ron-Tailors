@@ -53,14 +53,15 @@ export const productApiSlice = apiSlice.injectEndpoints({
     }),
     updateSingleProduct: builder.mutation({
       query: (data) => ({
-        url: `/measurement/${data.productId}`,
+        url: `/product/${data.productId}`,
         method: 'PATCH',
-        body: { ...data.measurement },
+        body: data,
       }),
       transformResponse: (res: ApiResponse<any>) => {
         toast.success('New measurement created.');
         return res.data;
       },
+      invalidatesTags: ['Products'],
     }),
     updateProductStatus: builder.mutation({
       query: ({ status, productId }: { status: string; productId: number }) => ({
@@ -92,7 +93,7 @@ export const productApiSlice = apiSlice.injectEndpoints({
 export const {
   useAddNewProductMutation,
   useGetAllProductsQuery,
-  useGetSingleProductQuery,
+  useLazyGetSingleProductQuery,
   useUpdateSingleProductMutation,
   useLazySearchRentItemQuery,
   useUpdateProductStatusMutation,

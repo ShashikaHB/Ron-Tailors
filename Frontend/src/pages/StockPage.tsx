@@ -61,6 +61,7 @@ const StockPage = () => {
     { headerName: 'Name', field: 'name' },
     { headerName: 'Brand', field: 'brand' },
     { headerName: 'Color', field: 'color' },
+    { headerName: 'Store', field: 'store' },
     { headerName: 'Available Units', field: 'noOfUnits' },
     { headerName: 'Unit Price', field: 'unitPrice' },
     {
@@ -69,6 +70,7 @@ const StockPage = () => {
       cellRenderer: ActionButtons,
       cellRendererParams: (params: CustomCellRendererProps) => ({
         materialId: params.data?.materialId,
+        action: 'Edit',
         handleOpen,
         handleDelete,
       }),

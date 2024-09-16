@@ -13,7 +13,7 @@ export const rentItemSchema = z.intersection(
     color: z.string().optional(),
     size: z.union([z.coerce.number(), z.null()]),
     description: z.string().optional(),
-    type: z.nativeEnum(ProductType),
+    itemType: z.nativeEnum(ProductType),
   }),
   z.discriminatedUnion('variant', [
     z.object({ variant: z.literal('create') }),

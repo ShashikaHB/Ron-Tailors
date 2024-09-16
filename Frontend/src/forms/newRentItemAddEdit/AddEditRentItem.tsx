@@ -136,7 +136,7 @@ const AddEditRentItemForm = ({ handleClose, rentItemId }: AddMaterialFormProps) 
               <RHFTextField<RentItemSchema> label="Color" name="color" />
               <RHFTextField<RentItemSchema> label="Size" name="size" type="number" />
               <RHFTextField<RentItemSchema> label="Description" name="description" />
-              <RHFDropDown<RentItemSchema> options={productTypes} name="type" label="Product Type" />
+              <RHFDropDown<RentItemSchema> options={productTypes} name="itemType" label="Product Type" />
             </div>
             <div className="modal-footer mt-3">
               {variant === 'create' && (

@@ -10,14 +10,15 @@ import { TextField } from '@mui/material';
 import { RiCloseLargeLine, RiClipboardLine } from '@remixicon/react';
 import { toast } from 'sonner';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
-import { MeasurementSchema } from '../formSchemas/measurementSchema';
+import { measurementSchema, MeasurementSchema } from '../formSchemas/measurementSchema';
 import RHFSwitch from '../../components/customFormComponents/customSwitch/RHFSwitch';
 import RHFDatePicker from '../../components/customFormComponents/customDatePicker/RHFDatePricker';
 import { useAppSelector } from '../../redux/reduxHooks/reduxHooks';
 import { selectSelectedProduct } from '../../redux/features/product/productSlice';
-import { useGetSingleProductQuery, useUpdateSingleProductMutation } from '../../redux/features/product/productApiSlice';
+import { useLazyGetSingleProductQuery, useUpdateSingleProductMutation } from '../../redux/features/product/productApiSlice';
 import Loader from '../../components/loderComponent/Loader';
-import { useCreateMeasurementMutation } from '../../redux/features/measurement/measurementApiSlice';
+import { useCreateMeasurementMutation, useUpdateMeasurementMutation } from '../../redux/features/measurement/measurementApiSlice';
+import { selectCustomerId } from '../../redux/features/common/commonSlice';
 
 type AddEditProductProps = {
   handleClose: () => void;
@@ -25,6 +26,8 @@ type AddEditProductProps = {
 
 const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
   const { control, unregister, watch, reset, setValue, handleSubmit, getValues, clearErrors } = useFormContext<MeasurementSchema>();
+
+  const [triggerGetProduct, { data: productData, isLoading: productDataLoading }] = useLazyGetSingleProductQuery();
 
   useEffect(() => {
     const sub = watch((value) => {
@@ -36,7 +39,12 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
     };
   }, [watch]);
 
+  useEffect(() => {
+    triggerGetProduct(productId);
+  }, [productId]);
+
   const selectedProductId = useAppSelector(selectSelectedProduct);
+  const customerId = useAppSelector(selectCustomerId);
 
   const measurements = useWatch({ control, name: 'measurements' }) as string[];
   const variant = useWatch({ control, name: 'variant' });
@@ -45,7 +53,9 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
 
   const [updateProduct, { data: updatedProduct }] = useUpdateSingleProductMutation();
 
-  const { data: productData, isLoading } = useGetSingleProductQuery(selectedProductId);
+  const [updateMeasurement, { data: updatedMeasurement }] = useUpdateMeasurementMutation();
+
+  //   const { data: productData, isLoading } = useGetSingleProductQuery(selectedProductId);
 
   const addText = (text: string) => {
     const currentStyle = getValues('style');
@@ -67,20 +77,16 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
   const onSubmit: SubmitHandler<MeasurementSchema> = async (data) => {
     try {
       if (variant === 'edit') {
-        // const response = await updateMaterial(data);
-        // if (response.error) {
-        //   toast.error(`Material Update Failed`);
-        //   console.log(response.error);
-        // } else {
-        //   toast.success("Material Updated.");
-        //   reset();
-        // }
+        const response = await updateMeasurement(data);
+        if (response) {
+          toast.success('Measurement Updated.');
+        }
       } else {
-        const response = await addMeasurement(data);
+        const response = await addMeasurement({ ...data, customer: customerId });
         if (response.error) {
           console.log(response.error);
         } else {
-          toast.success('New material Added.');
+          toast.success('New measurement Added.');
           const newResponse = await updateProduct({
             productId: selectedProductId,
             measurement: response.data.measurementId,
@@ -99,12 +105,27 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
     }
   };
 
+  const validate = () => {
+    const formData = getValues();
+    const validationResult = measurementSchema.safeParse(formData);
+  };
+
   useEffect(() => {
     if (productData) {
       toast.success('Product data fetched.');
-      setValue('itemType', productData.type);
+      setValue('itemType', productData.itemType);
     }
-  }, [productData]);
+    if (productData?.measurement) {
+      reset({
+        ...productData.measurement,
+        estimatedReleaseDate: new Date(productData.measurement.estimatedReleaseDate), // Convert date
+        variant: 'edit', // Set variant to 'edit'
+      });
+    }
+    if (updatedMeasurement) {
+      reset(updatedMeasurement);
+    }
+  }, [productData, reset, updatedMeasurement]);
 
   return (
     <div className="modal-dialog modal-dialog-centered">
@@ -112,7 +133,7 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
         <div className="modal-header">
           <h5 className="modal-title">
             Add Measurements to
-            {` ${productData?.type}`}
+            {` ${productData?.itemType}`}
           </h5>
           <button aria-label="close-btn" className="icon-button" type="button" onClick={handleClose}>
             <RiCloseLargeLine size={18} />
@@ -133,7 +154,6 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="inputGroup">
                 <div>
-                  <h6>Copy form other Measurement</h6>
                   <br />
                   <div style={{ border: '1px solid black', marginTop: '20px' }} />
                 </div>
@@ -195,6 +215,9 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
               <div className="modal-footer mt-3">
                 <button className="secondary-button" type="button" onClick={() => handleClear()}>
                   Clear
+                </button>
+                <button className="secondary-button" type="button" onClick={() => validate()}>
+                  validate
                 </button>
                 <button className="primary-button" type="submit">
                   Save

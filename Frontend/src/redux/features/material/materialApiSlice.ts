@@ -32,8 +32,8 @@ export const materialApiSlice = apiSlice.injectEndpoints({
         return res.data as Material[];
       },
     }),
-    getSingleMaterial: builder.query<GetMaterial, number>({
-      query: (id: number) => ({
+    getSingleMaterial: builder.query<GetMaterial, string>({
+      query: (id: string) => ({
         url: `/material/${id}`,
         method: 'GET',
       }),
@@ -54,15 +54,9 @@ export const materialApiSlice = apiSlice.injectEndpoints({
         }
         throw new Error('Unsupported variant type for update.');
       },
-      //   invalidatesTags: (_result: any, _error: any, arg: { variant: any; materialId: { toString: () => any } }) => [
-      //     {
-      //       type: 'Materials',
-      //       id: arg?.variant === 'edit' ? arg.materialId.toString() : 'unknown',
-      //     },
-      //     { type: 'Materials' },
-      //   ],
+      invalidatesTags: ['Materials'],
     }),
-    deleteNewMaterial: builder.mutation<ApiResponse, number>({
+    deleteNewMaterial: builder.mutation<ApiResponse, string>({
       query: (materialId) => ({
         url: `/material/${materialId}`,
         method: 'DELETE',

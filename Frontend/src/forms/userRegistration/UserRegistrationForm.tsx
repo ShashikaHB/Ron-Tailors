@@ -33,6 +33,18 @@ const roles = [
     value: Roles.Tailor,
     label: 'Tailor',
   },
+  {
+    value: Roles.IroningPerson,
+    label: 'Ironing Person',
+  },
+  {
+    value: Roles.AlteringPerson,
+    label: 'AlteringPerson',
+  },
+  {
+    value: Roles.Cleaning,
+    label: 'Cleaning Staff',
+  },
 ];
 
 const UserRegistrationForm = () => {

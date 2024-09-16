@@ -86,19 +86,25 @@ const EditPiecePrices = () => {
                     <div className="row">
                       {category.items.map((itemType, itemIndex) => (
                         <div key={itemIndex} className="col-6 mb-3">
-                          <h6>{itemType}</h6>
-
-                          {/* Cutting Price */}
-                          <RHFTextField<PiecePricesSchema>
-                            label="Cutting Price"
-                            name={`categories.${categoryIndex}.items.${itemIndex}.cuttingPrice` as const} // Using 'as const'
-                          />
-
-                          {/* Tailoring Price */}
-                          <RHFTextField<PiecePricesSchema>
-                            label="Tailoring Price"
-                            name={`categories.${categoryIndex}.items.${itemIndex}.tailoringPrice` as const} // Using 'as const'
-                          />
+                          <div>
+                            <h6>{itemType}</h6>
+                          </div>
+                          <div className="row">
+                            <div className="col-6 mb-3">
+                              <RHFTextField<PiecePricesSchema>
+                                label="Cutting Price"
+                                name={`categories.${categoryIndex}.items.${itemIndex}.cuttingPrice` as const} // Using 'as const'
+                              />
+                            </div>
+                            <div className="col-6 mb-3">
+                              {/* Tailoring Price */}
+                              <RHFTextField<PiecePricesSchema>
+                                label="Tailoring Price"
+                                name={`categories.${categoryIndex}.items.${itemIndex}.tailoringPrice` as const} // Using 'as const'
+                              />
+                            </div>
+                            {/* Cutting Price */}
+                          </div>
                         </div>
                       ))}
                     </div>

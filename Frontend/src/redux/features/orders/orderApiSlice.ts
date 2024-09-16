@@ -51,7 +51,7 @@ export const orderApiSlice = apiSlice.injectEndpoints({
         }
         return { ...res.data };
       },
-      invalidatesTags: ['SalesOrder'],
+      invalidatesTags: ['SalesOrder', 'Transactions', 'DayEnd'],
     }),
     searchCustomer: builder.query<CustomerSchema, string>({
       query: (customerQuery) => ({
@@ -78,6 +78,29 @@ export const orderApiSlice = apiSlice.injectEndpoints({
           body: data,
         };
       },
+      invalidatesTags: ['Transactions', 'DayEnd'],
+    }),
+    getSalesOrRentOrderForPayment: builder.query<any, any>({
+      query: (orderId: any) => {
+        return {
+          url: `/salesOrder/payment/${orderId}`,
+          method: 'GET',
+        };
+      },
+      transformResponse: (res: any): any => {
+        return res.data;
+      },
+      providesTags: ['Payment'],
+    }),
+    updateSalesOrRentPayment: builder.mutation<any, any>({
+      query: (data: any) => {
+        return {
+          url: `/salesOrder/payment/${data.orderId}`,
+          method: 'POST',
+          body: data.orderData,
+        };
+      },
+      invalidatesTags: ['Transactions', 'DayEnd'],
     }),
   }),
 });
@@ -89,4 +112,6 @@ export const {
   useLazyGetSingleSalesOrderQuery,
   useUpdateSalesOrderMutation,
   useAddReadyMadeItemOrderMutation,
+  useLazyGetSalesOrRentOrderForPaymentQuery,
+  useUpdateSalesOrRentPaymentMutation,
 } = orderApiSlice;

@@ -28,7 +28,7 @@ import Table from '../../components/agGridTable/Table';
 import { MeasurementSchema, defaultMeasurementValues, measurementSchema } from '../formSchemas/measurementSchema';
 import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
 import { setSelectedProduct } from '../../redux/features/product/productSlice';
-import { removeOrderProducts, selectOrderItems, setOrderProductsBulk } from '../../redux/features/orders/orderSlice';
+import { selectOrderItems, setOrderProductsBulk } from '../../redux/features/orders/orderSlice';
 import { useAddNewProductMutation, useGetAllProductsQuery } from '../../redux/features/product/productApiSlice';
 import mapProducts from '../../utils/productUtils';
 import ProductRenderer from '../../components/agGridTable/customComponents/ProductRenderer';
@@ -41,6 +41,7 @@ import paymentOptions from '../../consts/paymentOptions';
 import { productCategoryItemMap } from '../../consts/products';
 import { CheckBoxWithInput } from '../../components/customFormComponents/checkboxGroup/CheckBoxGroup';
 import { ProductCategory } from '../../enums/ProductType';
+import { setCustomerId } from '../../redux/features/common/commonSlice';
 
 const AddEditOrder = () => {
   const { control, watch, reset, setValue, handleSubmit, clearErrors, getValues } = useFormContext<OrderSchema>();
@@ -70,7 +71,7 @@ const AddEditOrder = () => {
 
   const [selectedCategory, setSelectedCategory] = useState<any>(ProductCategory.General);
   const [productOptions, setProductOptions] = useState<any>(initialProductOptions);
-  const [selectedItems, setSelectedItems] = useState([]);
+  const [selectedItems, setSelectedItems] = useState<any>([]);
   const [disableCheckboxes, setDisableCheckboxes] = useState(false);
 
   const [openProducts, setOpenProducts] = useState(false);
@@ -169,6 +170,12 @@ const AddEditOrder = () => {
       clearOrderItems();
     }
   };
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Prevent the form submission
+      handleSearchCustomer();
+    }
+  };
 
   const handleClose = useCallback(() => setOpenProducts(false), []);
   const handleMeasurementClose = useCallback(() => setOpenMeasurement(false), []);
@@ -178,8 +185,17 @@ const AddEditOrder = () => {
     dispatch(setSelectedProduct(productId));
   }, []);
 
-  const handleRemove = (id: number) => {
-    dispatch(removeOrderProducts(id));
+  const handleRemove = (productId: number) => {
+    // Filter out the products that do not match the given productId
+    const updatedItems = selectedItems
+      .map((item: any) => ({
+        ...item,
+        products: item.products.filter((product: any) => product !== productId),
+      }))
+      .filter((item: any) => item.products.length > 0); // Remove items with no products
+
+    // Update the state with the filtered items
+    setSelectedItems(updatedItems);
   };
 
   const transformOrderDetails = (orderDetails: any) => {
@@ -219,29 +235,6 @@ const AddEditOrder = () => {
   const handleSearchCustomer = () => {
     trigger(customerSearchQuery);
   };
-
-  //   const handleCheckBoxSelect = (id: string) => {
-  //     setProductOptions((prevOptions) => {
-  //       const newOptions = prevOptions.map((option) => {
-  //         if (option.id === id) {
-  //           if (!option.checked) {
-  //             // Only set open to true if the checkbox is being checked
-  //             setOpenProducts(true);
-  //           }
-  //           return { ...option, checked: !option.checked };
-  //         }
-  //         return option;
-  //       });
-  //       return newOptions;
-  //     });
-  //     dispatch(setProductType(id));
-  //   };
-
-  //   const handleAddItems = () => {
-  //     dispatch(setOrderProducts(description));
-  //     setProductOptions(initialProductOptions);
-  //     setDescription('');
-  //   };
 
   const clearOrderItems = () => {
     setProductOptions([]);
@@ -310,6 +303,7 @@ const AddEditOrder = () => {
       setValue('customer.name', customer.name);
       setValue('customer.mobile', customer.mobile);
       setCustomerSearchQuery('');
+      dispatch(setCustomerId(customer.customerId));
       clearErrors();
     }
   }, [customer]);
@@ -359,6 +353,7 @@ const AddEditOrder = () => {
                         placeholder="Search the customer by mobile or name"
                         value={customerSearchQuery}
                         onChange={(e) => setCustomerSearchQuery(e.target.value)}
+                        onKeyDown={handleKeyPress}
                       />
                       <button className="icon-button" type="button" aria-label="search_customer" onClick={() => handleSearchCustomer()}>
                         <span>

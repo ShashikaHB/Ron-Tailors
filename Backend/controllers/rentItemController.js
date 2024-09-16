@@ -5,9 +5,9 @@ export const createRentItem = asyncHandler(async (req, res) => {
   const color = req.body.color;
   const size = req.body.size;
   const description = req.body.description;
-  const type = req.body.type;
+  const itemType = req.body.itemType;
 
-  if (!description || !type) {
+  if (!description || !itemType) {
     throw new Error("Missing values in body create rent item");
   }
 
@@ -15,7 +15,7 @@ export const createRentItem = asyncHandler(async (req, res) => {
     color,
     size,
     description,
-    type,
+    itemType,
   })
     .lean()
     .exec();
@@ -89,7 +89,7 @@ export const updateRentItem = asyncHandler(async (req, res) => {
       color: req?.body?.color,
       size: req?.body?.size,
       status: req?.body?.status,
-      type: req?.body?.type,
+      itemType: req?.body?.itemType,
     },
     {
       new: true,

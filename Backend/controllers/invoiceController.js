@@ -28,7 +28,7 @@ export const getSalesInvoice = asyncHandler(async (req, res) => {
     },
     orderDetails: orderData.orderDetails.map((detail) => ({
       description: detail.description,
-      items: detail.products.map((product) => product.type),
+      items: detail.products.map((product) => product.itemType),
       amount: `Rs${detail.products
         .reduce((total, product) => total + product.price, 0)
         .toFixed(2)}`,

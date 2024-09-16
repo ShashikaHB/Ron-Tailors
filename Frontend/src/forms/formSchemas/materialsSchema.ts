@@ -5,6 +5,7 @@
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
 import { z } from 'zod';
+import Stores from '../../enums/Stores';
 
 export const materialSchema = z.intersection(
   z.object({
@@ -13,12 +14,13 @@ export const materialSchema = z.intersection(
     unitPrice: z.coerce.number().min(1, 'Unit price is required.'),
     noOfUnits: z.coerce.number().min(1, 'Number of units is required.'),
     brand: z.string().min(1, 'Material color is required.'),
+    store: z.nativeEnum(Stores).default(Stores.Kegalle),
   }),
   z.discriminatedUnion('variant', [
     z.object({ variant: z.literal('create') }),
     z.object({
       variant: z.literal('edit'),
-      materialId: z.number().min(1),
+      materialId: z.string().min(1),
     }),
   ])
 );
@@ -32,4 +34,5 @@ export const defaultMaterialValues: MaterialSchema = {
   unitPrice: 0,
   noOfUnits: 0,
   brand: '', // Optional field, provide an empty string or another appropriate default value
+  store: Stores.Kegalle,
 };

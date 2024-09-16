@@ -12,6 +12,7 @@ export type Material = {
   marginPercentage: number;
   brand: string;
   type?: string;
+  store: string;
 };
 
 export type CreateMaterial = {

@@ -8,9 +8,11 @@ import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import { RiCloseLargeLine } from '@remixicon/react';
 import { useEffect } from 'react';
-import { MaterialSchema, defaultMaterialValues } from '../formSchemas/materialsSchema';
+import { MaterialSchema, defaultMaterialValues, materialSchema } from '../formSchemas/materialsSchema';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
 import { useAddNewMaterialMutation, useGetSingleMaterialQuery, useUpdateSingleMaterialMutation } from '../../redux/features/material/materialApiSlice';
+import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
+import stores from '../../consts/stores';
 
 type AddMaterialFormProps = {
   handleClose: () => void;
@@ -29,6 +31,12 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
   const handleFormClose = (): void => {
     handleClose();
     reset(defaultMaterialValues);
+  };
+
+  const validate = () => {
+    const formData = getValues();
+    const validationResult = materialSchema.safeParse(formData);
+    console.log(validationResult);
   };
 
   const handleClear = (): void => {
@@ -91,6 +99,7 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
             <div className="inputGroup">
               <RHFTextField<MaterialSchema> label="Name" name="name" />
               <RHFTextField<MaterialSchema> label="Color" name="color" />
+              <RHFDropDown<MaterialSchema> options={stores} name="store" label="Store" />
               <RHFTextField<MaterialSchema> label="Unit Price" name="unitPrice" type="number" />
               <RHFTextField<MaterialSchema> label="Available Units" name="noOfUnits" type="number" />
               <RHFTextField<MaterialSchema> label="Brand" name="brand" />

@@ -29,6 +29,7 @@ import PiecePrices from '../pages/PiecePrices';
 import NewReadyMadeOrder from '../pages/NewReadyMadeOrder';
 import AccountsPage from '../pages/AccountsPage';
 import DailySummary from '../pages/DailySummary';
+import SalesOrRentOrderUpdatePage from '../pages/SalesOrRentOrderUpdatePage';
 
 const router = createBrowserRouter([
   {
@@ -96,6 +97,10 @@ const router = createBrowserRouter([
           {
             path: 'newReadyMadeOrder',
             element: <NewReadyMadeOrder />,
+          },
+          {
+            path: 'salesOrRentOrderPayment',
+            element: <SalesOrRentOrderUpdatePage />,
           },
           {
             path: 'stock',

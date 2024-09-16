@@ -50,7 +50,7 @@ const EditSalary = () => {
                 <div className="card-body">
                   <div className="row">
                     <div className="col-6 mb-3">
-                      <RHFTextField<SalarySchema> label="Grade A" name="salesPerson" />
+                      <RHFTextField<SalarySchema> label="Grade A" name="salesPerson.gradeA" />
                     </div>
                     <div className="col-6 mb-3">
                       <RHFTextField<SalarySchema> label="Grade B" name="salesPerson.gradeB" />

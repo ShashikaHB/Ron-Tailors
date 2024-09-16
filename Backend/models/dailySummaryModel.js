@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const dailySummarySchema = new mongoose.Schema(
   {
@@ -7,10 +7,10 @@ const dailySummarySchema = new mongoose.Schema(
       required: true,
     },
     store: {
-        enum: ["RW", "KE"],
-        type: String,
-        required: [true, "Store Location is required."],
-      },
+      enum: ["RW", "KE"],
+      type: String,
+      required: [true, "Store Location is required."],
+    },
     totalIncome: {
       type: Number,
       default: 0,
@@ -31,6 +31,10 @@ const dailySummarySchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    cashExpense: {
+      type: Number,
+      default: 0,
+    },
     cashInHand: {
       type: Number,
       default: 0, // This value will be entered manually by the user
@@ -47,4 +51,14 @@ const dailySummarySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export const DailySummary = mongoose.model('DailySummary', dailySummarySchema);
+// Post-save hook to update the 'difference' field
+dailySummarySchema.post("save", function (doc, next) {
+  if (doc.cashInHand !== undefined && doc.countedCash !== undefined) {
+    doc.cashInHand = doc.cashIncome - doc.cashExpense;
+    doc.difference = doc.cashInHand - doc.countedCash;
+    doc.save().then(() => next());
+  }
+  next();
+});
+
+export const DailySummary = mongoose.model("DailySummary", dailySummarySchema);

@@ -11,6 +11,7 @@ import {
 import { Material } from "../models/materialModel.js";
 import { Transaction } from "../models/transactionModel.js";
 import { updateDailySummary } from "../utils/updateDailySummary.js";
+import { RentOrder } from "../models/rentOrderModel.js";
 
 export const createOrder = asyncHandler(async (req, res) => {
   const {
@@ -45,7 +46,9 @@ export const createOrder = asyncHandler(async (req, res) => {
     customer = await Customer.create({ name, mobile });
   }
 
-  const salesPersonDoc = await User.findOne({userId: salesPerson}).lean().exec()
+  const salesPersonDoc = await User.findOne({ userId: salesPerson })
+    .lean()
+    .exec();
   if (!salesPersonDoc) {
     res.status(404);
     throw new Error(`No user found for ID ${salesPerson}`);
@@ -256,3 +259,114 @@ export const updateSalesOrder = asyncHandler(async (req, res) => {
     data: updateOrder,
   });
 });
+
+export const getSalesOrderOrRentOrderForPayment = asyncHandler(async (req, res) => {
+  const { orderId } = req.params;
+  let order = null;
+  let transactions = [];
+
+  // Determine if it's a Sales Order or Rent Order based on prefix (e.g., "RW" or "KE")
+
+  // Check in SalesOrder collection
+  order = await SalesOrder.findOne({ salesOrderId: orderId })
+    .populate("customer", "name mobile")
+    .lean()
+    .exec();
+
+  // If no Sales Order found, check in RentOrder collection
+  if (!order) {
+    order = await RentOrder.findOne({ rentOrderId: orderId })
+      .populate("customer", "name mobile")
+      .lean()
+      .exec();
+  }
+
+  // If no order found, return an error
+  if (!order) {
+    res.status(404);
+    throw new Error(`No order found with ID: ${orderId}`);
+  }
+
+  // Find related transactions based on the orderId in the description
+  transactions = await Transaction.find({
+    description: new RegExp(orderId, "i"), // Search transactions that contain orderId in the description
+  })
+    .lean()
+    .exec();
+
+  // Return the order details and transactions
+  res.json({
+    message: `order fetched successfully.`,
+    success: true,
+    data: {
+      order,
+      transactions,
+    },
+  });
+});
+
+export const updateSalesOrRentOrder = asyncHandler(async (req, res) => {
+    const { orderId } = req.params;
+    const { paymentAmount, paymentType } = req.body;
+  
+    // Validate input
+    if (!paymentAmount || !paymentType) {
+      res.status(400);
+      throw new Error("Payment amount and payment type are required.");
+    }
+  
+    let order = null;
+    let orderType = "";
+    let balance = 0;
+  
+    // Check if it's a Sales Order or Rent Order based on the orderId prefix
+    if (orderId.startsWith("RW") || orderId.startsWith("KE")) {
+      // Check in SalesOrder
+      order = await SalesOrder.findOne({ salesOrderId: orderId }).exec();
+      orderType = "Sales Order";
+    }
+  
+    if (!order) {
+      // If no SalesOrder is found, check in RentOrder
+      order = await RentOrder.findOne({ rentOrderId: orderId }).exec();
+      orderType = "Rent Order";
+    }
+  
+    if (!order) {
+      res.status(404);
+      throw new Error(`Order not found with ID: ${orderId}`);
+    }
+  
+    // Calculate the new balance
+    const updatedAdvPayment = (order.advPayment || 0) + paymentAmount;
+    balance = order.totalPrice - updatedAdvPayment;
+  
+    // Update the order with the new payment and balance
+    order.advPayment = updatedAdvPayment;
+    order.balance = balance;
+    order.paymentType = paymentType;
+  
+    // Save the updated order
+    const updatedOrder = await order.save();
+  
+    // Create a new transaction
+    const newTransaction = await Transaction.create({
+      transactionType: "Income",
+      transactionCategory: orderType,
+      paymentType: paymentType,
+      salesPerson: order.salesPerson, // Assuming this is already populated with user info
+      store: order.store,
+      amount: paymentAmount,
+      description: `${orderType}: ${orderId}`, // Include orderId in the transaction description
+    });
+  
+    // Return the updated order and new transaction
+    res.json({
+      message: "Payment updated successfully.",
+      success: true,
+      data: {
+        updatedOrder,
+        transaction: newTransaction,
+      },
+    });
+  });

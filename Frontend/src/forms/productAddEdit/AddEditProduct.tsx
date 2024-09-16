@@ -11,7 +11,7 @@ import { FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/mater
 import { ColDef } from 'ag-grid-community';
 import { RiCloseLargeLine } from '@remixicon/react';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
-import { ProductSchema } from '../formSchemas/productSchema';
+import { defaultProductValues, productSchema, ProductSchema } from '../formSchemas/productSchema';
 import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
 import { useGetAllUsersQuery } from '../../redux/features/user/userApiSlice';
 import { Roles } from '../../enums/Roles';
@@ -19,15 +19,15 @@ import Loader from '../../components/loderComponent/Loader';
 import RHFSwitch from '../../components/customFormComponents/customSwitch/RHFSwitch';
 import ProductType from '../../enums/ProductType';
 import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
-import { removeMaterials, resetMaterials, selectMaterial, selectType, setMaterials } from '../../redux/features/product/productSlice';
+import { removeMaterials, resetMaterials, selectMaterial, selectType } from '../../redux/features/product/productSlice';
 import { GetMaterial, MaterialNeededforProduct } from '../../types/material';
 import Table from '../../components/agGridTable/Table';
-import { useAddNewProductMutation } from '../../redux/features/product/productApiSlice';
-import { setCreatedProducts } from '../../redux/features/orders/orderSlice';
+import { useLazyGetSingleProductQuery, useUpdateSingleProductMutation } from '../../redux/features/product/productApiSlice';
 import getUserRoleBasedOptions from '../../utils/userUtils';
 import SimpleActionButton from '../../components/agGridTable/customComponents/SimpleActionButton';
 import { useGetAllMaterialsQuery } from '../../redux/features/material/materialApiSlice';
 import getAvailableMaterialOptions from '../../utils/materialUtils';
+import { selectProductId } from '../../redux/features/common/commonSlice';
 
 type AddEditProductProps = {
   handleClose: () => void;
@@ -38,14 +38,17 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
 
   const productType = useAppSelector(selectType);
   const selectedMaterials = useAppSelector(selectMaterial);
+  const [selectedMaterialRowData, setSelectedMaterialRowData] = useState<any>([]);
+  const productId = useAppSelector(selectProductId);
   const dispatch = useAppDispatch();
 
   const variant = useWatch({ control, name: 'variant' });
 
-  const [addProduct] = useAddNewProductMutation();
+  const [updateProduct] = useUpdateSingleProductMutation();
 
   const { data: users = [], isLoading } = useGetAllUsersQuery();
   const { data: materials, isLoading: materialLoading } = useGetAllMaterialsQuery();
+  const [triggerGetProduct, { data: productData, isLoading: productDataLoading }] = useLazyGetSingleProductQuery();
 
   const materialOptions = getAvailableMaterialOptions(materials as GetMaterial[]);
 
@@ -86,12 +89,34 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
   };
 
   const handleMaterialAdd = () => {
-    dispatch(setMaterials(material));
+    // dispatch(setMaterials(material));
+    setSelectedMaterialRowData([...selectedMaterialRowData, material]);
     setMaterial({
       material: '',
       unitsNeeded: 0,
     });
   };
+
+  // Map the data from API to match the form structure
+  const mapProductData = (productData) => {
+    const mappedMaterials =
+      productData?.materials?.map((material) => ({
+        material: material?.material?.materialId || '', // Use material._id if available
+        unitsNeeded: material?.unitsNeeded || 0, // Default to 0 if not available
+      })) || defaultProductValues.materials; // Default to empty array if materials not present
+
+    return {
+      ...defaultProductValues, // Start with default values
+      ...productData, // Override with productData if available
+      materials: mappedMaterials,
+      measurement: productData?.measurement?.measurementId || defaultProductValues.measurement, // Ensure correct format for measurement
+      cutter: productData?.cutter?.userId || defaultProductValues.cutter,
+      tailor: productData?.tailor?.userId || defaultProductValues.tailor,
+      measurer: productData?.measurer?.userId || defaultProductValues.measurer,
+      variant: 'edit',
+    };
+  };
+
   const materialAddEnabled = material.material !== '0' && material.unitsNeeded > 0;
 
   const handleKeyPress = (e) => {
@@ -103,27 +128,20 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
     }
   };
 
+  const validate = () => {
+    const formData = getValues();
+    const validationResult = productSchema.safeParse(formData);
+    console.log(validationResult);
+  };
+
   const onSubmit: SubmitHandler<ProductSchema> = async (data) => {
     try {
       if (variant === 'edit') {
-        // const response = await updateMaterial(data);
-        // if (response.error) {
-        //   toast.error(`Material Update Failed`);
-        //   console.log(response.error);
-        // } else {
-        //   toast.success("Material Updated.");
-        //   reset();
-        // }
-      } else {
-        const response = await addProduct(data);
-        if (response.error) {
-          console.log(response.error);
-        } else {
-          toast.success('New Product Created.');
-          dispatch(setCreatedProducts(response.data));
+        const response = await updateProduct(data);
+        if (response) {
+          toast.success('Product Updated.');
           reset();
           dispatch(resetMaterials());
-          handleClose();
         }
       }
     } catch (e) {
@@ -142,11 +160,24 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
   }, [watch]);
 
   useEffect(() => {
-    setValue('type', productType as ProductType);
+    setValue('itemType', productType as ProductType);
   }, [productType]);
+
   useEffect(() => {
-    setValue('materials', selectedMaterials as MaterialNeededforProduct[]);
-  }, [selectedMaterials]);
+    const mappedData = mapProductData(productData);
+    reset(mappedData);
+    setSelectedMaterialRowData(mappedData.materials);
+  }, [productData]);
+
+  useEffect(() => {
+    if (productId) {
+      triggerGetProduct(productId);
+    }
+  }, [productId]);
+
+  useEffect(() => {
+    setValue('materials', selectedMaterialRowData as MaterialNeededforProduct[]);
+  }, [selectedMaterialRowData]);
 
   return (
     <div className="modal-dialog modal-dialog-centered">
@@ -227,16 +258,16 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
               </div>
 
               <div style={{ height: '25vh' }}>
-                <Table<MaterialNeededforProduct> rowData={selectedMaterials} colDefs={colDefs} pagination={false} />
+                <Table<MaterialNeededforProduct> rowData={selectedMaterialRowData} colDefs={colDefs} pagination={false} />
               </div>
 
               <div className="modal-footer mt-3">
                 <button className="secondary-button" type="button" onClick={() => handleClear()}>
-                  Clear Item
+                  Clear Product
                 </button>
 
                 <button className="primary-button" type="submit">
-                  Add Item
+                  Update Product
                 </button>
               </div>
             </form>

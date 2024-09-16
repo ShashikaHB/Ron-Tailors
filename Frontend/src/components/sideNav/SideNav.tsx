@@ -109,7 +109,7 @@ export const sideBarConfig: SideBarConfig[] = [
     children: [
       {
         title: 'Sales/ Rent Order',
-        path: '/secured/editSalary',
+        path: '/secured/salesOrRentOrderPayment',
       },
       {
         title: 'Ready Made',

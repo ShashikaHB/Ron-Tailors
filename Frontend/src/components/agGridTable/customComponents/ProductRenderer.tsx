@@ -6,6 +6,8 @@
  */
 import { RiCloseLargeLine } from '@remixicon/react';
 import { memo } from 'react';
+import { useAppDispatch } from '../../../redux/reduxHooks/reduxHooks';
+import { setProductId } from '../../../redux/features/common/commonSlice';
 
 type ProductRendererProps = {
   data: any;
@@ -15,6 +17,8 @@ type ProductRendererProps = {
 
 const ProductRenderer = ({ data, handleOpenMeasurement, handleRemove }: ProductRendererProps) => {
   const { description, products } = data;
+
+  const dispatch = useAppDispatch();
 
   return (
     <div>
@@ -36,10 +40,25 @@ const ProductRenderer = ({ data, handleOpenMeasurement, handleRemove }: ProductR
               <span style={{ marginRight: '10px' }}>{product.type}</span>
               <span>Rs.{product.price}</span>
               <div className="d-flex gap-2">
-                <button type="button" aria-label="close-btn" className="icon-button" onClick={() => handleOpenMeasurement(product.productId)}>
+                <button
+                  type="button"
+                  aria-label="close-btn"
+                  className="icon-button"
+                  onClick={() => {
+                    handleOpenMeasurement(product.productId);
+                    dispatch(setProductId(product.productId));
+                  }}
+                >
                   M
                 </button>
-                <button type="button" aria-label="close-btn" className="icon-button" onClick={() => handleRemove(product.productId)}>
+                <button
+                  type="button"
+                  aria-label="close-btn"
+                  className="icon-button"
+                  onClick={() => {
+                    handleRemove(product.productId);
+                  }}
+                >
                   <RiCloseLargeLine size={18} />
                 </button>
               </div>

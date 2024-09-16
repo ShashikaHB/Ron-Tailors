@@ -102,3 +102,32 @@ export const deleteUser = asyncHandler(async (req, res) => {
     success: true,
   });
 });
+
+// @desc    Update user's salary grade
+// @route   PUT /api/users/:userId/salaryGrade
+// @access  Private/Admin
+export const updateSalaryGrade = asyncHandler(async (req, res) => {
+    const { userId } = req.params;  // Extract the userId from request parameters
+    const { salaryGrade } = req.body;  // Extract the salaryGrade from the request body
+  
+    // Find the user by userId
+    const user = await User.findOne({ userId });
+  
+    if (!user) {
+      res.status(404);
+      throw new Error('User not found.');
+    }
+  
+    // Update user's salaryGrade
+    user.salaryGrade = salaryGrade;
+  
+    // Save the updated user details
+    const updatedUser = await user.save();
+  
+    // Send response
+    res.json({
+      message: "User's salary grade updated successfully.",
+      success: true,
+      data: updatedUser,
+    });
+  });

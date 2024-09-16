@@ -11,6 +11,7 @@ import {
 } from "date-fns";
 import { DailySummary } from "../models/dailySummaryModel.js";
 import { updateDailySummary } from "../utils/updateDailySummary.js";
+import { User } from "../models/userModel.js";
 
 export const getAllTransactions = asyncHandler(async (req, res) => {
   const transactions = await Transaction.find().lean().exec();
@@ -159,7 +160,13 @@ export const addCustomTransaction = asyncHandler(async (req, res) => {
     throw new Error("All fields are required.");
   }
 
-  const newTransaction = await Transaction.create(req.body);
+  const salesPersonDoc = await User.findOne({userId: salesPerson}).lean().exec()
+  if (!salesPersonDoc) {
+    res.status(404);
+    throw new Error(`No user found for ID ${salesPerson}`);
+  }
+
+  const newTransaction = await Transaction.create({...req.body, salesPerson:salesPersonDoc?.name});
 
   await updateDailySummary(newTransaction);
 
@@ -333,12 +340,18 @@ export const getAllDayEndRecords = asyncHandler(async (req, res) => {
         success: false,
       });
     }
+
+     // Format the 'date' field to return only the YYYY-MM-DD part (ISO format)
+  const formattedDailySummary = dailySummary.map((summary) => ({
+    ...summary,
+    date: new Date(summary.date).toISOString().split('T')[0], // Format date as YYYY-MM-DD
+  }));
   
     // Return the daily summary
     res.json({
       message: 'Daily summary fetched successfully.',
       success: true,
-      data: dailySummary,
+      data: formattedDailySummary,
     });
   });
 

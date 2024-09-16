@@ -10,6 +10,8 @@ import { CircularProgress, FormControl, MenuItem, Select } from '@mui/material';
 import { useUpdateProductStatusMutation } from '../../../redux/features/product/productApiSlice';
 import { statusOptions } from '../../../consts/products';
 import { getStatusColor } from '../../../utils/productUtils';
+import { useAppDispatch } from '../../../redux/reduxHooks/reduxHooks';
+import { setProductId } from '../../../redux/features/common/commonSlice';
 
 type SalesOrderDetailsRendererProps = {
   data: any;
@@ -21,6 +23,8 @@ const SalesOrderDetailsRenderer = ({ data, handleOpenMeasurement, handleOpenProd
   const { orderDetails } = data ?? '';
 
   const [updateStatus, { data: updateStatusData, isLoading: loading }] = useUpdateProductStatusMutation();
+
+  const dispatch = useAppDispatch();
 
   // Function to handle status change
   const handleStatusChange = async (productId: number, newStatus: string) => {
@@ -50,10 +54,26 @@ const SalesOrderDetailsRenderer = ({ data, handleOpenMeasurement, handleOpenProd
               return (
                 <div className="d-flex gap-2 mx-3" key={productId}>
                   <p>{itemType}</p>
-                  <button type="button" aria-label="close-btn" className="icon-button" onClick={() => handleOpenMeasurement(product.productId)}>
+                  <button
+                    type="button"
+                    aria-label="close-btn"
+                    className="icon-button"
+                    onClick={() => {
+                      handleOpenMeasurement(product.productId);
+                      dispatch(setProductId(productId));
+                    }}
+                  >
                     M
                   </button>
-                  <button type="button" aria-label="close-btn" className="icon-button" onClick={() => handleOpenProductEdit(product.productId)}>
+                  <button
+                    type="button"
+                    aria-label="close-btn"
+                    className="icon-button"
+                    onClick={() => {
+                      handleOpenProductEdit(product.productId);
+                      dispatch(setProductId(productId));
+                    }}
+                  >
                     P
                   </button>
                   <FormControl sx={{ m: 1, maxWidth: 165 }} size="small">

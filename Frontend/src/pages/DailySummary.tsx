@@ -51,7 +51,7 @@ const DailySummary = () => {
 
   const initialColDefs: ColDef<any>[] = [
     { headerName: 'Date', field: 'date', maxWidth: 400 },
-    { headerName: 'Expenses', field: 'totalExpenses', maxWidth: 400 },
+    { headerName: 'Expenses', field: 'totalExpense', maxWidth: 400 },
     { headerName: 'Income', field: 'totalIncome', maxWidth: 400 },
     { headerName: 'Cash Income', field: 'cashIncome', maxWidth: 400 },
     { headerName: 'Card Income', field: 'cardIncome', maxWidth: 400 },

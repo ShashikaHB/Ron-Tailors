@@ -5,29 +5,30 @@
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
 import { z } from 'zod';
-import ProductType from '../../enums/ProductType';
+import ProductType, { ProductCategory } from '../../enums/ProductType';
 import { ProductStatus } from '../../enums/ProductStatus';
 
 export const productSchema = z.intersection(
   z.object({
     materials: z.array(
-      z.object({
-        material: z.string(),
-        unitsNeeded: z.number().min(1, 'Number of units required.'),
-      })
+      z
+        .object({
+          material: z.string(),
+          unitsNeeded: z.number(),
+        })
+        .optional()
     ),
-    style: z.string().optional(),
     color: z.string().optional(),
-    type: z.nativeEnum(ProductType),
+    itemType: z.nativeEnum(ProductType),
     measurement: z.union([z.number(), z.undefined()]),
-    cost: z.coerce.number().optional(),
+    itemCategory: z.nativeEnum(ProductCategory).optional(),
     size: z.coerce.number().optional(),
     price: z.coerce.number().min(1, 'Price is required.'),
     noOfUnits: z.number().optional(),
     status: z.nativeEnum(ProductStatus),
-    cutter: z.number().min(1, 'Cutter is required'),
-    tailor: z.number().min(1, 'Tailor is required'),
-    measurer: z.number().min(1, 'Measurer is required'),
+    cutter: z.number(),
+    tailor: z.number(),
+    measurer: z.number(),
     rentPrice: z.coerce.number().optional(),
     isNewRentOut: z.boolean(),
   }),

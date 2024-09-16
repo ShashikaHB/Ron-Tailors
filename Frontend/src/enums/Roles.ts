@@ -9,4 +9,7 @@ export enum Roles {
   SalesPerson = 'Sales Person',
   Cutter = 'Cutter',
   Tailor = 'Tailor',
+  IroningPerson = 'Ironing',
+  Cleaning = 'Cleaning',
+  AlteringPerson = 'Altering',
 }

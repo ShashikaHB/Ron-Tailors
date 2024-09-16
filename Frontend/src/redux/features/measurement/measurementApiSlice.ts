@@ -19,7 +19,18 @@ export const measurementApiSlice = apiSlice.injectEndpoints({
         return res.data;
       },
     }),
+    updateMeasurement: builder.mutation({
+      query: (measurementData) => ({
+        url: `/measurement/${measurementData.measurementId}`,
+        method: 'PATCH',
+        body: { ...measurementData },
+      }),
+      transformResponse: (res: ApiResponse<any>) => {
+        return res.data;
+      },
+      invalidatesTags: ['Products'],
+    }),
   }),
 });
 
-export const { useCreateMeasurementMutation } = measurementApiSlice;
+export const { useCreateMeasurementMutation, useUpdateMeasurementMutation } = measurementApiSlice;
