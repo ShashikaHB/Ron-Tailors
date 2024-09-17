@@ -9,6 +9,9 @@ import { logWork } from "./workLogController.js";
 import { updateUserSummaryWithPieceType } from "./monthlySummaryController.js";
 import { fetchMaterialById, fetchUserById } from "../utils/product.js";
 import { deductMaterialUnits } from "./materialController.js";
+import { RentOrder } from "../models/rentOrderModel.js";
+import { RentItem } from "../models/rentItemModel.js";
+import { SalesOrder } from "../models/salesOrderModel.js";
 
 // @desc    Create a new product
 // @route   POST /api/products
@@ -105,9 +108,9 @@ export const getSingleProduct = asyncHandler(async (req, res) => {
       path: "measurement",
       select: "-_id -createdAt -updatedAt -__v",
       populate: {
-        path: "customer",  // Populate the customer field inside the measurement
-        select: "name customerId -_id",  // Fetch 'name', 'email', and 'mobile' for customer, exclude '_id'
-      }
+        path: "customer", // Populate the customer field inside the measurement
+        select: "name customerId -_id", // Fetch 'name', 'email', and 'mobile' for customer, exclude '_id'
+      },
     })
     .populate({
       path: "materials.material",
@@ -160,8 +163,10 @@ export const updateProduct = asyncHandler(async (req, res) => {
   // Conditionally fetch cutter, tailor, and measurer
   const [cutter, tailor, measurer] = await Promise.all([
     cutterId && cutterId !== 0 ? fetchUserById(cutterId, "cutter") : null,
-    tailorId && tailorId !== 0? fetchUserById(tailorId, "tailor") : null,
-    measurerId && measurerId !== 0 ? fetchUserById(measurerId, "measurer") : null,
+    tailorId && tailorId !== 0 ? fetchUserById(tailorId, "tailor") : null,
+    measurerId && measurerId !== 0
+      ? fetchUserById(measurerId, "measurer")
+      : null,
   ]);
 
   // Conditionally fetch materials if provided
@@ -309,8 +314,8 @@ export const updateProductStatus = asyncHandler(async (req, res) => {
       `Cannot change status from "${currentStatus}" to "${status}".`
     );
   }
-   // Check if the new status is allowed based on the current status
-   if (newStatusIndex - currentStatusIndex > 1)  {
+  // Check if the new status is allowed based on the current status
+  if (newStatusIndex - currentStatusIndex > 1) {
     res.status(400);
     throw new Error(
       `Cannot change status from "${currentStatus}" to "${status}".`
@@ -330,38 +335,40 @@ export const updateProductStatus = asyncHandler(async (req, res) => {
   let user = null;
   let piecePrice = 0;
 
-   // Fetch prices based on the product itemType
-   const piecePriceData = await PiecePrices.findOne({ itemType: product.itemType });
-   if (!piecePriceData) {
-     res.status(404);
-     throw new Error("Piece price not found for the item type.");
-   }
- 
-   if (status === "Cutting Done") {
-     if (!product.cutter) {
-       throw new Error('Cutter is not defined for the product!');
-     }
-     user = product.cutter;
-     piecePrice = piecePriceData.cuttingPrice;
-   }
- 
-   if (status === "Tailoring Started") {
-     product.status = status;
-     const updatedProduct = await product.save();
-     return res.json({
-       message: 'Product status updated successfully to "Tailoring Started".',
-       success: true,
-       data: updatedProduct,
-     });
-   }
- 
-   if (status === "Tailoring Done") {
-     if (!product.tailor) {
-       throw new Error('Tailor is not defined for the product!');
-     }
-     user = product.tailor;
-     piecePrice = piecePriceData.tailoringPrice;
-   }
+  // Fetch prices based on the product itemType
+  const piecePriceData = await PiecePrices.findOne({
+    itemType: product.itemType,
+  });
+  if (!piecePriceData) {
+    res.status(404);
+    throw new Error("Piece price not found for the item type.");
+  }
+
+  if (status === "Cutting Done") {
+    if (!product.cutter) {
+      throw new Error("Cutter is not defined for the product!");
+    }
+    user = product.cutter;
+    piecePrice = piecePriceData.cuttingPrice;
+  }
+
+  if (status === "Tailoring Started") {
+    product.status = status;
+    const updatedProduct = await product.save();
+    return res.json({
+      message: 'Product status updated successfully to "Tailoring Started".',
+      success: true,
+      data: updatedProduct,
+    });
+  }
+
+  if (status === "Tailoring Done") {
+    if (!product.tailor) {
+      throw new Error("Tailor is not defined for the product!");
+    }
+    user = product.tailor;
+    piecePrice = piecePriceData.tailoringPrice;
+  }
 
   const newlogWork = await logWork(
     user,
@@ -370,6 +377,49 @@ export const updateProductStatus = asyncHandler(async (req, res) => {
     product.productId,
     piecePrice
   );
+
+  if (product.isNewRentOut && status === "Tailoring Done") {
+    // Fetch the SalesOrder containing this product
+    const salesOrder = await SalesOrder.findOne({
+      "orderDetails.products": product._id,
+    }).populate("customer");
+    if (!salesOrder) {
+      res.status(404);
+      throw new Error("Sales order containing this product not found.");
+    }
+
+    // Create a new RentItem
+    const rentItem = await RentItem.create({
+      color: product.color,
+      size: product.size,
+      description: `New RentOut: ${product.itemType}`,
+      itemCategory: product.itemCategory,
+      itemType: product.itemType,
+      status: "Rented", // Set as rented
+    });
+
+    // Create a new RentOrder with customer details from the SalesOrder
+    const rentOrder = await RentOrder.create({
+      customer: salesOrder.customer,
+      store: salesOrder.store,
+      rentDate: new Date(), // Set current date as the rent date
+      returnDate: new Date(), // You can modify return date based on logic
+      rentOrderDetails: [
+        {
+          description: `New RentOut: ${product.itemType}`,
+          color: product.color,
+          size: product.size,
+          rentItemId: rentItem.rentItemId,
+          itemCategory: product.itemCategory,
+          itemType: product.itemType,
+          amount: product.rentPrice || 0, // Set rent price
+        },
+      ],
+      totalPrice: product.rentPrice || 0,
+      subTotal: product.rentPrice || 0,
+      paymentType: salesOrder.paymentType
+    });
+  }
 
   const currentMonth = new Date().toISOString().slice(0, 7);
   const updateMonthlySalary = await updateUserSummaryWithPieceType(
@@ -384,8 +434,8 @@ export const updateProductStatus = asyncHandler(async (req, res) => {
   const updatedProduct = await product.save();
 
   res.json({
-    message: "Product status updated successfully.",
+    message: "Product status updated and RentOrder created.",
     success: true,
-    data: updatedProduct,
+    updatedProduct,
   });
 });

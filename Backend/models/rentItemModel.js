@@ -8,7 +8,6 @@ const AutoIncrement = mongooseSequence(mongoose);
 const rentItemSchema = new mongoose.Schema({
   color: {
     type: String,
-    required: [true, "Total price is required."],
   },
   size: {
     type: Number,

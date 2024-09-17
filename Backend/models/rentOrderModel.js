@@ -100,7 +100,6 @@ const rentOrderSchema = new mongoose.Schema({
   stakeOption: {
     type: String,
     enum: ["NIC", "Deposit"],
-    required: [true, "Payment Type is required."],
   },
   stakeAmount : {
     type: Number,
