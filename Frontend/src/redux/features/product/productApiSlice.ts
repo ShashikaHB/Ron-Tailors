@@ -60,7 +60,7 @@ export const productApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res: ApiResponse<any>) => {
         return res.data;
       },
-      invalidatesTags: ['Products'],
+      invalidatesTags: ['Products', 'Materials'],
     }),
     updateProductStatus: builder.mutation({
       query: ({ status, productId }: { status: string; productId: number }) => ({

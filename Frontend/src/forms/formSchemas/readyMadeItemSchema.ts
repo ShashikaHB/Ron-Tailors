@@ -9,6 +9,12 @@ import PaymentType from '../../enums/PaymentType';
 import Stores from '../../enums/Stores';
 
 export const readyMadeItemSchema = z.object({
+  customer: z.object({
+    name: z.string().min(1, 'Name is required'),
+    mobile: z.string().refine((value) => /^\d{10}$/.test(value), {
+      message: 'Mobile number should be exactly 10 digits',
+    }),
+  }),
   itemType: z.string().min(1, 'Item Type name is required.'),
   paymentType: z.nativeEnum(PaymentType),
   store: z.nativeEnum(Stores),
@@ -19,6 +25,10 @@ export const readyMadeItemSchema = z.object({
 export type ReadyMadeItemSchema = z.infer<typeof readyMadeItemSchema>;
 
 export const defaultReadyMadeOrderValues: ReadyMadeItemSchema = {
+  customer: {
+    name: '',
+    mobile: '',
+  },
   itemType: '',
   paymentType: PaymentType.Cash,
   price: 0,

@@ -12,6 +12,8 @@ const mapProducts = (inputProducts: any, productsData: any) => {
         type: product?.itemType,
         price: product?.price,
         productId: product?.productId,
+        productCategory: product?.itemCategory,
+        isMeasurementAvailable: !!product?.measurement,
       };
     });
 

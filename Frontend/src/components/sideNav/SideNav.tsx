@@ -27,6 +27,21 @@ export const sideBarConfig: SideBarConfig[] = [
     icon: <HomeIcon />,
     path: '/secured/dashboard',
   },
+
+  {
+    title: 'Sales',
+    icon: <SaleOrderIcon />,
+    children: [
+      {
+        title: 'New Sale Order',
+        path: '/secured/addSalesOrder',
+      },
+      {
+        title: 'Order Book',
+        path: 'salesOrderBook',
+      },
+    ],
+  },
   {
     title: 'Rent Out',
     icon: <RentOrderIcon />,
@@ -46,20 +61,6 @@ export const sideBarConfig: SideBarConfig[] = [
       {
         title: 'Rent Items',
         path: '/secured/addRentItem',
-      },
-    ],
-  },
-  {
-    title: 'Sales',
-    icon: <SaleOrderIcon />,
-    children: [
-      {
-        title: 'New Sale Order',
-        path: '/secured/addSalesOrder',
-      },
-      {
-        title: 'Order Book',
-        path: 'salesOrderBook',
       },
     ],
   },

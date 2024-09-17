@@ -8,28 +8,38 @@
 import { ICellRendererParams } from 'ag-grid-community';
 
 interface ActionButtonPropTypes extends ICellRendererParams {
-  handleEdit: (id: number) => void;
+  handleEdit?: (id: number) => void;
   handleDelete?: (id: number) => void;
   idType: string;
   isOrderBook?: boolean;
+  isAccount?: boolean;
 }
 
 const ActionButtonNew = (props: ActionButtonPropTypes) => {
-  const { handleEdit, handleDelete, idType, data, isOrderBook } = props;
+  const { handleEdit, handleDelete, idType, data, isOrderBook, isAccount } = props;
+
+  const hideDeleteForCategories = ['Sales Order', 'Rent Order', 'Ready Made Order', 'Salary'];
 
   const id = data?.[idType];
   const handlePrint = () => {
+    const newWindow = window.open('', '_blank');
     const baseUrl = import.meta.env.VITE_BASE_URL;
     const invoiceUrl = `${baseUrl}/api/v1/invoice/${idType === 'rentOrderId' ? 'rentOrder' : 'salesOrder'}/${id}`;
-    window.open(invoiceUrl, '_blank');
+    if (newWindow) {
+      newWindow.location.href = invoiceUrl;
+    }
   };
+
+  const showDeleteButton = !isAccount && !hideDeleteForCategories.includes(data?.transactionCategory);
 
   return (
     <div className="d-flex gap-2 mt-2">
-      <button type="button" className="primary-button-sm" onClick={() => handleEdit(id)}>
-        Edit
-      </button>
-      {handleDelete && (
+      {handleEdit && (
+        <button type="button" className="primary-button-sm" onClick={() => handleEdit(id)}>
+          Edit
+        </button>
+      )}
+      {showDeleteButton && !isOrderBook && (
         <button type="button" className="primary-button-sm" onClick={() => handleDelete(id)}>
           Delete
         </button>

@@ -6,7 +6,6 @@
  */
 import { SubmitHandler, useFormContext } from 'react-hook-form';
 import { RiCloseLargeLine } from '@remixicon/react';
-import { useEffect } from 'react';
 import { toast } from 'sonner';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
 import { defaultTransactionValues } from '../formSchemas/transactionSchema';
@@ -34,22 +33,13 @@ const AddTransactionCategory = ({ handleClose, materialId }: AddMaterialFormProp
     reset(defaultTransactionValues);
   };
 
-  useEffect(() => {
-    const sub = watch((value) => {
-      console.log(value);
-    });
-
-    return () => {
-      sub.unsubscribe();
-    };
-  }, [watch]);
-
   const onSubmit: SubmitHandler<TransactionCategorySchema> = async (data) => {
     try {
       const response = await addTransactionCategory(data).unwrap();
       if (response.success) {
         toast.success('Transaction Category Added.');
         reset();
+        handleFormClose();
       }
     } catch (error) {
       toast.error(`Transaction Category Action Failed. ${error.message}`);

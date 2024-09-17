@@ -51,6 +51,7 @@ const ProductRenderer = ({ data, handleOpenMeasurement, handleRemove }: ProductR
                 >
                   M
                 </button>
+                {product.isMeasurementAvailable && <div>X</div>}
                 <button
                   type="button"
                   aria-label="close-btn"

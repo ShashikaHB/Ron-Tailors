@@ -25,8 +25,7 @@ export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
 
   doc.moveDown();
   doc.fontSize(16).text("SALES ORDER", { align: "center" });
-  doc.fontSize(13).text(`Order No: ${orderNo}`,{ align: "center" })
-
+  doc.fontSize(13).text(`Order No: ${orderNo}`, { align: "center" });
 
   // Section breaker
   doc.moveDown();
@@ -77,7 +76,7 @@ export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
     .moveTo(doc.page.margins.left, doc.y)
     .lineTo(doc.page.width - doc.page.margins.right, doc.y)
     .stroke();
-    doc.moveDown(0.25);
+  doc.moveDown(0.25);
   doc.moveDown(0.25).text(`Balance: ${totals.balance}`, { align: "right" });
   doc.moveDown(0.25);
 
@@ -88,7 +87,10 @@ export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
 
   doc.moveDown();
   doc.moveDown(0.35).text(`Thank you. Come again....`, { align: "center" });
-  doc.moveDown(0.35).text(`System Made by SharkDev.lk`, { align: "center" });
+  doc
+    .moveDown(0.35)
+    .fontSize(10)
+    .text(`System Made by SharkDev.lk`, { align: "center" });
 
   doc.end();
 };
@@ -110,7 +112,7 @@ export const buildRentPdf = (dataCallBack, endCallBack, data) => {
 
   doc.moveDown();
   doc.fontSize(16).text("RENT BILL", { align: "center" });
-  doc.fontSize(13).text(`Order No: ${orderNo}`,{ align: "center" })
+  doc.fontSize(13).text(`Order No: ${orderNo}`, { align: "center" });
 
   // Section breaker
   doc.moveDown();
@@ -160,7 +162,7 @@ export const buildRentPdf = (dataCallBack, endCallBack, data) => {
     .moveTo(doc.page.margins.left, doc.y)
     .lineTo(doc.page.width - doc.page.margins.right, doc.y)
     .stroke();
-    doc.moveDown(0.25);
+  doc.moveDown(0.25);
   doc.moveDown(0.25).text(`Balance: ${totals.balance}`, { align: "right" });
   doc.moveDown(0.25);
 
@@ -176,7 +178,7 @@ export const buildRentPdf = (dataCallBack, endCallBack, data) => {
   doc.end();
 };
 export const buildReadyMadePdf = (dataCallBack, endCallBack, data) => {
-  const { customer, rentOrderDetails, totals, orderNo } = data;
+  const { customer, orderDetails, totals, orderNo } = data;
 
   const doc = new PDFDocument({ margin: 30, size: "A4" });
 
@@ -191,8 +193,8 @@ export const buildReadyMadePdf = (dataCallBack, endCallBack, data) => {
   doc.fontSize(11).text("www.rontailors.com", { align: "center" });
 
   doc.moveDown();
-  doc.fontSize(16).text("RENT BILL", { align: "center" });
-  doc.fontSize(13).text(`Order No: ${orderNo}`,{ align: "center" })
+  doc.fontSize(16).text("Ready Made Item BILL", { align: "center" });
+  doc.fontSize(13).text(`Order No: ${orderNo}`, { align: "center" });
 
   // Section breaker
   doc.moveDown();
@@ -204,18 +206,14 @@ export const buildReadyMadePdf = (dataCallBack, endCallBack, data) => {
   // Add customer details
   doc.moveDown().fontSize(12).text(`Customer Name: ${customer.name}`);
   doc.moveDown(0.25).text(`Mobile: ${customer.mobile}`);
-  doc.moveDown(0.25).text(`Rent Date: ${customer.rentDate}`);
-  doc.moveDown(0.25).text(`Return Date: ${customer.returnDate}`);
+  doc.moveDown(0.25).text(`Order Date: ${customer.orderDate}`);
 
   doc.moveDown(2);
 
   // Create table for order details
   const tableData = {
     headers: ["Description and Items", "Amount"],
-    rows: rentOrderDetails.map((detail) => [
-      formatDescriptionForRent(detail),
-      detail.amount,
-    ]),
+    rows: orderDetails.map((detail) => [detail.description, detail.amount]),
   };
 
   doc.moveDown();
@@ -228,23 +226,8 @@ export const buildReadyMadePdf = (dataCallBack, endCallBack, data) => {
     x: doc.page.margins.left, // Position the table within the left margin
   });
 
-  // Add totals
-  doc
-    .moveDown()
-    .fontSize(12)
-    .text(`Subtotal: ${totals.subTotal}`, { align: "right" });
-  doc.moveDown(0.25).text(`Discount: ${totals.discount}`, { align: "right" });
-  doc.moveDown(0.25).text(`Total: ${totals.totalPrice}`, { align: "right" });
-  doc.moveDown(0.25).text(`Advance: ${totals.advPayment}`, { align: "right" });
-  // Section breaker
-  doc.moveDown(0.3);
-  doc
-    .moveTo(doc.page.margins.left, doc.y)
-    .lineTo(doc.page.width - doc.page.margins.right, doc.y)
-    .stroke();
-    doc.moveDown(0.25);
-  doc.moveDown(0.25).text(`Balance: ${totals.balance}`, { align: "right" });
-  doc.moveDown(0.25);
+  doc.text(`Total: ${totals.totalPrice}`, { align: "right" });
+
 
   doc
     .moveTo(doc.page.margins.left, doc.y)
@@ -258,62 +241,71 @@ export const buildReadyMadePdf = (dataCallBack, endCallBack, data) => {
   doc.end();
 };
 export const buildMeasurementPdf = (dataCallBack, endCallBack, data) => {
-    const doc = new PDFDocument({ margin: 30, size: "A4" });
-  
-    doc.on("data", dataCallBack);
-    doc.on("end", endCallBack);
-  
-    // For each measurement in the data, we will add the details to the PDF
-    data.forEach((measurement, index) => {
-      const { customer, itemType, measurements, style, remarks, estimatedReleaseDate, isNecessary } = measurement;
-  
-      // Add a section breaker for each measurement
-      if (index > 0) {
-        doc
-          .moveTo(doc.page.margins.left, doc.y)
-          .lineTo(doc.page.width - doc.page.margins.right, doc.y)
-          .stroke();
-        doc.moveDown(1);
-      }
-  
-      // Add customer name, mobile, and item type
+  const doc = new PDFDocument({ margin: 30, size: "A4" });
+
+  doc.on("data", dataCallBack);
+  doc.on("end", endCallBack);
+
+  // For each measurement in the data, we will add the details to the PDF
+  data.forEach((measurement, index) => {
+    const {
+      customer,
+      itemType,
+      measurements,
+      style,
+      remarks,
+      estimatedReleaseDate,
+      isNecessary,
+    } = measurement;
+
+    // Add a section breaker for each measurement
+    if (index > 0) {
       doc
-        .fontSize(13)
-        .text(`${customer.name} |  ${customer.mobile} | ${itemType}`);
-      
-      doc.moveDown(0.5);
-  
-      // Add the measurements array with spacing
-      doc.fontSize(12).text(`${measurements.join(' | ')}`);
-      doc.moveDown(0.5);
-  
-      // Add style information
-      doc.fontSize(12).text(`${style}`);
-      doc.moveDown(0.5);
-  
-      // Add remarks
-      doc.fontSize(12).text(`Remarks: ${remarks}`);
-      doc.moveDown(0.5);
-  
-      // Add estimated release date and necessary status side by side
-      const formattedReleaseDate = new Date(estimatedReleaseDate).toLocaleDateString();
-      doc.fontSize(12).text(`Release Date: ${formattedReleaseDate}`, {
-        continued: true, // Keeps the text on the same line
-      });
-  
-      if (isNecessary) {
-        doc
-          .font('Helvetica-Bold') // Make the text bold
-          .text(`   Necessary`, {
-            align: 'left', // Aligns the text to the right
-            continued: false, // Ensures the text ends here and doesn't continue
-          })
-          .font('Helvetica'); // Reset to default font
-      }
-  
-      doc.moveDown(2);
+        .moveTo(doc.page.margins.left, doc.y)
+        .lineTo(doc.page.width - doc.page.margins.right, doc.y)
+        .stroke();
+      doc.moveDown(1);
+    }
+
+    // Add customer name, mobile, and item type
+    doc
+      .fontSize(13)
+      .text(`${customer.name} |  ${customer.mobile} | ${itemType}`);
+
+    doc.moveDown(0.5);
+
+    // Add the measurements array with spacing
+    doc.fontSize(12).text(`${measurements.join(" | ")}`);
+    doc.moveDown(0.5);
+
+    // Add style information
+    doc.fontSize(12).text(`${style}`);
+    doc.moveDown(0.5);
+
+    // Add remarks
+    doc.fontSize(12).text(`Remarks: ${remarks}`);
+    doc.moveDown(0.5);
+
+    // Add estimated release date and necessary status side by side
+    const formattedReleaseDate = new Date(
+      estimatedReleaseDate
+    ).toLocaleDateString();
+    doc.fontSize(12).text(`Release Date: ${formattedReleaseDate}`, {
+      continued: true, // Keeps the text on the same line
     });
-  
-    doc.end();
-  };
-  
+
+    if (isNecessary) {
+      doc
+        .font("Helvetica-Bold") // Make the text bold
+        .text(`   Necessary`, {
+          align: "left", // Aligns the text to the right
+          continued: false, // Ensures the text ends here and doesn't continue
+        })
+        .font("Helvetica"); // Reset to default font
+    }
+
+    doc.moveDown(2);
+  });
+
+  doc.end();
+};

@@ -1,8 +1,14 @@
 import { User } from "../models/userModel.js";
 import asyncHandler from "express-async-handler";
-import { buildMeasurementPdf, buildRentPdf, buildSalesPdf } from "../pdf/pdf-service/pdf-service.js";
+import {
+  buildMeasurementPdf,
+  buildReadyMadePdf,
+  buildRentPdf,
+  buildSalesPdf,
+} from "../pdf/pdf-service/pdf-service.js";
 import { SalesOrder } from "../models/salesOrderModel.js";
 import { RentOrder } from "../models/rentOrderModel.js";
+import { ReadyMadeItem } from "../models/readyMadeItemModel.js";
 
 export const getSalesInvoice = asyncHandler(async (req, res) => {
   const { salesOrderId } = req.params;
@@ -29,23 +35,23 @@ export const getSalesInvoice = asyncHandler(async (req, res) => {
     orderDetails: orderData.orderDetails.map((detail) => ({
       description: detail.description,
       items: detail.products.map((product) => product.itemType),
-      amount: `Rs${detail.products
+      amount: `Rs ${detail.products
         .reduce((total, product) => total + product.price, 0)
         .toFixed(2)}`,
     })),
     orderNo: orderData.salesOrderId,
     totals: {
-      subTotal: `Rs${orderData.subTotal.toFixed(2)}`,
+      subTotal: `Rs ${orderData.subTotal.toFixed(2)}`,
       discount: orderData.discount
-        ? `Rs${orderData.discount.toFixed(2)}`
-        : "Rs0.00",
-      totalPrice: `Rs${orderData.totalPrice.toFixed(2)}`,
+        ? `Rs ${orderData.discount.toFixed(2)}`
+        : "Rs 0.00",
+      totalPrice: `Rs ${orderData.totalPrice.toFixed(2)}`,
       advPayment: orderData.advPayment
-        ? `Rs${orderData.advPayment.toFixed(2)}`
-        : "Rs0.00",
+        ? `Rs ${orderData.advPayment.toFixed(2)}`
+        : "Rs 0.00",
       balance: orderData.balance
-        ? `Rs${orderData.balance.toFixed(2)}`
-        : `Rs${(orderData.totalPrice - orderData.advPayment).toFixed(2)}`,
+        ? `Rs ${orderData.balance.toFixed(2)}`
+        : `Rs ${(orderData.totalPrice - orderData.advPayment).toFixed(2)}`,
     },
   };
   const stream = res.writeHead(200, {
@@ -80,7 +86,7 @@ export const getRentInvoice = asyncHandler(async (req, res) => {
       discount: orderData.discount
         ? `Rs ${orderData.discount.toFixed(2)}`
         : "Rs 0.00",
-      totalPrice: `Rs${orderData.totalPrice.toFixed(2)}`,
+      totalPrice: `Rs ${orderData.totalPrice.toFixed(2)}`,
       advPayment: orderData.advPayment
         ? `Rs ${orderData.advPayment.toFixed(2)}`
         : "Rs 0.00",
@@ -93,6 +99,39 @@ export const getRentInvoice = asyncHandler(async (req, res) => {
     "Content-Type": "application/pdf",
   });
   buildRentPdf(
+    (chunk) => stream.write(chunk),
+    () => stream.end(),
+    data
+  );
+});
+
+export const getReadyMadeInvoice = asyncHandler(async (req, res) => {
+  const { readyMadeOrderId } = req.params;
+
+  const orderData = await ReadyMadeItem.findOne({ readyMadeOrderId })
+    .lean()
+    .populate("customer")
+    .exec();
+
+  const data = {
+    customer: {
+      name: orderData.customer.name,
+      mobile: orderData.customer.mobile,
+      orderDate: new Date().toISOString().split("T")[0],
+    },
+    orderDetails: [
+      { description: orderData.itemType, amount: `Rs ${orderData.price}` },
+    ],
+    orderNo: orderData.readyMadeItemId,
+    totals: {
+      totalPrice: `Rs ${orderData.price.toFixed(2)}`,
+      balance: "Rs 0.00",
+    },
+  };
+  const stream = res.writeHead(200, {
+    "Content-Type": "application/pdf",
+  });
+  buildReadyMadePdf(
     (chunk) => stream.write(chunk),
     () => stream.end(),
     data
@@ -155,5 +194,4 @@ export const measurementPrint = asyncHandler(async (req, res) => {
     () => stream.end(),
     measurements
   );
-
 });

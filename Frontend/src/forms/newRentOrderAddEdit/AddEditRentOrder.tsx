@@ -231,16 +231,6 @@ const NewRentOut = () => {
   }, [rentOrderId, singleRentOrderData]);
 
   useEffect(() => {
-    const sub = watch((value) => {
-      console.log(value);
-    });
-
-    return () => {
-      sub.unsubscribe();
-    };
-  }, [watch]);
-
-  useEffect(() => {
     if (rowData) {
       const totalAmount = rowData.reduce((sum, row) => sum + (row.amount || 0), 0);
       setValue('rentOrderDetails', rowData);
@@ -261,10 +251,9 @@ const NewRentOut = () => {
     if (customer) {
       setValue('customer.name', customer.name);
       setValue('customer.mobile', customer.mobile);
-      setCustomerSearchQuery('');
       clearErrors();
     }
-  }, [customer, setValue, clearErrors]);
+  }, [customer, setValue, clearErrors, customerSearchQuery]);
 
   useEffect(() => {
     if (rentItem) {
@@ -279,7 +268,7 @@ const NewRentOut = () => {
       }));
       clearErrors();
     }
-  }, [rentItem]);
+  }, [rentItem, productSearchQuery]);
 
   const handleValidateData = () => {
     const formData = getValues();
@@ -291,6 +280,7 @@ const NewRentOut = () => {
 
   const onSubmit: SubmitHandler<RentOrderSchema> = async (data) => {
     try {
+      const newWindow = window.open('', '_blank');
       if (variant === 'edit') {
         const response = await updateRentOrder(data);
         if (response.error) {
@@ -308,6 +298,11 @@ const NewRentOut = () => {
           const newOrderId = response.data.rentOrderId;
           toast.success('New Rent Order Added successfully');
           handleResetRentOrder();
+          const baseUrl = import.meta.env.VITE_BASE_URL;
+          const invoiceUrl = `${baseUrl}/api/v1/invoice/rentOrder/${newOrderId}`;
+          if (newWindow) {
+            newWindow.location.href = invoiceUrl;
+          }
         }
       }
     } catch (error) {

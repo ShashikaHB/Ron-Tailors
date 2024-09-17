@@ -23,7 +23,7 @@ import { useDeleteTransactionCategoryMutation, useGetAllTransactionCategoriesQue
 import MemoizedTable from '../components/agGridTable/Table';
 import { defaultTransactionCategoryValues, transactionCategorySchema, TransactionCategorySchema } from '../forms/formSchemas/transactionCategorySchema';
 import AddTransactionCategory from '../forms/transactionCategoryAddEdit/AddTransactionCategory';
-import SimpleActionButton from '../components/agGridTable/customComponents/SimpleActionButton';
+import ActionButtonNew from '../components/agGridTable/customComponents/ActionButtonNew';
 
 const AccountsPage = () => {
   const { data: transactionCategories, isError: transactionError, isLoading } = useGetAllTransactionCategoriesQuery({});
@@ -57,10 +57,10 @@ const AccountsPage = () => {
     { headerName: 'Transaction Type', field: 'transactionType', maxWidth: 400 },
     {
       headerName: '',
-      cellRenderer: SimpleActionButton,
+      cellRenderer: ActionButtonNew,
       cellRendererParams: {
-        handleRemove,
-        idField: 'transactionCategory',
+        handleDelete: handleRemove,
+        idType: 'transactionCategory',
       },
     },
   ];

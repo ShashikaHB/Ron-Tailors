@@ -64,20 +64,20 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
       if (variant === 'edit') {
         const response = await updateMaterial(data);
         if (response.error) {
-          toast.error('Material Update Failed');
           console.log(response.error);
         } else {
           toast.success('Material Updated.');
           reset();
+          handleFormClose();
         }
       } else {
         const response = await addNewMaterial(data);
         if (response.error) {
-          toast.error('Material Adding Failed');
           console.log(response.error);
         } else {
           toast.success('New material Added.');
           reset();
+          handleFormClose();
         }
       }
     } catch (error) {

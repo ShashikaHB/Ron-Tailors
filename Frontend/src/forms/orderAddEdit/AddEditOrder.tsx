@@ -248,7 +248,7 @@ const AddEditOrder = () => {
   const handleOrderFormReset = () => {
     reset(defaultOrderValues);
     setSelectedItems([]);
-    // dispatch(resetOderProducts());
+    setCustomerSearchQuery('');
   };
 
   useEffect(() => {
@@ -294,16 +294,16 @@ const AddEditOrder = () => {
 
   useEffect(() => {
     if (customer) {
-      setValue('customer.name', customer.name);
-      setValue('customer.mobile', customer.mobile);
-      setCustomerSearchQuery('');
+      setValue('customer.name', customer.name, { shouldDirty: true, shouldValidate: true });
+      setValue('customer.mobile', customer.mobile, { shouldDirty: true, shouldValidate: true });
       dispatch(setSelectedCustomerId(customer.customerId));
       clearErrors();
     }
-  }, [customer]);
+  }, [customer, customerSearchQuery, setValue, dispatch, clearErrors]);
 
   const onSubmit: SubmitHandler<OrderSchema> = async (data) => {
     try {
+      const newWindow = window.open('', '_blank');
       if (variant === 'edit') {
         const response = await updateSalesOrder(data);
         if (response.error) {
@@ -318,10 +318,14 @@ const AddEditOrder = () => {
         if (response.error) {
           console.log(response.error);
         } else {
-          const newOrderId = response.data.salesOrderId;
+          const orderId = response.data.salesOrderId;
+          const baseUrl = import.meta.env.VITE_BASE_URL;
+          const invoiceUrl = `${baseUrl}/api/v1/invoice/salesOrder/${orderId}`;
           toast.success('New order Added!');
           handleOrderFormReset();
-          //   window.open(`http://localhost:8000/api/v1/invoice/${newOrderId}`, '_blank');
+          if (newWindow) {
+            newWindow.location.href = invoiceUrl;
+          }
         }
       }
     } catch (e) {
