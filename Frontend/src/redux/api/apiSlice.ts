@@ -74,6 +74,7 @@ const apiSlice = createApi({
     'TransactionCategory',
     'DayEnd',
     'Payment',
+    'MonthlySummary',
   ],
 });
 

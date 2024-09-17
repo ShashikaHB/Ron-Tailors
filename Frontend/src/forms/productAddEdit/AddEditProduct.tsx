@@ -17,9 +17,8 @@ import { useGetAllUsersQuery } from '../../redux/features/user/userApiSlice';
 import { Roles } from '../../enums/Roles';
 import Loader from '../../components/loderComponent/Loader';
 import RHFSwitch from '../../components/customFormComponents/customSwitch/RHFSwitch';
-import ProductType from '../../enums/ProductType';
 import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
-import { removeMaterials, resetMaterials, selectMaterial, selectType } from '../../redux/features/product/productSlice';
+import { removeMaterials, resetMaterials } from '../../redux/features/product/productSlice';
 import { GetMaterial, MaterialNeededforProduct } from '../../types/material';
 import Table from '../../components/agGridTable/Table';
 import { useLazyGetSingleProductQuery, useUpdateSingleProductMutation } from '../../redux/features/product/productApiSlice';
@@ -36,8 +35,7 @@ type AddEditProductProps = {
 const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
   const { control, unregister, watch, reset, setValue, handleSubmit, getValues, clearErrors } = useFormContext<ProductSchema>();
 
-  const productType = useAppSelector(selectType);
-  const selectedMaterials = useAppSelector(selectMaterial);
+  //   const productType = useAppSelector(selectType);
   const [selectedMaterialRowData, setSelectedMaterialRowData] = useState<any>([]);
   const productId = useAppSelector(selectProductId);
   const dispatch = useAppDispatch();
@@ -140,8 +138,8 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
         const response = await updateProduct(data);
         if (response) {
           toast.success('Product Updated.');
+          handleClosePopup();
           reset();
-          dispatch(resetMaterials());
         }
       }
     } catch (e) {
@@ -149,19 +147,9 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
     }
   };
 
-  useEffect(() => {
-    const sub = watch((value) => {
-      console.log(value);
-    });
-
-    return () => {
-      sub.unsubscribe();
-    };
-  }, [watch]);
-
-  useEffect(() => {
-    setValue('itemType', productType as ProductType);
-  }, [productType]);
+  //   useEffect(() => {
+  //     setValue('itemType', productType as ProductType);
+  //   }, [productType]);
 
   useEffect(() => {
     const mappedData = mapProductData(productData);
@@ -185,7 +173,7 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
         <div className="modal-header">
           <h5 className="modal-title">
             Add New
-            {` ${productType}`}
+            {` ${productData?.itemType}`}
           </h5>
           <button aria-label="close-btn" type="button" className="icon-button" onClick={handleClosePopup}>
             <RiCloseLargeLine size={18} />

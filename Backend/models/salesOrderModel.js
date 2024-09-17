@@ -39,7 +39,6 @@ const salesOrderSchema = new mongoose.Schema(
       {
         description: {
           type: String,
-          required: [true, "Type is required"],
         },
         category: {
             type: String,

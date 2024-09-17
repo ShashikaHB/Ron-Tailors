@@ -30,7 +30,7 @@ const LoginPage = () => {
       navigate('/secured/dashboard');
       toast.success('Login Success!');
     } catch (error) {
-      toast.error(error.data.message);
+      console.log(error);
     }
   };
 

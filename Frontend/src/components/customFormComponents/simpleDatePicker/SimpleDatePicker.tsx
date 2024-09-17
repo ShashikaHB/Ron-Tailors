@@ -12,9 +12,10 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 type SimpleDatePickerProps = {
   onDateChange: (date: Date) => void;
   label: string; // Function prop to pass selected date back to the parent
+  views?: Array<'year' | 'month' | 'day'>;
 };
 
-const SimpleDatePicker: React.FC<SimpleDatePickerProps> = ({ onDateChange, label }) => {
+const SimpleDatePicker: React.FC<SimpleDatePickerProps> = ({ onDateChange, label, views }) => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   const handleDateChange = (newDate: Date | null) => {
@@ -27,6 +28,7 @@ const SimpleDatePicker: React.FC<SimpleDatePickerProps> = ({ onDateChange, label
       <DatePicker
         label={label}
         value={selectedDate}
+        views={views || ['year', 'month', 'day']} // Use the passed views or default to full date
         defaultValue={new Date()}
         onChange={handleDateChange} // Capture the selected date
         slotProps={{ textField: { size: 'small' } }}

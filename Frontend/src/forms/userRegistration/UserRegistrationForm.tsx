@@ -18,10 +18,6 @@ import RHFDropDown from '../../components/customFormComponents/customDropDown/RH
 
 const roles = [
   {
-    value: Roles.Admin,
-    label: 'Admin',
-  },
-  {
     value: Roles.SalesPerson,
     label: 'Sales Person',
   },

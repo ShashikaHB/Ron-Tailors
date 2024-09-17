@@ -4,15 +4,15 @@
  * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
-
 import { toast } from 'sonner';
-import { CircularProgress, FormControl, MenuItem, Select } from '@mui/material';
-import { useState } from 'react';
+import { FormControl, MenuItem, Select } from '@mui/material';
+import { useEffect, useState } from 'react';
 import { useUpdateProductStatusMutation } from '../../../redux/features/product/productApiSlice';
 import { statusOptions } from '../../../consts/products';
 import { getStatusColor } from '../../../utils/productUtils';
 import { useAppDispatch } from '../../../redux/reduxHooks/reduxHooks';
-import { setProductId } from '../../../redux/features/common/commonSlice';
+import { setLoading, setProductId } from '../../../redux/features/common/commonSlice';
+import { ProductCategory } from '../../../enums/ProductType';
 
 type SalesOrderDetailsRendererProps = {
   data: any;
@@ -23,25 +23,43 @@ type SalesOrderDetailsRendererProps = {
 const SalesOrderDetailsRenderer = ({ data, handleOpenMeasurement, handleOpenProductEdit }: SalesOrderDetailsRendererProps) => {
   const { orderDetails } = data ?? '';
 
-  const [updateStatus, { data: updateStatusData }] = useUpdateProductStatusMutation();
-  const [loadingMap, setLoadingMap] = useState<{ [key: number]: boolean }>({}); // Track loading for each product
-
+  const [updateStatus, { isLoading }] = useUpdateProductStatusMutation();
   const dispatch = useAppDispatch();
+
+  // Initialize a state to store product statuses
+  const [productStatuses, setProductStatuses] = useState<{ [key: number]: string }>({});
+
+  // Populate initial statuses when data changes
+  useEffect(() => {
+    const initialStatuses: { [key: number]: string } = {};
+    orderDetails?.forEach((order: any) => {
+      order.products.forEach((product: any) => {
+        initialStatuses[product.productId] = product.status;
+      });
+    });
+    setProductStatuses(initialStatuses); // Set the initial statuses
+  }, [orderDetails]);
+
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, [isLoading]);
 
   // Function to handle status change
   const handleStatusChange = async (productId: number, newStatus: string) => {
     try {
-      updateStatus({ status: newStatus, productId }).then((res) => {
-        if (res.success) {
-          toast.success(`Status updated to ${newStatus}`);
-          setLoadingMap((prev) => ({ ...prev, [productId]: false }));
-        }
-      });
+      const response = await updateStatus({ status: newStatus, productId }).unwrap();
+      if (response.success) {
+        toast.success(`Status updated to ${newStatus}`);
+        setProductStatuses((prevStatuses) => ({
+          ...prevStatuses,
+          [productId]: newStatus, // Update local state
+        }));
+      }
     } catch (error) {
-      console.log(error);
-      setLoadingMap((prev) => ({ ...prev, [productId]: false }));
+      console.error(error);
     }
   };
+
   return (
     <div>
       {orderDetails?.map((order: any, index: number) => {
@@ -49,34 +67,37 @@ const SalesOrderDetailsRenderer = ({ data, handleOpenMeasurement, handleOpenProd
         return (
           <div key={index}>
             <div>
-              Description: {description}: ({category})
+              Description: {description}: {category !== ProductCategory.General && `(${category})`}
             </div>
             {products?.map((product: any) => {
-              const { productId, status, itemType } = product;
+              const { productId, itemType } = product;
+              const productStatus = productStatuses[productId] || ''; // Retrieve the status from the local state
+
               const handleChange = async (event: React.ChangeEvent<{ value: unknown }>) => {
                 const newStatus = event.target.value as string;
-                await handleStatusChange(productId, newStatus);
+                await handleStatusChange(productId, newStatus); // Update status for this product only
               };
+
               return (
                 <div className="d-flex gap-2 mx-3" key={productId}>
                   <p>{itemType}</p>
-                  <button
+                  {/* <button
                     type="button"
-                    aria-label="close-btn"
+                    aria-label="measurement-btn"
                     className="icon-button"
                     onClick={() => {
-                      handleOpenMeasurement(product.productId);
+                      handleOpenMeasurement(productId);
                       dispatch(setProductId(productId));
                     }}
                   >
                     M
-                  </button>
+                  </button> */}
                   <button
                     type="button"
-                    aria-label="close-btn"
+                    aria-label="edit-btn"
                     className="icon-button"
                     onClick={() => {
-                      handleOpenProductEdit(product.productId);
+                      handleOpenProductEdit(productId);
                       dispatch(setProductId(productId));
                     }}
                   >
@@ -84,11 +105,10 @@ const SalesOrderDetailsRenderer = ({ data, handleOpenMeasurement, handleOpenProd
                   </button>
                   <FormControl sx={{ m: 1, maxWidth: 165 }} size="small">
                     <Select
-                      value={status}
+                      value={productStatus}
                       onChange={handleChange}
-                      disabled={loadingMap[productId]}
                       sx={{
-                        backgroundColor: getStatusColor(status),
+                        backgroundColor: getStatusColor(productStatus),
                         color: 'black',
                       }}
                     >
@@ -99,7 +119,6 @@ const SalesOrderDetailsRenderer = ({ data, handleOpenMeasurement, handleOpenProd
                       ))}
                     </Select>
                   </FormControl>
-                  {loadingMap[productId] && <CircularProgress size={24} />}
                 </div>
               );
             })}

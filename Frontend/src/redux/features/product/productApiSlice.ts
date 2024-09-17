@@ -58,7 +58,6 @@ export const productApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
       transformResponse: (res: ApiResponse<any>) => {
-        toast.success('New measurement created.');
         return res.data;
       },
       invalidatesTags: ['Products'],
@@ -73,7 +72,7 @@ export const productApiSlice = apiSlice.injectEndpoints({
         toast.success('Product Status updated..');
         return res.data;
       },
-      invalidatesTags: ['SalesOrder'],
+      invalidatesTags: ['SalesOrder', 'MonthlySummary'],
     }),
     searchRentItem: builder.query<ApiGetRentItem, string>({
       query: (rentItemId: string) => ({

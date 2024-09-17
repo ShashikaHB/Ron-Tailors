@@ -97,13 +97,10 @@ const StockPage = () => {
           + New Material
         </button>
       </div>
-      {isLoading && <p>Loading!</p>}
-      {isError && <p>Error loading data</p>}
-      {!isLoading && !isError && rowData.length > 0 && (
-        <div className="flex-grow-1 overflow-hidden">
-          <Table<MaterialTableScheme> rowData={rowData} colDefs={colDefs} defaultColDef={defaultColDef} />
-        </div>
-      )}
+      <div className="flex-grow-1 overflow-hidden">
+        <Table<MaterialTableScheme> rowData={rowData} colDefs={colDefs} defaultColDef={defaultColDef} />
+      </div>
+
       <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
         <div>
           <FormProvider {...methods}>

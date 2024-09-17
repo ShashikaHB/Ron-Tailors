@@ -15,6 +15,7 @@ const initialState: any = {
   orderProducts: [],
   createdProducts: [],
   selectedRentItemId: null,
+  selectedCustomerId: null,
 };
 
 const orderSlice = createSlice({
@@ -31,6 +32,13 @@ const orderSlice = createSlice({
     setOrderProductsBulk: (state, action: PayloadAction<any>) => {
       state.orderProducts = action.payload;
     },
+    setSelectedCustomerId: (state, action: PayloadAction<any>) => {
+      state.selectedCustomerId = action.payload;
+    },
+    removeSelectedCustomerId: (state) => {
+      state.selectedCustomerId = null;
+    },
+
     removeOrderProducts: (state, action: PayloadAction<number>) => {
       state.orderProducts = state.orderProducts
         .map((row: any) => {
@@ -53,7 +61,17 @@ const orderSlice = createSlice({
 
 export const selectOrderItems = (state: RootState) => state.orders.orderProducts;
 export const selectedRentItemId = (state: RootState) => state.orders.selectedRentItemId;
+export const selectCustomerId = (state: RootState) => state.orders.selectedCustomerId;
 
-export const { setOrderProducts, removeOrderProducts, setCreatedProducts, setSelectedRentItemId, resetOderProducts, setOrderProductsBulk } = orderSlice.actions;
+export const {
+  setOrderProducts,
+  removeOrderProducts,
+  setCreatedProducts,
+  setSelectedRentItemId,
+  resetOderProducts,
+  setOrderProductsBulk,
+  setSelectedCustomerId,
+  removeSelectedCustomerId,
+} = orderSlice.actions;
 
 export default orderSlice.reducer;

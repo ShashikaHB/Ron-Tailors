@@ -28,7 +28,7 @@ import Table from '../../components/agGridTable/Table';
 import { MeasurementSchema, defaultMeasurementValues, measurementSchema } from '../formSchemas/measurementSchema';
 import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
 import { setSelectedProduct } from '../../redux/features/product/productSlice';
-import { selectOrderItems, setOrderProductsBulk } from '../../redux/features/orders/orderSlice';
+import { removeSelectedCustomerId, setOrderProductsBulk, setSelectedCustomerId } from '../../redux/features/orders/orderSlice';
 import { useAddNewProductMutation, useGetAllProductsQuery } from '../../redux/features/product/productApiSlice';
 import mapProducts from '../../utils/productUtils';
 import ProductRenderer from '../../components/agGridTable/customComponents/ProductRenderer';
@@ -41,7 +41,7 @@ import paymentOptions from '../../consts/paymentOptions';
 import { productCategoryItemMap } from '../../consts/products';
 import { CheckBoxWithInput } from '../../components/customFormComponents/checkboxGroup/CheckBoxGroup';
 import { ProductCategory } from '../../enums/ProductType';
-import { setCustomerId } from '../../redux/features/common/commonSlice';
+import { setLoading } from '../../redux/features/common/commonSlice';
 
 const AddEditOrder = () => {
   const { control, watch, reset, setValue, handleSubmit, clearErrors, getValues } = useFormContext<OrderSchema>();
@@ -62,14 +62,14 @@ const AddEditOrder = () => {
     defaultValues: defaultMeasurementValues,
   });
 
-  const initialProductOptions = (productCategoryItemMap.find((cat) => cat.category === ProductCategory.General)?.items || []).map((item) => ({
+  const initialProductOptions = (productCategoryItemMap.find((cat) => cat.category === ProductCategory.FullSuit)?.items || []).map((item) => ({
     id: item,
     label: capitalize(item),
     checked: false,
     price: '', // Default price to empty
   }));
 
-  const [selectedCategory, setSelectedCategory] = useState<any>(ProductCategory.General);
+  const [selectedCategory, setSelectedCategory] = useState<any>(ProductCategory.FullSuit);
   const [productOptions, setProductOptions] = useState<any>(initialProductOptions);
   const [selectedItems, setSelectedItems] = useState<any>([]);
   const [disableCheckboxes, setDisableCheckboxes] = useState(false);
@@ -87,8 +87,7 @@ const AddEditOrder = () => {
 
   const { salesOrderId } = useParams();
 
-  const orderItems = useAppSelector(selectOrderItems);
-  const isAddItemButtonDisabled = description.trim() === '' || !productOptions.some((option) => option.checked);
+  const isAddItemButtonDisabled = !productOptions.some((option) => option.checked);
 
   const [trigger, { data: customer, isLoading }] = useLazySearchCustomerQuery();
   const [updateSalesOrder] = useUpdateSalesOrderMutation();
@@ -96,7 +95,7 @@ const AddEditOrder = () => {
   const { data: productsData, isLoading: productsLoading } = useGetAllProductsQuery({});
   const [addProduct] = useAddNewProductMutation();
 
-  const [addOrder, { data: newOrder }] = useAddNewOrderMutation();
+  const [addOrder, { data: newOrder, isLoading: salesOrderLoading }] = useAddNewOrderMutation();
 
   const [customerSearchQuery, setCustomerSearchQuery] = useState('');
 
@@ -223,11 +222,12 @@ const AddEditOrder = () => {
       field: 'product',
       cellRenderer: ProductRenderer,
       cellRendererParams: (params: any) => ({
-        data: params.data,
+        data: { ...params.data, selectedCategory },
         handleOpenMeasurement,
         handleRemove,
       }),
       autoHeight: true,
+      minWidth: 400,
     },
     { headerName: 'Amount', field: 'amount' },
   ];
@@ -237,7 +237,7 @@ const AddEditOrder = () => {
   };
 
   const clearOrderItems = () => {
-    setProductOptions([]);
+    setProductOptions(initialProductOptions);
     setDescription('');
   };
 
@@ -250,6 +250,10 @@ const AddEditOrder = () => {
     setSelectedItems([]);
     // dispatch(resetOderProducts());
   };
+
+  useEffect(() => {
+    dispatch(setLoading(salesOrderLoading));
+  }, [salesOrderLoading]);
 
   useEffect(() => {
     if (salesOrderId) {
@@ -289,21 +293,11 @@ const AddEditOrder = () => {
   }, [total, discount, advance]);
 
   useEffect(() => {
-    const sub = watch((value) => {
-      console.log(value);
-    });
-
-    return () => {
-      sub.unsubscribe();
-    };
-  }, [watch]);
-
-  useEffect(() => {
     if (customer) {
       setValue('customer.name', customer.name);
       setValue('customer.mobile', customer.mobile);
       setCustomerSearchQuery('');
-      dispatch(setCustomerId(customer.customerId));
+      dispatch(setSelectedCustomerId(customer.customerId));
       clearErrors();
     }
   }, [customer]);
@@ -316,6 +310,7 @@ const AddEditOrder = () => {
           console.log(response.error);
         } else {
           toast.success('Order Updated!');
+          dispatch(removeSelectedCustomerId());
           reset();
         }
       } else {
@@ -482,7 +477,7 @@ const AddEditOrder = () => {
             </div>
           </div>
           <div className="col-6">
-            <Table<any> rowData={rowData} colDefs={colDefs} pagination={false} />
+            <Table<any> rowData={rowData} colDefs={colDefs} defaultColDef={{ resizable: true }} pagination={false} />
           </div>
         </div>
       </div>

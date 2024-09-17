@@ -16,7 +16,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
         url: '/user',
         method: 'GET',
       }),
-      providesTags: ['Materials'],
+      providesTags: ['Users'],
       transformResponse: (res: ApiResponse<User[]>): User[] => {
         if (!res.success) {
           toast.error('Users data fetching failed!');
@@ -25,7 +25,36 @@ export const userApiSlice = apiSlice.injectEndpoints({
         return res.data as User[]; // Return the array of users directly
       },
     }),
+    updateUserSalaryGrade: builder.mutation({
+      query: ({ userId, salaryGrade }) => ({
+        url: `/user/salary/${userId}`,
+        method: 'PATCH',
+        body: { salaryGrade },
+      }),
+      invalidatesTags: ['Users'],
+      transformResponse: (res) => {
+        return res.data;
+      },
+    }),
+    markAttendance: builder.mutation({
+      query: (data) => ({
+        url: `/user/attendance`,
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['MonthlySummary'],
+    }),
+    getAllMonthlySummary: builder.query({
+      query: (month) => ({
+        url: `/monthlySummary/${month ?? ''}`,
+        method: 'GET',
+      }),
+      transformResponse: (res) => {
+        return res.data; // Return the array of users directly
+      },
+      providesTags: ['MonthlySummary'],
+    }),
   }),
 });
 
-export const { useGetAllUsersQuery } = userApiSlice;
+export const { useGetAllUsersQuery, useUpdateUserSalaryGradeMutation, useGetAllMonthlySummaryQuery, useMarkAttendanceMutation } = userApiSlice;

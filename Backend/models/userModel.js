@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema({
   salaryGrade: {
     type: String,
     enum: ["A", "B", "C"],
-    default: ""
+    required: false, // Optional field
   },
   isActive: {
     type: Boolean,

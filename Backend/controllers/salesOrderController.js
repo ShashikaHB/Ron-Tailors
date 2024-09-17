@@ -12,6 +12,7 @@ import { Material } from "../models/materialModel.js";
 import { Transaction } from "../models/transactionModel.js";
 import { updateDailySummary } from "../utils/updateDailySummary.js";
 import { RentOrder } from "../models/rentOrderModel.js";
+import { sendSMS } from "../notificationSMS/smsNotification.js";
 
 export const createOrder = asyncHandler(async (req, res) => {
   const {
@@ -96,6 +97,10 @@ export const createOrder = asyncHandler(async (req, res) => {
   });
 
   await updateDailySummary(newTransaction);
+  const messageBody = `Hi ${name}. Your Order Id is ${newOrder.salesOrderId}. Your order balance is ${newOrder?.balance}. Thank you come again.`
+//   await sendSMS(messageBody, mobile);
+
+
 
   res.json({
     message: "New order created successfully.",

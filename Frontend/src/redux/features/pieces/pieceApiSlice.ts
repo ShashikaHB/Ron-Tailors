@@ -25,7 +25,7 @@ export const piecePriceApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: ['PiecePrices'],
       transformResponse: (res: ApiResponse<any[]>): any => {
-        return { categories: res.data };
+        return { items: res.data };
       },
     }),
   }),

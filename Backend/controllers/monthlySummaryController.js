@@ -10,7 +10,8 @@ export const updateUserSummaryWithPieceType = async (
   month,
   itemType,
   category,
-  actionType
+  actionType,
+  piecePrice
 ) => {
   // Find the monthly summary for the user
   const summary = await MonthlySummary.findOne({ user: userId, month });
@@ -52,21 +53,7 @@ export const updateUserSummaryWithPieceType = async (
     }
   }
 
-  // Calculate salary if necessary (based on the piece prices)
-  const piecePrice = await PiecePrices.findOne({
-    "items.itemType": itemType,
-    category: category,
-  });
-
-  if (piecePrice) {
-    const item = piecePrice.items.find((item) => item.itemType === itemType);
-
-    if (actionType === "Cutting Done") {
-      summary.totalSalary += item?.cuttingPrice || 0;
-    } else if (actionType === "Tailoring Done") {
-      summary.totalSalary += item?.tailoringPrice || 0;
-    }
-  }
+  summary.totalSalary += piecePrice || 0;
 
   // Save the updated summary
   await summary.save();
@@ -182,10 +169,22 @@ export const getMonthlySalaryReport = asyncHandler(async (req, res) => {
 });
 
 export const getAllMonthlyRecords = asyncHandler(async (req, res) => {
-  const monthlyRecords = await MonthlySummary.find().lean();
+  const { month } = req.params;
+
+  // If month is not provided, use the current month in "YYYY-MM" format
+  const currentMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM"
+  const targetMonth = month || currentMonth;
+
+  const monthlyRecord = await MonthlySummary.find({ month: targetMonth })
+    .populate("user", "name role") // Populate 'user' and select only 'name' and 'role'
+    .lean();
+
+  if (!monthlyRecord?.length > 0) {
+    throw new Error("No Monthly records found!");
+  }
 
   res.json({
-    message: "Monthly summary fetched",
-    data: monthlyRecords,
+    message: `Monthly summary fetched for ${targetMonth}`,
+    data: monthlyRecord,
   });
 });

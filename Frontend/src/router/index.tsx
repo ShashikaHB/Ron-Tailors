@@ -30,6 +30,8 @@ import NewReadyMadeOrder from '../pages/NewReadyMadeOrder';
 import AccountsPage from '../pages/AccountsPage';
 import DailySummary from '../pages/DailySummary';
 import SalesOrRentOrderUpdatePage from '../pages/SalesOrRentOrderUpdatePage';
+import RequireAdminAuth from '../components/adminAuthHandler/AdminAuthHandler';
+import MonthlySummary from '../pages/MonthlySummary';
 
 const router = createBrowserRouter([
   {
@@ -80,11 +82,19 @@ const router = createBrowserRouter([
           },
           {
             path: 'editSalary',
-            element: <Salary />,
+            element: (
+              <RequireAdminAuth>
+                <Salary />
+              </RequireAdminAuth>
+            ),
           },
           {
             path: 'editPiecePrices',
-            element: <PiecePrices />,
+            element: (
+              <RequireAdminAuth>
+                <PiecePrices />
+              </RequireAdminAuth>
+            ),
           },
           {
             path: 'rentReturn',
@@ -108,7 +118,19 @@ const router = createBrowserRouter([
           },
           {
             path: 'users',
-            element: <UsersPage />,
+            element: (
+              <RequireAdminAuth>
+                <UsersPage />
+              </RequireAdminAuth>
+            ),
+          },
+          {
+            path: 'monthlySummary',
+            element: (
+              <RequireAdminAuth>
+                <MonthlySummary />
+              </RequireAdminAuth>
+            ),
           },
           {
             path: 'payments',

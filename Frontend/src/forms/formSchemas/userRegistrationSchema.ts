@@ -5,9 +5,9 @@
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
 import z from 'zod';
-import { Roles } from '../../enums/Roles';
+import { Roles, RolesAdmin } from '../../enums/Roles';
 
-const rolesSchema = Object.values(Roles) as [string, ...string[]];
+const rolesSchema = Object.values(RolesAdmin) as [string, ...string[]];
 
 export const userRegistrationSchema = z
   .object({

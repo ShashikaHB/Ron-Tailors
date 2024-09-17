@@ -3,6 +3,6 @@ import { getAllMonthlyRecords } from "../controllers/monthlySummaryController.js
 
 const router = express.Router();
 
-router.get("/", getAllMonthlyRecords);
+router.get("/:month", getAllMonthlyRecords);
 
 export default router;

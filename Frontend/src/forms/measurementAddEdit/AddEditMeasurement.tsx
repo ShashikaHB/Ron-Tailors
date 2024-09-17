@@ -17,7 +17,8 @@ import { useAppSelector } from '../../redux/reduxHooks/reduxHooks';
 import { selectSelectedProduct } from '../../redux/features/product/productSlice';
 import { useLazyGetSingleProductQuery, useUpdateSingleProductMutation } from '../../redux/features/product/productApiSlice';
 import { useCreateMeasurementMutation, useUpdateMeasurementMutation } from '../../redux/features/measurement/measurementApiSlice';
-import { selectCustomerId, selectProductId } from '../../redux/features/common/commonSlice';
+import { selectProductId } from '../../redux/features/common/commonSlice';
+import { selectCustomerId } from '../../redux/features/orders/orderSlice';
 
 type AddEditProductProps = {
   handleClose: () => void;
@@ -45,10 +46,11 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
   }, [productId]);
 
   const selectedProductId = useAppSelector(selectSelectedProduct);
-  const customerId = useAppSelector(selectCustomerId);
+  const selectedCustomer = useAppSelector(selectCustomerId);
 
   const measurements = useWatch({ control, name: 'measurements' }) as string[];
   const variant = useWatch({ control, name: 'variant' });
+  const customerId = useWatch({ control, name: 'customer' });
 
   const [addMeasurement, { data: newMeasurement }] = useCreateMeasurementMutation();
 
@@ -87,7 +89,6 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
         if (response.error) {
           console.log(response.error);
         } else {
-          toast.success('New measurement Added.');
           const newResponse = await updateProduct({
             productId: selectedProductId,
             measurement: response.data.measurementId,
@@ -95,7 +96,7 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
           if (newResponse.error) {
             console.log(newResponse.error);
           } else {
-            toast.success('Product update successful');
+            toast.success('New measurement Added.');
           }
           reset();
           handleClose();
@@ -113,20 +114,24 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
 
   useEffect(() => {
     if (productData) {
-      toast.success('Product data fetched.');
       setValue('itemType', productData.itemType);
     }
     if (productData?.measurement) {
       reset({
         ...productData.measurement,
         estimatedReleaseDate: new Date(productData.measurement.estimatedReleaseDate), // Convert date
+        customer: productData?.measurement?.customer?.customerId,
         variant: 'edit', // Set variant to 'edit'
       });
     }
     if (updatedMeasurement) {
       reset(updatedMeasurement);
     }
-  }, [productData, reset, updatedMeasurement]);
+
+    if (!customerId || customerId === 0) {
+      setValue('customer', selectedCustomer);
+    }
+  }, [productData, reset, updatedMeasurement, selectedCustomer]);
 
   return (
     <div className="modal-dialog modal-dialog-centered">
@@ -213,9 +218,9 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
               <button className="secondary-button" type="button" onClick={() => handleClear()}>
                 Clear
               </button>
-              <button className="secondary-button" type="button" onClick={() => validate()}>
+              {/* {              <button className="secondary-button" type="button" onClick={() => validate()}>
                 validate
-              </button>
+              </button>} */}
               <button className="primary-button" type="submit">
                 Save
               </button>

@@ -1,87 +1,65 @@
 import asyncHandler from "express-async-handler";
 import { PiecePrices } from "../models/piecePriceModel.js";
 
-export const updatePiecePrices = asyncHandler(async (req, res) => {
-    const { categories } = req.body;
-  
-    // Loop through the categories and update prices
-    for (const category of categories) {
-      const { category: categoryName, items } = category;
-  
-      // Find the corresponding category in the database
-      const existingCategory = await PiecePrices.findOne({ category: categoryName });
-  
-      if (existingCategory) {
-        // Loop through items and update their prices
-        items.forEach((item) => {
-          const existingItem = existingCategory.items.find(i => i.itemType === item.itemType);
-          if (existingItem) {
-            existingItem.cuttingPrice = item.cuttingPrice;
-            existingItem.tailoringPrice = item.tailoringPrice;
-          }
-        });
-  
-        // Save the updated category
-        await existingCategory.save();
-      } else {
-        // If category doesn't exist, create a new entry
-        await PiecePrices.create({
-          category: categoryName,
-          items,
-        });
-      }
-    }
-  
-    res.json({
-        success: true,
-        message: "Piece Prices Updated successfully!"
-    })
-  });
-
-// @desc    Create piece prices
+// @desc    Update or create piece prices for item types
 // @route   POST /api/piecePrices
 // @access  Public
-export const createEditPiecePrices = asyncHandler(async (req, res) => {
-  const piecePrices = req.body; // array of {category, items}
+export const updatePiecePrices = asyncHandler(async (req, res) => {
+  const { items } = req.body; // array of {itemType, cuttingPrice, tailoringPrice}
 
-  for (const { category, items } of piecePrices) {
-    // Find existing piece prices by category
-    const existingPiece = await PiecePrices.findOne({ category });
+  for (const item of items) {
+    const { itemType, cuttingPrice, tailoringPrice } = item;
 
-    if (!existingPiece) {
-      // Create a new piece entry if it doesn't exist
-      const newPiece = await PiecePrices.create({ category, items });
-
-      if (!newPiece) {
-        throw new Error(
-          `Failed to create piece prices for category: ${category}`
-        );
-      }
-    } else {
-      // Update the existing piece's items
-      existingPiece.items = items;
-      await existingPiece.save();
-    }
+    // Use findOneAndUpdate with upsert to update or create if it doesn't exist
+    await PiecePrices.findOneAndUpdate(
+      { itemType }, // Find the document by itemType
+      { cuttingPrice, tailoringPrice }, // Update the prices
+      { upsert: true, new: true } // If not found, create a new one
+    );
   }
 
-  // Send a response for all processed categories
+  res.json({
+    success: true,
+    message: "Piece Prices updated successfully!",
+  });
+});
+
+// @desc    Create or edit piece prices (bulk operation)
+// @route   POST /api/piecePrices/bulk
+// @access  Public
+export const createEditPiecePrices = asyncHandler(async (req, res) => {
+  const piecePrices = req.body; // array of {itemType, cuttingPrice, tailoringPrice}
+
+  const bulkOperations = piecePrices.map((item) => ({
+    updateOne: {
+      filter: { itemType: item.itemType }, // Match by itemType
+      update: { $set: { cuttingPrice: item.cuttingPrice, tailoringPrice: item.tailoringPrice } },
+      upsert: true, // Insert a new document if no match is found
+    },
+  }));
+
+  // Perform the bulkWrite operation
+  await PiecePrices.bulkWrite(bulkOperations);
+
   res.status(201).json({
-    message: `Piece prices created/updated successfully.`,
+    message: "Piece prices created/updated successfully.",
     success: true,
   });
 });
 
-export const getAllPiecePrices = asyncHandler(async(req,res)=> {
+// @desc    Get all piece prices
+// @route   GET /api/piecePrices
+// @access  Public
+export const getAllPiecePrices = asyncHandler(async (req, res) => {
+  const piecePrices = await PiecePrices.find().select("-__v -_id").lean(); // Fetch all prices
 
-    const piecePrices = await PiecePrices.find().select("-__v -_id").lean()
+  if (!piecePrices || piecePrices.length === 0) {
+    return res.status(404).json({ success: false, message: "No piece prices found!" });
+  }
 
-    if (!piecePrices) {
-        throw new Error('No piece prices found!')
-    }
-
-    res.status(201).json({
-        message: `Piece Prices fetched Successfully`,
-        success: true,
-        data: piecePrices
-    })
-})
+  res.status(200).json({
+    message: "Piece Prices fetched successfully.",
+    success: true,
+    data: piecePrices,
+  });
+});

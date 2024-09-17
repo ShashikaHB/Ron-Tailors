@@ -5,6 +5,15 @@
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
 export enum Roles {
+  SalesPerson = 'Sales Person',
+  Cutter = 'Cutter',
+  Tailor = 'Tailor',
+  IroningPerson = 'Ironing',
+  Cleaning = 'Cleaning',
+  AlteringPerson = 'Altering',
+}
+
+export enum RolesAdmin {
   Admin = 'Admin',
   SalesPerson = 'Sales Person',
   Cutter = 'Cutter',

@@ -18,12 +18,12 @@ import CustomerRenderer from '../components/agGridTable/customComponents/Custome
 import { useGetAllSalesOrdersQuery } from '../redux/features/orders/orderApiSlice';
 import SalesOrderDetailsRenderer from '../components/agGridTable/customComponents/SalesOrderDetailsRenderer';
 import ActionButtonNew from '../components/agGridTable/customComponents/ActionButtonNew';
-import AddEditMeasurement from '../forms/measurementAddEdit/AddEditMeasurement';
 import AddEditProduct from '../forms/productAddEdit/AddEditProduct';
 import { MeasurementSchema, measurementSchema, defaultMeasurementValues } from '../forms/formSchemas/measurementSchema';
 import { ProductSchema, productSchema, defaultProductValues } from '../forms/formSchemas/productSchema';
 import { setSelectedProduct } from '../redux/features/product/productSlice';
 import { useAppDispatch } from '../redux/reduxHooks/reduxHooks';
+import PrintMeasurement from '../forms/printMeasurement/PrintMeasurement';
 
 const SalesOrderBook = () => {
   const { data: salesOrders, isError: salesOrderError, isLoading } = useGetAllSalesOrdersQuery('');
@@ -52,7 +52,7 @@ const SalesOrderBook = () => {
   const [openProducts, setOpenProducts] = useState(false);
   const [openMeasurement, setOpenMeasurement] = useState(false);
 
-  const handleOpenMeasurement = useCallback((productId: number) => {
+  const handleOpenMeasurement = useCallback(() => {
     setOpenMeasurement(true);
     dispatch(setSelectedProduct(productId));
   }, []);
@@ -62,8 +62,8 @@ const SalesOrderBook = () => {
   }, []);
 
   const initialColDefs: ColDef<any>[] = [
-    { headerName: 'Order Id', field: 'salesOrderId' },
-    { headerName: 'Customer', field: 'customer', cellRenderer: CustomerRenderer, autoHeight: true },
+    { headerName: 'Order Id', field: 'salesOrderId', minWidth: 100 },
+    { headerName: 'Customer', field: 'customer', cellRenderer: CustomerRenderer, autoHeight: true, minWidth: 200 },
     {
       headerName: 'Order Details',
       field: 'orderDetails',
@@ -130,9 +130,12 @@ const SalesOrderBook = () => {
             onChange={(e) => setOrderSearchQuery(e.target.value)}
           />
         </div>
-        <div>
+        <div className="d-flex gap-3">
+          <button type="button" className="primary-button" onClick={() => handleOpenMeasurement()}>
+            Print Measurement
+          </button>
           <button type="button" className="primary-button" onClick={() => handleNavigateToRentOrder()}>
-            Add new Sales Order
+            +Add new Sales Order
           </button>
         </div>
       </div>
@@ -151,12 +154,7 @@ const SalesOrderBook = () => {
       </Modal>
       <Modal open={openMeasurement} onClose={handleMeasurementClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
         <div>
-          <FormProvider {...measurementMethods}>
-            <div>
-              <AddEditMeasurement handleClose={handleMeasurementClose} />
-              <DevTool control={measurementMethods.control} />
-            </div>
-          </FormProvider>
+          <PrintMeasurement handleClose={handleMeasurementClose} />
         </div>
       </Modal>
     </div>

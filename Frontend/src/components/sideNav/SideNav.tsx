@@ -18,6 +18,8 @@ import UsersIcon from '../imageComponents/UsersIcon';
 import PaymentsIcon from '../imageComponents/PaymentsIcon';
 import CashBookIcon from '../imageComponents/CashBookIcon';
 import ReportsIcon from '../imageComponents/ReportsIcon';
+import { useAppSelector } from '../../redux/reduxHooks/reduxHooks';
+import { selectUser } from '../../redux/features/auth/authSlice';
 
 export const sideBarConfig: SideBarConfig[] = [
   {
@@ -69,7 +71,16 @@ export const sideBarConfig: SideBarConfig[] = [
   {
     title: 'Users',
     icon: <UsersIcon />,
-    path: '/secured/users',
+    children: [
+      {
+        title: 'Users',
+        path: '/secured/users',
+      },
+      {
+        title: 'Monthly summary',
+        path: '/secured/monthlySummary',
+      },
+    ],
   },
   {
     title: 'Salary',
@@ -125,6 +136,17 @@ export const sideBarConfig: SideBarConfig[] = [
 ];
 
 const SideNav = () => {
+  const user = useAppSelector(selectUser); // Select the logged-in user
+
+  // Filter sidebar items for admins only
+  const filteredSideBarConfig = sideBarConfig.filter((item) => {
+    // For items like 'Users' or 'Salary' that are for Admins, we check the user's role
+    if (item.title === 'Users' || item.title === 'Salary') {
+      return user?.role === 'Admin'; // Only admins should see these items
+    }
+    return true; // Show all other items to all users
+  });
+
   return (
     <div className="sidebar">
       <Link className="primary-button w-100" to="/secured/newOrder">
@@ -133,7 +155,7 @@ const SideNav = () => {
         </button>
       </Link>
       <ul>
-        {sideBarConfig.map((item, index) => (
+        {filteredSideBarConfig.map((item, index) => (
           <li key={index}>
             <SideNavItem {...item} />
           </li>

@@ -29,11 +29,11 @@ const RentBook = () => {
   };
 
   const initialColDefs: ColDef<any>[] = [
-    { headerName: 'Id', field: 'rentOrderId' },
-    { headerName: 'Customer', field: 'customer', cellRenderer: CustomerRenderer, autoHeight: true },
-    { headerName: 'Order Details', field: 'rentOrderDetails', cellRenderer: RentOrderDetailsRenderer, autoHeight: true, minWidth: 400 },
-    { headerName: 'Rent Date', field: 'rentDate', valueFormatter: (params) => format(params.value as Date, 'dd-MM-yyyy') },
-    { headerName: 'Return Date', field: 'returnDate', valueFormatter: (params) => format(params.value as Date, 'dd-MM-yyyy') },
+    { headerName: 'Id', field: 'rentOrderId', minWidth: 100 },
+    { headerName: 'Customer', field: 'customer', cellRenderer: CustomerRenderer, autoHeight: true, minWidth: 200 },
+    { headerName: 'Order Details', field: 'rentOrderDetails', cellRenderer: RentOrderDetailsRenderer, autoHeight: true, minWidth: 300 },
+    { headerName: 'Rent Date', field: 'rentDate', valueFormatter: (params) => format(params.value as Date, 'dd-MM-yyyy'), minWidth: 100 },
+    { headerName: 'Return Date', field: 'returnDate', valueFormatter: (params) => format(params.value as Date, 'dd-MM-yyyy'), minWidth: 100 },
     { headerName: 'Order Status', field: 'orderStatus' },
     {
       headerName: 'Actions',

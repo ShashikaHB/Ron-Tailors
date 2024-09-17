@@ -9,6 +9,7 @@ export type User = {
   mobile: number;
   name: string;
   role: string;
+  salaryGrade: string;
   isActive: boolean;
 };
 

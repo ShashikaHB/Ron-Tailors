@@ -5,12 +5,14 @@
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
 import { useLocation, Navigate, Outlet } from 'react-router-dom';
-import { selectToken } from '../../redux/features/auth/authSlice';
+import { selectToken, selectUser } from '../../redux/features/auth/authSlice';
 import { useAppSelector } from '../../redux/reduxHooks/reduxHooks';
 
 const RequireAuth = () => {
   const token = useAppSelector(selectToken);
   const location = useLocation();
+
+  const user = useAppSelector(selectUser);
 
   return token ? <Outlet /> : <Navigate to="/login" state={{ from: location }} replace />;
 };

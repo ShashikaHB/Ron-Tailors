@@ -58,6 +58,7 @@ export const getSingleMeasurement = asyncHandler(async (req, res) => {
   }
 
   const singleMeasurement = await Measurement.findOne({ MeasurementId })
+    .populate("user", "userId")
     .select("-_id -__v -createdAt -updatedAt")
     .lean()
     .exec();
@@ -99,10 +100,20 @@ export const updateMeasurement = asyncHandler(async (req, res) => {
       new: true,
     }
   );
+
+  // Populate the customer field inside the measurement
+  const populatedMeasurement = await Measurement.findById(updatedMeasurement._id)
+    .populate({
+      path: "customer", // Populate customer
+      select: "name email mobile -_id", // Select specific fields for customer
+    })
+    .lean()
+    .exec();
+
   res.json({
     message: "Measurement updated.",
     success: true,
-    data: updatedMeasurement,
+    data: populatedMeasurement,
   });
 });
 

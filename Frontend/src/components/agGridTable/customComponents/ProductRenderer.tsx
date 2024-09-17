@@ -16,14 +16,14 @@ type ProductRendererProps = {
 };
 
 const ProductRenderer = ({ data, handleOpenMeasurement, handleRemove }: ProductRendererProps) => {
-  const { description, products } = data;
+  const { description, products, selectedCategory } = data;
 
   const dispatch = useAppDispatch();
 
   return (
     <div>
       <div>
-        <strong>{description}</strong>
+        <strong>{`${description} (${selectedCategory})`}</strong>
       </div>
       <div>
         {products.map((product: any, index: any) => {

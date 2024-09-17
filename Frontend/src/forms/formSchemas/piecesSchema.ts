@@ -6,7 +6,7 @@
  */
 import { z } from 'zod';
 
-// Zod schema for Product Types
+// Zod schema for Product Types specific to General
 const ProductType = z.enum([
   'Coat',
   'National Coat',
@@ -26,27 +26,22 @@ const ProductType = z.enum([
   'Chain',
 ]);
 
-// Zod schema for Item (defining the structure of each item)
+// Zod schema for Item (defining the structure of each item in the General category)
 const itemSchema = z.object({
   itemType: ProductType,
   cuttingPrice: z.coerce.number().min(0, 'Cutting price must be non-negative.'),
   tailoringPrice: z.coerce.number().min(0, 'Tailoring price must be non-negative.'),
 });
 
-// Zod schema for Category with items (define items as an array)
-const categorySchema = z.object({
-  category: z.enum(['Full Suit', 'National Suit', 'Rent Full Suit', 'General']),
+// Zod schema for the entire structure containing only items (related to General)
+export const piecePricesSchema = z.object({
   items: z.array(itemSchema),
 });
 
-// Zod schema for the entire structure
-export const piecePricesSchema = z.object({
-  categories: z.array(categorySchema),
-});
 // Infer the TypeScript types from the schema
 export type PiecePricesSchema = z.infer<typeof piecePricesSchema>;
 
-// Helper function to create default items with initial prices for a category
+// Helper function to create default items with initial prices
 const createDefaultItems = (
   itemTypes: z.infer<typeof ProductType>[]
 ): Array<{
@@ -61,41 +56,24 @@ const createDefaultItems = (
   }));
 };
 
-// Default values for piece prices (with all categories and their item types)
+// Default values for piece prices (General items only)
 export const defaultPiecePrices: PiecePricesSchema = {
-  categories: [
-    {
-      category: 'Full Suit',
-      items: createDefaultItems(['Coat', 'Shirt', 'Trouser', 'West Coat', 'Cravat', 'Bow', 'Tie', 'Hanky']),
-    },
-    {
-      category: 'National Suit',
-      items: createDefaultItems(['National Coat', 'National Shirt', 'Sarong', 'Trouser', 'Hanky']),
-    },
-    {
-      category: 'Rent Full Suit',
-      items: createDefaultItems(['Rent Coat', 'Shirt', 'Trouser', 'Rent West Coat', 'Cravat', 'Bow', 'Tie', 'Hanky']),
-    },
-    {
-      category: 'General',
-      items: createDefaultItems([
-        'Coat',
-        'National Coat',
-        'West Coat',
-        'Shirt',
-        'Trouser',
-        'Designed Trouser',
-        'Designed Shirt',
-        'National Shirt',
-        'Rent Coat',
-        'Rent West Coat',
-        'Sarong',
-        'Tie',
-        'Bow',
-        'Cravat',
-        'Hanky',
-        'Chain',
-      ]),
-    },
-  ],
+  items: createDefaultItems([
+    'Coat',
+    'National Coat',
+    'West Coat',
+    'Shirt',
+    'Trouser',
+    'Designed Trouser',
+    'Designed Shirt',
+    'National Shirt',
+    'Rent Coat',
+    'Rent West Coat',
+    'Sarong',
+    'Tie',
+    'Bow',
+    'Cravat',
+    'Hanky',
+    'Chain',
+  ]),
 };

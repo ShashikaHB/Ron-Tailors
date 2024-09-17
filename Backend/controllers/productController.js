@@ -104,6 +104,10 @@ export const getSingleProduct = asyncHandler(async (req, res) => {
     .populate({
       path: "measurement",
       select: "-_id -createdAt -updatedAt -__v",
+      populate: {
+        path: "customer",  // Populate the customer field inside the measurement
+        select: "name customerId -_id",  // Fetch 'name', 'email', and 'mobile' for customer, exclude '_id'
+      }
     })
     .populate({
       path: "materials.material",
@@ -305,6 +309,13 @@ export const updateProductStatus = asyncHandler(async (req, res) => {
       `Cannot change status from "${currentStatus}" to "${status}".`
     );
   }
+   // Check if the new status is allowed based on the current status
+   if (newStatusIndex - currentStatusIndex > 1)  {
+    res.status(400);
+    throw new Error(
+      `Cannot change status from "${currentStatus}" to "${status}".`
+    );
+  }
 
   // Example: Once "Tailoring Done" is reached, status cannot be changed
   if (currentStatus === "Tailoring Done") {
@@ -319,40 +330,38 @@ export const updateProductStatus = asyncHandler(async (req, res) => {
   let user = null;
   let piecePrice = 0;
 
-  if (status === "Cutting Done") {
-    if (!product.cutter) {
-        throw new Error ('Cutter is not defined for the product!')
-    }
-    user = product.cutter;
-    const pieceData = await PiecePrices.findOne({
-      "items.itemType": product.itemType,
-    });
-    piecePrice =
-      pieceData?.items?.find((item) => item.itemType === product.itemType)
-        ?.cuttingPrice || 0;
-  } 
-  if (status === "Tailoring Started") {
-    product.status = status;
-    const updatedProduct = await product.save();
-
-    return res.json({
-      message: 'Product status updated successfully to "Tailoring Started".',
-      success: true,
-      data: updatedProduct,
-    });
-  }
-  if (status === "Tailoring Done") {
-    if (!product.tailor) {
-        throw new Error ('Tailor is not defined for the product!')
-    }
-    user = product.tailor;
-    const pieceData = await PiecePrices.findOne({
-      "items.itemType": product.itemType,
-    });
-    piecePrice =
-      pieceData?.items?.find((item) => item.itemType === product.itemType)
-        ?.tailoringPrice || 0;
-  }
+   // Fetch prices based on the product itemType
+   const piecePriceData = await PiecePrices.findOne({ itemType: product.itemType });
+   if (!piecePriceData) {
+     res.status(404);
+     throw new Error("Piece price not found for the item type.");
+   }
+ 
+   if (status === "Cutting Done") {
+     if (!product.cutter) {
+       throw new Error('Cutter is not defined for the product!');
+     }
+     user = product.cutter;
+     piecePrice = piecePriceData.cuttingPrice;
+   }
+ 
+   if (status === "Tailoring Started") {
+     product.status = status;
+     const updatedProduct = await product.save();
+     return res.json({
+       message: 'Product status updated successfully to "Tailoring Started".',
+       success: true,
+       data: updatedProduct,
+     });
+   }
+ 
+   if (status === "Tailoring Done") {
+     if (!product.tailor) {
+       throw new Error('Tailor is not defined for the product!');
+     }
+     user = product.tailor;
+     piecePrice = piecePriceData.tailoringPrice;
+   }
 
   const newlogWork = await logWork(
     user,
@@ -368,7 +377,8 @@ export const updateProductStatus = asyncHandler(async (req, res) => {
     currentMonth,
     product.itemType,
     product.itemCategory,
-    status
+    status,
+    piecePrice
   );
 
   const updatedProduct = await product.save();

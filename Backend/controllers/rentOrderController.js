@@ -9,6 +9,7 @@ import {
 import { RentOrder } from "../models/rentOrderModel.js";
 import { RentItem } from "../models/rentItemModel.js";
 import { Transaction } from "../models/transactionModel.js";
+import { sendSMS } from "../notificationSMS/smsNotification.js";
 
 export const createOrder = asyncHandler(async (req, res) => {
   const {
@@ -66,9 +67,12 @@ if (!salesPersonDoc) {
     paymentType: paymentType,
     salesPerson: salesPersonDoc.name,
     store: req.body?.store,
-    amount: newOrder.subTotal,
+    amount: newOrder.advPayment,
     description: `Rent Order: ${newOrder.rentOrderId}`,
   });
+
+  const messageBody = `Hi ${name}. Your Order Id is ${newOrder.rentOrderId}. Your order balance is ${newOrder?.balance}. Thank you come again.`
+//   await sendSMS(messageBody, mobile);
 
   // Update the status of each rent item in the order to 'Not Returned'
   for (const detail of rentOrderDetails) {

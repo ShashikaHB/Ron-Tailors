@@ -25,12 +25,13 @@ import RentItemDetailsRenderer from '../../components/agGridTable/customComponen
 import ProductType from '../../enums/ProductType';
 import { useAddNewRentOrderMutation, useLazyGetSingleRentOrderQuery, useUpdateSingleRentOrderMutation } from '../../redux/features/rentOrder/rentOrderApiSlice';
 import SimpleActionButton from '../../components/agGridTable/customComponents/SimpleActionButton';
-import { useAppSelector } from '../../redux/reduxHooks/reduxHooks';
+import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
 import { allUsers } from '../../redux/features/auth/authSlice';
 import getUserRoleBasedOptions from '../../utils/userUtils';
 import { Roles } from '../../enums/Roles';
 import stores from '../../consts/stores';
 import StakeOptions from '../../enums/StakeOptions';
+import { setLoading } from '../../redux/features/common/commonSlice';
 
 // const salesPeople = [
 //   {
@@ -85,10 +86,12 @@ const NewRentOut = () => {
 
   const [triggerCustomerSearch, { data: customer, isLoading }] = useLazySearchCustomerQuery();
 
+  const dispatch = useAppDispatch();
+
   const [triggerProductSearch, { data: rentItem, isLoading: rentItemLoading }] = useLazySearchRentItemQuery();
 
   const [getRentOrderData, { data: singleRentOrderData }] = useLazyGetSingleRentOrderQuery();
-  const [addRentOrder] = useAddNewRentOrderMutation();
+  const [addRentOrder, { data, isLoading: rentOrderLoading }] = useAddNewRentOrderMutation();
   const [updateRentOrder] = useUpdateSingleRentOrderMutation();
 
   const [customerSearchQuery, setCustomerSearchQuery] = useState('');
@@ -208,6 +211,10 @@ const NewRentOut = () => {
       handleSearchProduct();
     }
   };
+
+  useEffect(() => {
+    dispatch(setLoading(rentOrderLoading));
+  }, [rentOrderLoading]);
 
   useEffect(() => {
     if (rentOrderId) {
