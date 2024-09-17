@@ -168,7 +168,7 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
   }, [selectedMaterialRowData]);
 
   return (
-    <div className="modal-dialog modal-dialog-centered">
+    <div className="modal-dialog modal-dialog-centered add-edit-modal">
       <div className="modal-content">
         <div className="modal-header">
           <h5 className="modal-title">
@@ -179,76 +179,83 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
             <RiCloseLargeLine size={18} />
           </button>
         </div>
-        <div className="modal-body">
+        <div className="modal-body flex-grow-1 overflow-hidden">
           {isLoading ? (
             <div className="d-flex justify-content-center">
               <Loader />
             </div>
           ) : (
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="d-flex gap-4">
-                <div className="inputGroup">
-                  <RHFTextField<ProductSchema> label="Color" name="color" />
-                  <RHFTextField<ProductSchema> label="Style" name="style" />
-                  <RHFTextField<ProductSchema> label="Price" name="price" type="number" />
-                  <RHFTextField<ProductSchema> label="Number of Units" name="noOfUnits" type="number" disabled />
-                  <RHFSwitch<ProductSchema> name="isNewRentOut" label="New Rentout" />
-                </div>
-                <div className="inputGroup">
-                  <RHFTextField<ProductSchema> label="Rent Price" name="rentPrice" type="number" />
-                  <RHFDropDown<ProductSchema> options={cuttersOptions} name="cutter" label="Cutter" />
-                  <RHFDropDown<ProductSchema> options={tailorOptions} name="tailor" label="Tailor" />
-                  <RHFDropDown<ProductSchema> options={measurerOptions} name="measurer" label="Measurer" />
-                </div>
-              </div>
-              <div className="inputGroup">
-                <h5 className="modal-title pt-1">Materials</h5>
-                <div className="d-flex gap-4 align-items-end mb-3">
-                  <div className="col-4">
-                    <FormControl fullWidth size="small">
-                      <InputLabel id="material-select-label">Material</InputLabel>
-                      <Select
-                        labelId="material-select-label"
-                        value={material?.material || '0'} // Set value to the selected material, default to 0
-                        label="Material"
-                        onChange={(e) =>
-                          setMaterial((prev) => ({
-                            ...prev,
-                            material: e.target.value,
-                          }))
-                        }
-                      >
-                        {/* Map through the materialOptions */}
-                        {materialOptions?.map((option, index) => (
-                          <MenuItem key={index} value={option.value} disabled={option.value === '0'}>
-                            {option.label} {/* Display option label */}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
+            <form onSubmit={handleSubmit(onSubmit)} className='h-100 d-flex flex-column'>
+              <div className='flex-grow-1 overflow-hidden'>
+                <div className='h-100 overflow-y-auto pe-2'>
+                  <div className="d-flex gap-2 w-100">
+                    <div className="inputGroup w-100">
+                      <RHFTextField<ProductSchema> label="Color" name="color" />
+                      <RHFTextField<ProductSchema> label="Style" name="style" />
+                      <RHFTextField<ProductSchema> label="Price" name="price" type="number" />
+                      <RHFTextField<ProductSchema> label="Number of Units" name="noOfUnits" type="number" disabled />
+                      <RHFSwitch<ProductSchema> name="isNewRentOut" label="New Rentout" />
+                    </div>
+                    <div className="inputGroup w-100">
+                      <RHFTextField<ProductSchema> label="Rent Price" name="rentPrice" type="number" />
+                      <RHFDropDown<ProductSchema> options={cuttersOptions} name="cutter" label="Cutter" />
+                      <RHFDropDown<ProductSchema> options={tailorOptions} name="tailor" label="Tailor" />
+                      <RHFDropDown<ProductSchema> options={measurerOptions} name="measurer" label="Measurer" />
+                    </div>
                   </div>
-                  <TextField
-                    label="Units needed"
-                    value={material.unitsNeeded}
-                    type="number"
-                    onChange={(e) =>
-                      setMaterial((prev) => ({
-                        ...prev,
-                        unitsNeeded: Number(e.target.value),
-                      }))
-                    }
-                    onKeyDown={handleKeyPress}
-                  />
-                  <button className="primary-button" type="button" disabled={!materialAddEnabled} onClick={() => handleMaterialAdd()}>
-                    Add
-                  </button>
+                  <div className="inputGroup">
+                    <h5 className="modal-title pt-1">Materials</h5>
+                    <div className="row mb-3 gap-2 g-0 align-items-end">
+                      <div className="col">
+                        <FormControl fullWidth size="small">
+                          <InputLabel id="material-select-label">Material</InputLabel>
+                          <Select
+                            labelId="material-select-label"
+                            value={material?.material || '0'} // Set value to the selected material, default to 0
+                            label="Material"
+                            onChange={(e) =>
+                              setMaterial((prev) => ({
+                                ...prev,
+                                material: e.target.value,
+                              }))
+                            }
+                          >
+                            {/* Map through the materialOptions */}
+                            {materialOptions?.map((option, index) => (
+                              <MenuItem key={index} value={option.value} disabled={option.value === '0'}>
+                                {option.label} {/* Display option label */}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </div>
+                      <div className="col">
+                        <TextField
+                          label="Units needed"
+                          value={material.unitsNeeded}
+                          type="number"
+                          onChange={(e) =>
+                            setMaterial((prev) => ({
+                              ...prev,
+                              unitsNeeded: Number(e.target.value),
+                            }))
+                          }
+                          onKeyDown={handleKeyPress}
+                        />
+                      </div>
+                      <div className="col-auto">
+                        <button className="primary-button" type="button" disabled={!materialAddEnabled} onClick={() => handleMaterialAdd()}>
+                          Add
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ height: '35vh' }}>
+                    <Table<MaterialNeededforProduct> rowData={selectedMaterialRowData} colDefs={colDefs} pagination={false} />
+                  </div>
                 </div>
               </div>
-
-              <div style={{ height: '25vh' }}>
-                <Table<MaterialNeededforProduct> rowData={selectedMaterialRowData} colDefs={colDefs} pagination={false} />
-              </div>
-
               <div className="modal-footer mt-3">
                 <button className="secondary-button" type="button" onClick={() => handleClear()}>
                   Clear Product

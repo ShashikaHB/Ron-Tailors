@@ -25,7 +25,6 @@ const RootLayout = () => {
               </div>
               <div className="col-10 flex-grow-1 overflow-hidden d-flex flex-column h-100 main-body-container py-3">
                 <div className="container-fluid h-100 overflow-y-auto ">
-                  {isLoading && <div>Loading...</div>}
                   <Outlet />
                 </div>
               </div>
@@ -33,6 +32,12 @@ const RootLayout = () => {
           </div>
         </div>
       </div>
+      {isLoading && <div className='backdrop'>
+        <div className='loading-image'>
+
+        </div>
+        Loading...
+        </div>}
     </div>
   );
 };

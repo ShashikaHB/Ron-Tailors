@@ -68,7 +68,7 @@ const EditPiecePrices = () => {
             </button>
           </div>
           <div className="row">
-            <div className="col-6 mb-3">
+            <div className="col-12 mb-3">
               <div className="edit-piece-prices-card card h-100">
                 <div className="card-header">
                   <h5>Piece Prices</h5>
@@ -80,7 +80,7 @@ const EditPiecePrices = () => {
                         {generalItems.map((itemType, itemIndex) => (
                           <div className="row gap-2 mx-0 g-0" key={itemIndex}>
                             <div>
-                              <div>{itemType}</div>
+                              <div className='font-weight-bold'>{itemType}</div>
                             </div>
                             {/* Cutting Price */}
                             <div className="col mb-3">

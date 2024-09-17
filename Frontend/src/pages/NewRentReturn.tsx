@@ -76,7 +76,7 @@ const NewRentReturn = () => {
           </div>
         </div>
         <div className="row">
-          <div className="col-5">
+          <div className="col-6">
             <div className="card">
               <div className="card-header">
                 <h5>Product Details</h5>
@@ -103,8 +103,8 @@ const NewRentReturn = () => {
                 <div className="card-body">No data Available</div>
               )}
             </div>
-            <div className="row">
-              <div className="col-10 d-flex justify-content-end gap-2">
+            <div className="row mt-3">
+              <div className="col-12 d-flex justify-content-end gap-2">
                 <button type="button" className="secondary-button">
                   Cancel
                 </button>
@@ -119,7 +119,7 @@ const NewRentReturn = () => {
               </div>
             </div>
           </div>
-          <div className="col-5">
+          <div className="col-6">
             <div className="card">
               <div className="card-header">
                 <h5>Customer Details</h5>

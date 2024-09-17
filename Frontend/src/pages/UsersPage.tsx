@@ -61,7 +61,7 @@ const UsersPage = () => {
 
   return (
     <div className="h-100 d-flex flex-column gap-3">
-      <div className="d-flex justify-content-end mb-2">
+      <div className="d-flex justify-content-end mb-2 gap-2">
         <button type="button" className="primary-button" onClick={() => handleOpen(null)}>
           + New User
         </button>

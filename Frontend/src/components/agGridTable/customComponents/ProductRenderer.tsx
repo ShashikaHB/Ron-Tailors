@@ -4,7 +4,7 @@
  * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
-import { RiCloseLargeLine } from '@remixicon/react';
+import { RiCloseLargeLine, RiCheckLine } from '@remixicon/react';
 import { memo } from 'react';
 import { useAppDispatch } from '../../../redux/reduxHooks/reduxHooks';
 import { setProductId } from '../../../redux/features/common/commonSlice';
@@ -51,7 +51,7 @@ const ProductRenderer = ({ data, handleOpenMeasurement, handleRemove }: ProductR
                 >
                   M
                 </button>
-                {product.isMeasurementAvailable && <div>X</div>}
+                {product.isMeasurementAvailable &&  <div className='check-btn'><RiCheckLine size={18} /></div>}
                 <button
                   type="button"
                   aria-label="close-btn"
