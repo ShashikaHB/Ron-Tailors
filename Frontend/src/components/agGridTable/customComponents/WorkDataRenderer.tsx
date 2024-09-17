@@ -16,11 +16,11 @@ const WorkDataRenderer = (props: ICellRendererParams) => {
     <div>
       {isCutter && (
         <div>
-          <div>Pieces Cut:</div>
+          <div className='font-weight-bold'>Pieces Cut:</div>
           <div>
             {piecesCut.map((piece: any, index) => {
               return (
-                <div key={index}>
+                <div className='font-weight-bold' key={index}>
                   {piece.itemType}: {piece.count}
                 </div>
               );
@@ -31,11 +31,11 @@ const WorkDataRenderer = (props: ICellRendererParams) => {
 
       {isTailor && (
         <div>
-          <div>Pieces Tailored:</div>
+          <div className='font-weight-bold'>Pieces Tailored:</div>
           <div>
             {piecesTailored.map((piece: any, index) => {
               return (
-                <div key={index}>
+                <div className='font-weight-bold' key={index}>
                   {piece.itemType}: {piece.count}
                 </div>
               );
