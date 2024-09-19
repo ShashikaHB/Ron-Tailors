@@ -56,7 +56,7 @@ const AddUserForm = ({ handleClose }: AddMaterialFormProps) => {
 
   const dispatch = useAppDispatch();
 
-  const [registerUser, { isLoading }] = useRegisterMutation();
+  const [registerUser, { isLoading: regUser }] = useRegisterMutation();
 
   const handleFormClose = (): void => {
     handleClose();
@@ -64,8 +64,8 @@ const AddUserForm = ({ handleClose }: AddMaterialFormProps) => {
   };
 
   useEffect(() => {
-    dispatch(setLoading(isLoading));
-  }, [isLoading]);
+    dispatch(setLoading(regUser));
+  }, [regUser]);
 
   const validate = () => {
     const formData = getValues();

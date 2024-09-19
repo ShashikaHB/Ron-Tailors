@@ -33,8 +33,9 @@ const MarkAttendance = ({ handleClose }: MarkAttendanceProps) => {
   const handleMarkAttendance = async () => {
     const response = await markAttendance({ userId: selectedUser, date: new Date() });
 
-    if (response.success) {
+    if (response.data.success) {
       toast.success('Attendance Recorded');
+      handleClose();
     }
   };
 

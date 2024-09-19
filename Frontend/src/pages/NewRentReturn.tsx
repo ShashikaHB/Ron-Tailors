@@ -99,9 +99,8 @@ const NewRentReturn = () => {
                     <p>Color: &nbsp;{item.color}</p>
                     <p>Size: &nbsp;{item.size}</p>
                     <p>
-                      Stake Option: &nbsp;
                       {rentOrderDetails.stakeOption === StakeOptions.NIC
-                        ? rentOrderDetails.stakeOption
+                        ? `${rentOrderDetails.stakeOption} Available`
                         : `${rentOrderDetails.stakeOption} - ${rentOrderDetails.stakeAmount}`}
                     </p>
                     {rentOrderDetails?.rentOrderDetails?.length > 1 && rentOrderDetails?.rentOrderDetails?.length - 1 !== index && (

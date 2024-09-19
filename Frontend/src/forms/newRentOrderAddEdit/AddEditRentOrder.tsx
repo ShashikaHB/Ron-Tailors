@@ -220,6 +220,13 @@ const NewRentOut = () => {
     }
   };
 
+  const handleKeyPressProductAdd = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Prevent the form submission
+      handleRentItemAdd();
+    }
+  };
+
   const handleKeyPressProductSearch = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault(); // Prevent the form submission
@@ -268,11 +275,10 @@ const NewRentOut = () => {
       setValue('customer.mobile', customer.mobile);
       clearErrors();
     }
-  }, [customer, setValue, clearErrors, customerSearchQuery]);
+  }, [customer]);
 
   useEffect(() => {
     if (rentItem) {
-      toast.success('Rent Item fetched successfully.');
       setRentItemDetails((prevDetails) => ({
         ...prevDetails,
         description: rentItem.description,
@@ -314,7 +320,7 @@ const NewRentOut = () => {
           toast.success('New Rent Order Added successfully');
           handleResetRentOrder();
           const baseUrl = import.meta.env.VITE_BASE_URL;
-          const invoiceUrl = `${baseUrl}/api/v1/invoice/rentOrder/${newOrderId}`;
+          const invoiceUrl = `${baseUrl}/api/v1/invoice/rentOrder/shop/${newOrderId}`;
           if (newWindow) {
             newWindow.location.href = invoiceUrl;
           }
@@ -420,7 +426,7 @@ const NewRentOut = () => {
                       <RHFDropDown<RentOrderSchema> label="Stake Options" options={stakeOptions} name="stakeOption" />
                     </div>
                     <div className="col-6 mb-3">
-                      <RHFTextField<RentOrderSchema> label="Amount" name="stakeAmount" disabled={stakeOption === StakeOptions.NIC} />
+                      <RHFTextField<RentOrderSchema> label="Stake Option" name="stakeAmount" disabled={stakeOption === StakeOptions.NIC} />
                     </div>
                   </div>
                   <div className="d-flex justify-content-end gap-2">
@@ -494,7 +500,13 @@ const NewRentOut = () => {
                         />
                       </div>
                       <div className="col-4">
-                        <TextField label="Amount" type="number" value={rentItemDetails.amount} onChange={(e) => handleAmountChange(e)} />
+                        <TextField
+                          label="Amount"
+                          type="number"
+                          value={rentItemDetails.amount}
+                          onChange={(e) => handleAmountChange(e)}
+                          onKeyDown={handleKeyPressProductAdd}
+                        />
                       </div>
                     </div>
                   </div>

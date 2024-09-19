@@ -288,6 +288,7 @@ const AddEditOrder = () => {
       getSalesOrderData(salesOrderId).then((response) => {
         if (response.data) {
           reset(getUpdatingFormattedData(response.data)); // Populate the form with fetched data
+          dispatch(setSelectedCustomerId(response.data.customer.customerId));
           const formattedOrderDetails = transformOrderDetails(response.data.orderDetails);
           setSelectedItems(formattedOrderDetails);
         }

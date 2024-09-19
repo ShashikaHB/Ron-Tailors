@@ -238,7 +238,7 @@ export const buildReadyMadePdf = (dataCallBack, endCallBack, data) => {
   doc.fontSize(11).text("www.rontailors.com", { align: "center" });
 
   doc.moveDown();
-  doc.fontSize(16).text("Ready Made Item BILL", { align: "center" });
+  doc.fontSize(16).text("Ready Made Item bill", { align: "center" });
   doc.fontSize(13).text(`Order No: ${orderNo}`, { align: "center" });
 
   // Section breaker

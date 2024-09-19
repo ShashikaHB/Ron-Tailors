@@ -13,20 +13,32 @@ import { toast } from 'sonner';
 import { useLazyGetSalesOrRentOrderForPaymentQuery, useUpdateSalesOrRentPaymentMutation } from '../redux/features/orders/orderApiSlice';
 import MemoizedTable from '../components/agGridTable/Table';
 import paymentOptions from '../consts/paymentOptions';
+import { useAppDispatch } from '../redux/reduxHooks/reduxHooks';
+import { setLoading } from '../redux/features/common/commonSlice';
 
 const SalesOrRentOrderUpdatePage = () => {
-  const [triggerSearch, { data: orderData }] = useLazyGetSalesOrRentOrderForPaymentQuery();
-  const [updateSalesOrRent] = useUpdateSalesOrRentPaymentMutation();
+  const [triggerSearch, { data: orderData, isLoading: loadingOrder }] = useLazyGetSalesOrRentOrderForPaymentQuery();
+  const [updateSalesOrRent, { isLoading: updatingOrder }] = useUpdateSalesOrRentPaymentMutation();
   const [customerSearchQuery, setCustomerSearchQuery] = useState('');
   const [payment, setPayment] = useState('0');
   const [paymentType, setPaymentType] = useState('0');
   const [rowData, setRowData] = useState([]);
+
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (orderData?.transactions?.length > 0) {
       setRowData(orderData?.transactions);
     }
   }, [orderData]);
+
+  useEffect(() => {
+    dispatch(setLoading(loadingOrder));
+  }, [loadingOrder]);
+
+  useEffect(() => {
+    dispatch(setLoading(updatingOrder));
+  }, [updatingOrder]);
 
   const defaultColDef: ColDef = { resizable: true };
 
@@ -52,9 +64,15 @@ const SalesOrRentOrderUpdatePage = () => {
 
   const handlePayNow = async () => {
     const response = await updateSalesOrRent({ orderId: customerSearchQuery, orderData: { paymentType, paymentAmount: payment } });
+    const newWindow = window.open('', '_blank');
 
     if (response) {
       toast.success('Payment SuccessFull');
+      const baseUrl = import.meta.env.VITE_BASE_URL;
+      const invoiceUrl = `${baseUrl}/api/v1/invoice/salesOrder/${customerSearchQuery}`;
+      if (newWindow) {
+        newWindow.location.href = invoiceUrl;
+      }
     }
   };
 

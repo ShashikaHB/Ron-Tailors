@@ -30,16 +30,16 @@ const PrintShopBill = ({ handleClose, id }) => {
             <RiCloseLargeLine size={18} />
           </button>
         </div>
-        <div className="modal-body d-flex h-100 gap-1">
+        <div className="modal-body d-flex h-100 gap-1 justify-content-center">
           {/* Start Date Picker */}
-          <div className="col-6">
+          <div className="col-4">
             <button className="primary-button" type="button" onClick={() => handlePrint(true)}>
               Customer Bill
             </button>
           </div>
 
           {/* End Date Picker */}
-          <div className="col-6">
+          <div className="col-4">
             <button className="primary-button" type="button" onClick={() => handlePrint(false)}>
               Shop Bill
             </button>

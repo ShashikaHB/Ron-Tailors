@@ -33,7 +33,7 @@ const AddTransaction = ({ handleClose, materialId }: AddMaterialFormProps) => {
   const dispatch = useAppDispatch();
 
   // Fetch transactions with the selected date range
-  const { data: transactionCategories, isLoading } = useGetAllTransactionCategoriesQuery({});
+  const { data: transactionCategories, isLoading: categoryLoading } = useGetAllTransactionCategoriesQuery({});
   const [addTransaction, { isLoading: addTransactionLoading }] = useAddCustomTransactionMutation();
   const [categories, setCategories] = useState([]);
   const selectedTransactionType = useWatch({ control, name: 'transactionType' });
@@ -52,8 +52,8 @@ const AddTransaction = ({ handleClose, materialId }: AddMaterialFormProps) => {
   };
 
   useEffect(() => {
-    dispatch(setLoading(isLoading));
-  }, [isLoading]);
+    dispatch(setLoading(categoryLoading));
+  }, [categoryLoading]);
   useEffect(() => {
     dispatch(setLoading(addTransactionLoading));
   }, [addTransactionLoading]);
@@ -77,6 +77,7 @@ const AddTransaction = ({ handleClose, materialId }: AddMaterialFormProps) => {
       if (response?.data?.success) {
         toast.success('Transaction Recorded!');
         reset(defaultTransactionValues);
+        // handleClose();
       }
     } catch (error) {
       toast.error(`Transaction addition Failed. ${error.message}`);
