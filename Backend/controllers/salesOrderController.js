@@ -98,7 +98,7 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   await updateDailySummary(newTransaction);
   const messageBody = `Hi ${name}. Your Order Id is ${newOrder.salesOrderId}. Your order balance is ${newOrder?.balance}. Thank you come again.`
-//   await sendSMS(messageBody, mobile);
+  await sendSMS(messageBody, mobile);
 
 
 
