@@ -150,6 +150,7 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
         const response = await updateProduct(data);
         if (response) {
           toast.success('Product Updated.');
+          setSelectedMaterialRowData([]);
           handleClosePopup();
           reset();
         }
