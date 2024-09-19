@@ -39,7 +39,7 @@ const AddDayEnd = ({ handleClose }: AddDayEndProps) => {
     handleClose();
   };
 
-  const handleClear = (): void => {};
+  const handleClear = (): void => { };
 
   const handleDateChange = (date: Date) => {
     setSelectedDate(date); // Trigger a new fetch when the fromDate changes
@@ -65,7 +65,7 @@ const AddDayEnd = ({ handleClose }: AddDayEndProps) => {
   }, [dailySummaryData]);
 
   return (
-    <div className="modal-dialog modal-dialog-centered">
+    <div className="modal-dialog modal-dialog-centered add-day-end-modal">
       <div className="modal-content">
         <div className="modal-header">
           <h5 className="modal-title"> Add Day End</h5>
@@ -74,28 +74,46 @@ const AddDayEnd = ({ handleClose }: AddDayEndProps) => {
           </button>
         </div>
         <div className="modal-body">
-          <div>
+          <div className='d-flex flex-column gap-3'>
             <div className="inputGroup">
               <SimpleDatePicker label="From Date" onDateChange={handleDateChange} />
             </div>
-            <div>
-              <FormControl sx={{ m: 1, maxWidth: 165 }} size="small">
-                <Select value={selectedStore} onChange={handleStoreChange}>
-                  {stores.map((option) => (
-                    <MenuItem key={option.value} value={option.value} disabled={!option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+            <div className='row'>
+              <div className="col-12">
+                <FormControl size="small">
+                  <Select value={selectedStore} onChange={handleStoreChange}>
+                    {stores.map((option) => (
+                      <MenuItem key={option.value} value={option.value} disabled={!option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
             </div>
-            <div>
-              <TextField label="Total Income" value={dailySummaryData?.totalIncome} disabled />
-              <TextField label="Total Expense" value={dailySummaryData?.totalExpense} disabled />
-              <TextField label="Cash Income" value={dailySummaryData?.cashIncome} disabled />
-              <TextField label="Cash In Hand" value={dailySummaryData?.cashInHand} disabled />
-              <TextField label="Difference" value={dailySummaryData?.cashInHand} disabled />
-              <TextField label="Counted Cash" value={countedCash} onChange={(e) => setCountedCash(e?.target.value)} />
+            <div className='row g-0 gap-2'>
+              <div className="col">
+                <TextField label="Total Income" value={dailySummaryData?.totalIncome} disabled />
+              </div>
+              <div className="col">
+                <TextField label="Total Expense" value={dailySummaryData?.totalExpense} disabled />
+              </div>
+            </div>
+            <div className="row g-0 gap-2">
+              <div className="col">
+                <TextField label="Cash Income" value={dailySummaryData?.cashIncome} disabled />
+              </div>
+              <div className="col">
+                <TextField label="Cash In Hand" value={dailySummaryData?.cashInHand} disabled />
+              </div>
+            </div>
+            <div className="row g-0 gap-2">
+              <div className="col">
+                <TextField label="Difference" value={dailySummaryData?.cashInHand} disabled />
+              </div>
+              <div className="col">
+                <TextField label="Counted Cash" value={countedCash} onChange={(e) => setCountedCash(e?.target.value)} />
+              </div>
             </div>
             <div className="modal-footer mt-3">
               <button className="primary-button" type="button" onClick={handleCashInHandUpdate}>

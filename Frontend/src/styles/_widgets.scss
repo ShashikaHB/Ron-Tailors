@@ -348,4 +348,9 @@ body {
   .font-weight-bold{
     font-weight: 600;
   }
+  .add-day-end-modal{
+    .MuiFormControl-root{
+      width: 100% !important;
+    }
+  }
 }
