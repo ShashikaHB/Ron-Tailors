@@ -38,6 +38,7 @@ const PrintMeasurement = ({ handleClose }) => {
     const baseUrl = import.meta.env.VITE_BASE_URL;
     const invoiceUrl = `${baseUrl}/api/v1/invoice/measurements?startDate=${formattedStartDate}&endDate=${formattedEndDate}&itemType=${encodeURIComponent(itemType)}`;
     window.open(invoiceUrl, '_blank');
+    handleClose();
   };
   return (
     <div className="modal-dialog modal-dialog-centered">

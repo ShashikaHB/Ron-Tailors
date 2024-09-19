@@ -13,6 +13,8 @@ import RHFTextField from '../../components/customFormComponents/customTextField/
 import { useAddNewMaterialMutation, useGetSingleMaterialQuery, useUpdateSingleMaterialMutation } from '../../redux/features/material/materialApiSlice';
 import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
 import stores from '../../consts/stores';
+import { useAppDispatch } from '../../redux/reduxHooks/reduxHooks';
+import { setLoading } from '../../redux/features/common/commonSlice';
 
 type AddMaterialFormProps = {
   handleClose: () => void;
@@ -22,16 +24,30 @@ type AddMaterialFormProps = {
 const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
   const { control, unregister, watch, reset, setValue, handleSubmit, getValues } = useFormContext<MaterialSchema>();
 
-  const [addNewMaterial] = useAddNewMaterialMutation();
-  const [updateMaterial] = useUpdateSingleMaterialMutation();
-  const { data: singleMaterial } = useGetSingleMaterialQuery(materialId as number);
+  const [addNewMaterial, { isLoading: addingMaterial }] = useAddNewMaterialMutation();
+  const [updateMaterial, { isLoading: updatingMaterial }] = useUpdateSingleMaterialMutation();
+  const { data: singleMaterial, isLoading: materialLoading } = useGetSingleMaterialQuery(materialId as number);
 
   const variant = useWatch({ control, name: 'variant' });
+
+  const dispatch = useAppDispatch();
 
   const handleFormClose = (): void => {
     handleClose();
     reset(defaultMaterialValues);
   };
+
+  useEffect(() => {
+    dispatch(setLoading(addingMaterial));
+  }, [addingMaterial]);
+
+  //   useEffect(() => {
+  //     dispatch(setLoading(updatingMaterial));
+  //   }, [updatingMaterial]);
+
+  useEffect(() => {
+    dispatch(setLoading(materialLoading));
+  }, [materialLoading]);
 
   const validate = () => {
     const formData = getValues();

@@ -4,6 +4,7 @@ import {
   buildMeasurementPdf,
   buildReadyMadePdf,
   buildRentPdf,
+  buildRentShopPdf,
   buildSalesPdf,
 } from "../pdf/pdf-service/pdf-service.js";
 import { SalesOrder } from "../models/salesOrderModel.js";
@@ -99,6 +100,46 @@ export const getRentInvoice = asyncHandler(async (req, res) => {
     "Content-Type": "application/pdf",
   });
   buildRentPdf(
+    (chunk) => stream.write(chunk),
+    () => stream.end(),
+    data
+  );
+});
+export const getRentShopInvoice = asyncHandler(async (req, res) => {
+  const { rentOrderId } = req.params;
+
+  const orderData = await RentOrder.findOne({ rentOrderId: rentOrderId })
+    .lean()
+    .populate("customer")
+    .exec();
+
+  const data = {
+    customer: {
+      name: orderData.customer.name,
+      mobile: orderData.customer.mobile,
+      rentDate: orderData.rentDate.toISOString().split("T")[0],
+      returnDate: orderData.returnDate.toISOString().split("T")[0],
+    },
+    rentOrderDetails: orderData.rentOrderDetails,
+    orderNo: orderData.rentOrderId,
+    totals: {
+      subTotal: `Rs ${orderData.subTotal.toFixed(2)}`,
+      discount: orderData.discount
+        ? `Rs ${orderData.discount.toFixed(2)}`
+        : "Rs 0.00",
+      totalPrice: `Rs ${orderData.totalPrice.toFixed(2)}`,
+      advPayment: orderData.advPayment
+        ? `Rs ${orderData.advPayment.toFixed(2)}`
+        : "Rs 0.00",
+      balance: orderData.balance
+        ? `Rs ${orderData.balance.toFixed(2)}`
+        : `Rs ${(orderData.totalPrice - orderData.advPayment).toFixed(2)}`,
+    },
+  };
+  const stream = res.writeHead(200, {
+    "Content-Type": "application/pdf",
+  });
+  buildRentShopPdf (
     (chunk) => stream.write(chunk),
     () => stream.end(),
     data

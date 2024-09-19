@@ -7,12 +7,15 @@
 import { SubmitHandler, useFormContext } from 'react-hook-form';
 import { RiCloseLargeLine } from '@remixicon/react';
 import { toast } from 'sonner';
+import { useEffect } from 'react';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
 import { defaultTransactionValues } from '../formSchemas/transactionSchema';
 import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
 import { TransactionCategorySchema } from '../formSchemas/transactionCategorySchema';
 import transactionType from '../../consts/transactionTypes';
 import { useAddCustomTransactionCategoryMutation } from '../../redux/features/transaction/transactionApiSlice';
+import { useAppDispatch } from '../../redux/reduxHooks/reduxHooks';
+import { setLoading } from '../../redux/features/common/commonSlice';
 
 type AddMaterialFormProps = {
   handleClose: () => void;
@@ -22,7 +25,9 @@ type AddMaterialFormProps = {
 const AddTransactionCategory = ({ handleClose, materialId }: AddMaterialFormProps) => {
   const { control, unregister, watch, reset, setValue, handleSubmit, getValues } = useFormContext<TransactionCategorySchema>();
 
-  const [addTransactionCategory] = useAddCustomTransactionCategoryMutation();
+  const dispatch = useAppDispatch();
+
+  const [addTransactionCategory, { isLoading }] = useAddCustomTransactionCategoryMutation();
 
   const handleFormClose = (): void => {
     handleClose();
@@ -32,6 +37,10 @@ const AddTransactionCategory = ({ handleClose, materialId }: AddMaterialFormProp
   const handleClear = (): void => {
     reset(defaultTransactionValues);
   };
+
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, [isLoading]);
 
   const onSubmit: SubmitHandler<TransactionCategorySchema> = async (data) => {
     try {

@@ -21,6 +21,8 @@ import MemoizedTable from '../components/agGridTable/Table';
 import stores from '../consts/stores';
 import Stores from '../enums/Stores';
 import AddDayEnd from '../forms/dayEndAdd/AddDayEnd';
+import { useAppDispatch } from '../redux/reduxHooks/reduxHooks';
+import { setLoading } from '../redux/features/common/commonSlice';
 
 const DailySummary = () => {
   const [selectedStore, setSelectedStore] = useState<any>(Stores.Kegalle);
@@ -29,7 +31,16 @@ const DailySummary = () => {
 
   const [open, setOpen] = useState(false);
 
-  const [deleteCategory] = useDeleteTransactionCategoryMutation();
+  const [deleteCategory, { isLoading: deletingCategory }] = useDeleteTransactionCategoryMutation();
+
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, [isLoading]);
+  useEffect(() => {
+    dispatch(setLoading(deletingCategory));
+  }, [deletingCategory]);
 
   const handleStoreChange = (event: any) => {
     setSelectedStore(event.target.value as string);

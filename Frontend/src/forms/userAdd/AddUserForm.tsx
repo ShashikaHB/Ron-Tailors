@@ -7,11 +7,14 @@
 import { SubmitHandler, useFormContext } from 'react-hook-form';
 import { toast } from 'sonner';
 import { RiCloseLargeLine } from '@remixicon/react';
+import { useEffect } from 'react';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
 import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
 import { defaultUserRegValues, userRegistrationSchema, UserRegistrationSchema } from '../formSchemas/userRegistrationSchema';
 import { RolesAdmin } from '../../enums/Roles';
 import { useRegisterMutation } from '../../redux/features/auth/authApiSlice';
+import { useAppDispatch } from '../../redux/reduxHooks/reduxHooks';
+import { setLoading } from '../../redux/features/common/commonSlice';
 
 type AddMaterialFormProps = {
   handleClose: () => void;
@@ -51,12 +54,18 @@ const roles = [
 const AddUserForm = ({ handleClose }: AddMaterialFormProps) => {
   const { control, unregister, watch, reset, setValue, handleSubmit, getValues } = useFormContext<UserRegistrationSchema>();
 
-  const [registerUser] = useRegisterMutation();
+  const dispatch = useAppDispatch();
+
+  const [registerUser, { isLoading }] = useRegisterMutation();
 
   const handleFormClose = (): void => {
     handleClose();
     reset(defaultUserRegValues);
   };
+
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, [isLoading]);
 
   const validate = () => {
     const formData = getValues();

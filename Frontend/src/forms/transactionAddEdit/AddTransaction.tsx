@@ -17,9 +17,10 @@ import { useAddCustomTransactionMutation, useGetAllTransactionCategoriesQuery } 
 import transactionType from '../../consts/transactionTypes';
 import { Roles } from '../../enums/Roles';
 import { allUsers } from '../../redux/features/auth/authSlice';
-import { useAppSelector } from '../../redux/reduxHooks/reduxHooks';
+import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
 import getUserRoleBasedOptions from '../../utils/userUtils';
 import stores from '../../consts/stores';
+import { setLoading } from '../../redux/features/common/commonSlice';
 
 type AddMaterialFormProps = {
   handleClose: () => void;
@@ -29,9 +30,11 @@ type AddMaterialFormProps = {
 const AddTransaction = ({ handleClose, materialId }: AddMaterialFormProps) => {
   const { control, unregister, watch, reset, setValue, handleSubmit, getValues } = useFormContext<TransactionSchema>();
 
+  const dispatch = useAppDispatch();
+
   // Fetch transactions with the selected date range
   const { data: transactionCategories, isLoading } = useGetAllTransactionCategoriesQuery({});
-  const [addTransaction] = useAddCustomTransactionMutation();
+  const [addTransaction, { isLoading: addTransactionLoading }] = useAddCustomTransactionMutation();
   const [categories, setCategories] = useState([]);
   const selectedTransactionType = useWatch({ control, name: 'transactionType' });
 
@@ -49,14 +52,11 @@ const AddTransaction = ({ handleClose, materialId }: AddMaterialFormProps) => {
   };
 
   useEffect(() => {
-    const sub = watch((value) => {
-      console.log(value);
-    });
-
-    return () => {
-      sub.unsubscribe();
-    };
-  }, [watch]);
+    dispatch(setLoading(isLoading));
+  }, [isLoading]);
+  useEffect(() => {
+    dispatch(setLoading(addTransactionLoading));
+  }, [addTransactionLoading]);
 
   useEffect(() => {
     if (transactionCategories) {

@@ -8,14 +8,12 @@ import { RiCloseLargeLine } from '@remixicon/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { FormControl, MenuItem, Select, TextField } from '@mui/material';
-import {
-  useAddCustomTransactionCategoryMutation,
-  useGetSingleDayEndRecordsQuery,
-  useUpdateCashInHandMutation,
-} from '../../redux/features/transaction/transactionApiSlice';
+import { useGetSingleDayEndRecordsQuery, useUpdateCashInHandMutation } from '../../redux/features/transaction/transactionApiSlice';
 import SimpleDatePicker from '../../components/customFormComponents/simpleDatePicker/SimpleDatePicker';
 import stores from '../../consts/stores';
 import Stores from '../../enums/Stores';
+import { useAppDispatch } from '../../redux/reduxHooks/reduxHooks';
+import { setLoading } from '../../redux/features/common/commonSlice';
 
 type AddDayEndProps = {
   handleClose: () => void;
@@ -27,11 +25,11 @@ const AddDayEnd = ({ handleClose }: AddDayEndProps) => {
   const [selectedStore, setSelectedStore] = useState<any>(Stores.Kegalle);
   const [countedCash, setCountedCash] = useState<any>(0);
 
+  const dispatch = useAppDispatch();
+
   const { data: dailySummaryData, isLoading } = useGetSingleDayEndRecordsQuery({ selectedDate, selectedStore });
 
-  const [addDayEnd] = useUpdateCashInHandMutation();
-
-  const [addTransactionCategory] = useAddCustomTransactionCategoryMutation();
+  const [addDayEnd, { isLoading: dayEndLoading }] = useUpdateCashInHandMutation();
 
   const handleStoreChange = (event: any) => {
     setSelectedStore(event.target.value as string);
@@ -54,6 +52,13 @@ const AddDayEnd = ({ handleClose }: AddDayEndProps) => {
       toast.success('Daily summary updated successfully!');
     }
   };
+
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, [isLoading]);
+  useEffect(() => {
+    dispatch(setLoading(dayEndLoading));
+  }, [dayEndLoading]);
 
   useEffect(() => {
     setCountedCash(dailySummaryData?.countedCash);

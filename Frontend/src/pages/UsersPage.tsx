@@ -17,6 +17,8 @@ import SalaryGradeRenderer from '../components/agGridTable/customComponents/Sala
 import { defaultUserRegValues, userRegistrationSchema, UserRegistrationSchema } from '../forms/formSchemas/userRegistrationSchema';
 import AddUserForm from '../forms/userAdd/AddUserForm';
 import MarkAttendance from '../forms/markAttendance/MarkAttendance';
+import { useAppDispatch } from '../redux/reduxHooks/reduxHooks';
+import { setLoading } from '../redux/features/common/commonSlice';
 
 const UsersPage = () => {
   const [rowData, setRowData] = useState<User[]>([]);
@@ -24,11 +26,17 @@ const UsersPage = () => {
   const [open, setOpen] = useState(false);
   const [openAttendance, setOpenAttendance] = useState(false);
 
+  const dispatch = useAppDispatch();
+
   const methods = useForm<UserRegistrationSchema>({
     mode: 'all',
     resolver: zodResolver(userRegistrationSchema),
     defaultValues: defaultUserRegValues,
   });
+
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, [isLoading]);
 
   const handleOpen = useCallback((materialId: number | null) => {
     setOpen(true);

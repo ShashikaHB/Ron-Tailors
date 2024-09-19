@@ -29,6 +29,10 @@ const SalesOrderDetailsRenderer = ({ data, handleOpenMeasurement, handleOpenProd
   // Initialize a state to store product statuses
   const [productStatuses, setProductStatuses] = useState<{ [key: number]: string }>({});
 
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, [isLoading]);
+
   // Populate initial statuses when data changes
   useEffect(() => {
     const initialStatuses: { [key: number]: string } = {};

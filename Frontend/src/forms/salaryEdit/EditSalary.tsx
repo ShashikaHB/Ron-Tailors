@@ -11,12 +11,23 @@ import { toast } from 'sonner';
 import { defaultSalaryValues, SalarySchema } from '../formSchemas/salarySchema';
 import { useGetSalaryQuery, useUpdateSalaryMutation } from '../../redux/features/common/commonApiSlice';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
+import { useAppDispatch } from '../../redux/reduxHooks/reduxHooks';
+import { setLoading } from '../../redux/features/common/commonSlice';
 
 const EditSalary = () => {
   const { control, reset, setValue, handleSubmit } = useFormContext<SalarySchema>();
 
+  const dispatch = useAppDispatch();
+
   const { data: salaryData, isLoading } = useGetSalaryQuery();
-  const [updateSalary] = useUpdateSalaryMutation();
+  const [updateSalary, { isLoading: updatingSalary }] = useUpdateSalaryMutation();
+
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, [isLoading]);
+  useEffect(() => {
+    dispatch(setLoading(updatingSalary));
+  }, [updatingSalary]);
 
   useEffect(() => {
     if (salaryData) {

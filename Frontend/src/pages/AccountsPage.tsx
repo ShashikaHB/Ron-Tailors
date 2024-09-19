@@ -24,6 +24,8 @@ import MemoizedTable from '../components/agGridTable/Table';
 import { defaultTransactionCategoryValues, transactionCategorySchema, TransactionCategorySchema } from '../forms/formSchemas/transactionCategorySchema';
 import AddTransactionCategory from '../forms/transactionCategoryAddEdit/AddTransactionCategory';
 import ActionButtonNew from '../components/agGridTable/customComponents/ActionButtonNew';
+import { useAppDispatch } from '../redux/reduxHooks/reduxHooks';
+import { setLoading } from '../redux/features/common/commonSlice';
 
 const AccountsPage = () => {
   const { data: transactionCategories, isError: transactionError, isLoading } = useGetAllTransactionCategoriesQuery({});
@@ -36,7 +38,9 @@ const AccountsPage = () => {
 
   const [open, setOpen] = useState(false);
 
-  const [deleteCategory] = useDeleteTransactionCategoryMutation();
+  const dispatch = useAppDispatch();
+
+  const [deleteCategory, { isLoading: isDeletingCategory }] = useDeleteTransactionCategoryMutation();
 
   const handleClose = useCallback(() => setOpen(false), []);
   const handleOpen = useCallback(() => {
@@ -66,6 +70,13 @@ const AccountsPage = () => {
   ];
 
   const [rowData, setRowData] = useState<any>([]);
+
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, [isLoading]);
+  useEffect(() => {
+    dispatch(setLoading(isDeletingCategory));
+  }, [isDeletingCategory]);
 
   useEffect(() => {
     if (transactionCategories) {

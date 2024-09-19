@@ -16,12 +16,16 @@ import { defaultTransactionValues, transactionSchema, TransactionSchema } from '
 import SimpleDatePicker from '../components/customFormComponents/simpleDatePicker/SimpleDatePicker';
 import Stores from '../enums/Stores';
 import stores from '../consts/stores';
+import { useAppDispatch } from '../redux/reduxHooks/reduxHooks';
+import { setLoading } from '../redux/features/common/commonSlice';
 
 const CashBook = () => {
   const [selectedFromDate, setSelectedFromDate] = useState<Date>(new Date());
   const [selectedToDate, setSelectedToDate] = useState<Date>(new Date());
 
   const [selectedStore, setSelectedStore] = useState<any>(Stores.Kegalle);
+
+  const dispatch = useAppDispatch();
 
   // Fetch transactions with the selected date range
   const {
@@ -33,6 +37,10 @@ const CashBook = () => {
     toDate: selectedToDate?.toISOString(),
     store: selectedStore,
   });
+
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, [isLoading]);
 
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);

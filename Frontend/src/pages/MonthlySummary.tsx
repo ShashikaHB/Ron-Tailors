@@ -13,6 +13,8 @@ import { useGetAllMonthlySummaryQuery } from '../redux/features/user/userApiSlic
 import { User } from '../types/user';
 import WorkDataRenderer from '../components/agGridTable/customComponents/WorkDataRenderer';
 import SimpleDatePicker from '../components/customFormComponents/simpleDatePicker/SimpleDatePicker';
+import { useAppDispatch } from '../redux/reduxHooks/reduxHooks';
+import { setLoading } from '../redux/features/common/commonSlice';
 
 const MonthlySummary = () => {
   const [rowData, setRowData] = useState<any>([]);
@@ -32,6 +34,12 @@ const MonthlySummary = () => {
     { headerName: 'Salary', field: 'totalSalary' },
     { headerName: 'Bonus', field: 'bonus' },
   ];
+
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, [isLoading]);
 
   useEffect(() => {
     if (monthlySummaryData) {

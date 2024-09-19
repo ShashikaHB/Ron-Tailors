@@ -11,7 +11,7 @@ import { setProductId } from '../../../redux/features/common/commonSlice';
 
 type ProductRendererProps = {
   data: any;
-  handleOpenMeasurement: (id: number) => void;
+  handleOpenMeasurement: (id: number, isRent?: boolean) => void;
   handleRemove: (id: number) => void;
 };
 
@@ -40,18 +40,36 @@ const ProductRenderer = ({ data, handleOpenMeasurement, handleRemove }: ProductR
               <span style={{ marginRight: '10px' }}>{product.type}</span>
               <span>Rs.{product.price}</span>
               <div className="d-flex gap-2">
-                <button
-                  type="button"
-                  aria-label="close-btn"
-                  className="icon-button"
-                  onClick={() => {
-                    handleOpenMeasurement(product.productId);
-                    dispatch(setProductId(product.productId));
-                  }}
-                >
-                  M
-                </button>
-                {product.isMeasurementAvailable &&  <div className='check-btn'><RiCheckLine size={18} /></div>}
+                {product.type === 'Rent Coat' || product.type === 'Rent West Coat' ? (
+                  <button
+                    type="button"
+                    aria-label="close-btn"
+                    className="icon-button"
+                    onClick={() => {
+                      handleOpenMeasurement(product.productId, true);
+                      dispatch(setProductId(product.productId));
+                    }}
+                  >
+                    R
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    aria-label="close-btn"
+                    className="icon-button"
+                    onClick={() => {
+                      handleOpenMeasurement(product.productId);
+                      dispatch(setProductId(product.productId));
+                    }}
+                  >
+                    M
+                  </button>
+                )}
+                {product.isMeasurementAvailable && product.type !== 'Rent Coat || Rent West Coat' && (
+                  <div className="check-btn">
+                    <RiCheckLine size={24} />
+                  </div>
+                )}
                 <button
                   type="button"
                   aria-label="close-btn"

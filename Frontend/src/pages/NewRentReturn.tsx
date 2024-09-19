@@ -11,17 +11,27 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { useLazySearchRentOrderByItemQuery, useRentReturnMutation } from '../redux/features/rentOrder/rentOrderApiSlice';
 import StakeOptions from '../enums/StakeOptions';
+import { useAppDispatch } from '../redux/reduxHooks/reduxHooks';
+import { setLoading } from '../redux/features/common/commonSlice';
 
 const NewRentReturn = () => {
-  const [triggerSearchRentOrder, { data }] = useLazySearchRentOrderByItemQuery({});
-  const [returnRent, { data: rentReturnData }] = useRentReturnMutation();
+  const [triggerSearchRentOrder, { data, isLoading: searchRentOrder }] = useLazySearchRentOrderByItemQuery({});
+  const [returnRent, { data: rentReturnData, isLoading: rentReturnLoading }] = useRentReturnMutation();
   const [rentItemSearchQuery, setRentItemSearchQuery] = useState('');
   const [rentOrderDetails, setRentOrderDetails] = useState(null);
+
+  const dispatch = useAppDispatch();
 
   const handleReset = () => {
     setRentOrderDetails(null);
     setRentItemSearchQuery('');
   };
+  useEffect(() => {
+    dispatch(setLoading(searchRentOrder));
+  }, [searchRentOrder]);
+  useEffect(() => {
+    dispatch(setLoading(rentReturnLoading));
+  }, [rentReturnLoading]);
 
   const handleRentItemSearch = () => {
     if (rentItemSearchQuery.trim()) {

@@ -6,7 +6,7 @@
  */
 import { useCallback, useEffect, useState } from 'react';
 import { capitalize, FormControl, FormGroup, FormLabel, MenuItem, Modal, Select, TextField } from '@mui/material';
-import { FaSearch } from 'react-icons/fa';
+import { FaPlus, FaSearch } from 'react-icons/fa';
 import { toast } from 'sonner';
 import { FormProvider, SubmitHandler, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
@@ -28,7 +28,7 @@ import Table from '../../components/agGridTable/Table';
 import { MeasurementSchema, defaultMeasurementValues, measurementSchema } from '../formSchemas/measurementSchema';
 import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
 import { setSelectedProduct } from '../../redux/features/product/productSlice';
-import { removeSelectedCustomerId, setOrderProductsBulk, setSelectedCustomerId } from '../../redux/features/orders/orderSlice';
+import { removeSelectedCustomerId, setSelectedCustomerId } from '../../redux/features/orders/orderSlice';
 import { useAddNewProductMutation, useGetAllProductsQuery } from '../../redux/features/product/productApiSlice';
 import mapProducts from '../../utils/productUtils';
 import ProductRenderer from '../../components/agGridTable/customComponents/ProductRenderer';
@@ -42,6 +42,7 @@ import { productCategoryItemMap } from '../../consts/products';
 import { CheckBoxWithInput } from '../../components/customFormComponents/checkboxGroup/CheckBoxGroup';
 import { ProductCategory } from '../../enums/ProductType';
 import { setLoading } from '../../redux/features/common/commonSlice';
+import SelectRentItem from '../selectRentItem/SelectRentItem';
 
 const AddEditOrder = () => {
   const { control, watch, reset, setValue, handleSubmit, clearErrors, getValues } = useFormContext<OrderSchema>();
@@ -76,9 +77,12 @@ const AddEditOrder = () => {
 
   const [openProducts, setOpenProducts] = useState(false);
   const [openMeasurement, setOpenMeasurement] = useState(false);
+  const [rentSelect, setOpenRentSelect] = useState(false);
   const [rowData, setRowData] = useState([]);
   const [description, setDescription] = useState('');
   //   const [productOptions, setProductOptions] = useState<OptionCheckBox[]>(initialProductOptions);
+
+  const [showOtherMobile, setShowOtherMobile] = useState(false);
 
   const total = useWatch({ control, name: 'totalPrice' });
   const advance = useWatch({ control, name: 'advPayment' });
@@ -89,15 +93,31 @@ const AddEditOrder = () => {
 
   const isAddItemButtonDisabled = !productOptions.some((option) => option.checked);
 
-  const [trigger, { data: customer, isLoading }] = useLazySearchCustomerQuery();
-  const [updateSalesOrder] = useUpdateSalesOrderMutation();
-  const [getSalesOrderData, { data: salesOrderData }] = useLazyGetSingleSalesOrderQuery();
+  const [trigger, { data: customer, isLoading: isCustomerSearching }] = useLazySearchCustomerQuery();
+  const [updateSalesOrder, { data, isLoading: isOrderUpdating }] = useUpdateSalesOrderMutation();
+  const [getSalesOrderData, { data: salesOrderData, isLoading: isSalesOrderLoading }] = useLazyGetSingleSalesOrderQuery();
   const { data: productsData, isLoading: productsLoading } = useGetAllProductsQuery({});
-  const [addProduct] = useAddNewProductMutation();
+  const [addProduct, { data: addProductData, isLoading: isAddingProduct }] = useAddNewProductMutation();
 
   const [addOrder, { data: newOrder, isLoading: salesOrderLoading }] = useAddNewOrderMutation();
 
   const [customerSearchQuery, setCustomerSearchQuery] = useState('');
+
+  useEffect(() => {
+    dispatch(setLoading(isOrderUpdating));
+  }, [isOrderUpdating]);
+  useEffect(() => {
+    dispatch(setLoading(isSalesOrderLoading));
+  }, [isSalesOrderLoading]);
+  useEffect(() => {
+    dispatch(setLoading(productsLoading));
+  }, [productsLoading]);
+  useEffect(() => {
+    dispatch(setLoading(isAddingProduct));
+  }, [isAddingProduct]);
+  useEffect(() => {
+    dispatch(setLoading(isCustomerSearching));
+  }, [isCustomerSearching]);
 
   // Handle category selection
   const handleCategoryChange = (event: any) => {
@@ -178,9 +198,15 @@ const AddEditOrder = () => {
 
   const handleClose = useCallback(() => setOpenProducts(false), []);
   const handleMeasurementClose = useCallback(() => setOpenMeasurement(false), []);
+  const handleRentClose = useCallback(() => setOpenRentSelect(false), []);
 
-  const handleOpenMeasurement = useCallback((productId: number) => {
-    setOpenMeasurement(true);
+  const handleOpenMeasurement = useCallback((productId: number, isRent) => {
+    if (isRent) {
+      setOpenRentSelect(true);
+    } else {
+      setOpenMeasurement(true);
+    }
+
     dispatch(setSelectedProduct(productId));
   }, []);
 
@@ -200,6 +226,7 @@ const AddEditOrder = () => {
   const transformOrderDetails = (orderDetails: any) => {
     return orderDetails.map((detail: any) => {
       return {
+        category: detail.description,
         description: detail.description,
         products: detail.products.map((product: any) => product.productId),
       };
@@ -262,7 +289,7 @@ const AddEditOrder = () => {
         if (response.data) {
           reset(getUpdatingFormattedData(response.data)); // Populate the form with fetched data
           const formattedOrderDetails = transformOrderDetails(response.data.orderDetails);
-          dispatch(setOrderProductsBulk(formattedOrderDetails));
+          setSelectedItems(formattedOrderDetails);
         }
       });
     } else {
@@ -365,12 +392,27 @@ const AddEditOrder = () => {
                     </div>
                   </div>
                   <div className="row">
-                    <div className="col-6 mb-3">
+                    <div className="col-6 d-flex gap-2 mb-3 align-items-end">
                       <RHFTextField<OrderSchema> label="Mobile" name="customer.mobile" />
+                      <button className="icon-button" type="button" aria-label="search_customer" onClick={() => setShowOtherMobile(!showOtherMobile)}>
+                        <span>
+                          <FaPlus />
+                        </span>
+                      </button>
                     </div>
                     <div className="col-6 mb-3">
                       <RHFTextField<OrderSchema> label="Name" name="customer.name" />
                     </div>
+                    {showOtherMobile && (
+                      <>
+                        <div className="col-6 mb-3">
+                          <TextField label="Secondary Mobile" name="other phone" />
+                        </div>
+                        <div className="col-6 mb-3">
+                          <TextField label="Other Mobile" name="other phone" />
+                        </div>
+                      </>
+                    )}
                     <div className="col-6 mb-3">
                       <RHFDropDown<OrderSchema> options={salesPeople} name="salesPerson" label="Sales Person" />
                     </div>
@@ -503,6 +545,11 @@ const AddEditOrder = () => {
               <DevTool control={measurementMethods.control} />
             </div>
           </FormProvider>
+        </div>
+      </Modal>
+      <Modal open={rentSelect} onClose={handleRentClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+        <div>
+          <SelectRentItem handleClose={handleRentClose} />
         </div>
       </Modal>
     </div>

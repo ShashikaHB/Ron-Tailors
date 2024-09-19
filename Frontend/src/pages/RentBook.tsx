@@ -7,7 +7,7 @@
 
 import { ColDef } from 'ag-grid-community';
 import { useEffect, useState } from 'react';
-import { TextField } from '@mui/material';
+import { Modal, TextField } from '@mui/material';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -16,17 +16,38 @@ import { useGetAllRentOrdersQuery } from '../redux/features/rentOrder/rentOrderA
 import RentOrderDetailsRenderer from '../components/agGridTable/customComponents/RentOrderDetailsRenderer';
 import CustomerRenderer from '../components/agGridTable/customComponents/CustomerRenderer';
 import ActionButtonNew from '../components/agGridTable/customComponents/ActionButtonNew';
+import { setLoading } from '../redux/features/common/commonSlice';
+import { useAppDispatch } from '../redux/reduxHooks/reduxHooks';
+import PrintShopBill from '../forms/printshopbill/PrintShopBill';
 
 const RentBook = () => {
   const { data: rentOrders, isError: rentOrderError, isLoading } = useGetAllRentOrdersQuery();
 
   const navigate = useNavigate();
 
+  const [open, setOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState(0);
+
+  const dispatch = useAppDispatch();
+
   const defaultColDef: ColDef = { resizable: true };
 
   const handleOpen = (id: string) => {
     navigate(`/secured/addRentOrder/${id}`);
   };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const openPrint = (id: any) => {
+    setOpen(true);
+    setSelectedId(id);
+  };
+
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, [isLoading]);
 
   const initialColDefs: ColDef<any>[] = [
     { headerName: 'Id', field: 'rentOrderId', minWidth: 100 },
@@ -43,6 +64,7 @@ const RentBook = () => {
         handleEdit: handleOpen,
         idType: 'rentOrderId',
         isOrderBook: true,
+        openPrint,
       },
     },
   ];
@@ -100,6 +122,11 @@ const RentBook = () => {
       <div className="flex-grow-1 overflow-hidden">
         <MemoizedTable rowData={rowData} colDefs={colDefs} defaultColDef={defaultColDef} />
       </div>
+      <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+        <div>
+          <PrintShopBill id={selectedId} handleClose={handleClose} />
+        </div>
+      </Modal>
     </div>
   );
 };

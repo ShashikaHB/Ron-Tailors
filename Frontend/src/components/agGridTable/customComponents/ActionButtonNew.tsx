@@ -10,23 +10,28 @@ import { ICellRendererParams } from 'ag-grid-community';
 interface ActionButtonPropTypes extends ICellRendererParams {
   handleEdit?: (id: number) => void;
   handleDelete?: (id: number) => void;
+  openPrint?: (id: number) => void;
   idType: string;
   isOrderBook?: boolean;
   isAccount?: boolean;
 }
 
 const ActionButtonNew = (props: ActionButtonPropTypes) => {
-  const { handleEdit, handleDelete, idType, data, isOrderBook, isAccount } = props;
+  const { handleEdit, handleDelete, openPrint, idType, data, isOrderBook, isAccount } = props;
 
   const hideDeleteForCategories = ['Sales Order', 'Rent Order', 'Ready Made Order', 'Salary'];
 
   const id = data?.[idType];
   const handlePrint = () => {
-    const newWindow = window.open('', '_blank');
-    const baseUrl = import.meta.env.VITE_BASE_URL;
-    const invoiceUrl = `${baseUrl}/api/v1/invoice/${idType === 'rentOrderId' ? 'rentOrder' : 'salesOrder'}/${id}`;
-    if (newWindow) {
-      newWindow.location.href = invoiceUrl;
+    if (idType && idType === 'rentOrderId') {
+      openPrint(id);
+    } else {
+      const newWindow = window.open('', '_blank');
+      const baseUrl = import.meta.env.VITE_BASE_URL;
+      const invoiceUrl = `${baseUrl}/api/v1/invoice/${idType === 'rentOrderId' ? 'rentOrder' : 'salesOrder'}/${id}`;
+      if (newWindow) {
+        newWindow.location.href = invoiceUrl;
+      }
     }
   };
 

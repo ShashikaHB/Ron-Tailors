@@ -47,6 +47,14 @@ const AddReadyMadeOrderForm = () => {
   };
 
   useEffect(() => {
+    dispatch(setLoading(customerLoading));
+  }, [customerLoading]);
+
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, [isLoading]);
+
+  useEffect(() => {
     if (customer) {
       setValue('customer.name', customer.name);
       setValue('customer.mobile', customer.mobile);

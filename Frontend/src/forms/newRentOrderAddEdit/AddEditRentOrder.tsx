@@ -5,7 +5,7 @@
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
 import { TextField } from '@mui/material';
-import { FaSearch } from 'react-icons/fa';
+import { FaPlus, FaSearch } from 'react-icons/fa';
 import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -84,21 +84,36 @@ const stakeOptions = [
 const NewRentOut = () => {
   const { control, unregister, watch, reset, setValue, handleSubmit, getValues, clearErrors } = useFormContext<RentOrderSchema>();
 
-  const [triggerCustomerSearch, { data: customer, isLoading }] = useLazySearchCustomerQuery();
+  const [triggerCustomerSearch, { data: customer, isLoading: isCustomerLoading }] = useLazySearchCustomerQuery();
 
   const dispatch = useAppDispatch();
 
   const [triggerProductSearch, { data: rentItem, isLoading: rentItemLoading }] = useLazySearchRentItemQuery();
 
-  const [getRentOrderData, { data: singleRentOrderData }] = useLazyGetSingleRentOrderQuery();
-  const [addRentOrder, { data, isLoading: rentOrderLoading }] = useAddNewRentOrderMutation();
-  const [updateRentOrder] = useUpdateSingleRentOrderMutation();
+  const [getRentOrderData, { data: singleRentOrderData, isLoading: rentOrderLoading }] = useLazyGetSingleRentOrderQuery();
+  const [addRentOrder, { data, isLoading: addingRentOrder }] = useAddNewRentOrderMutation();
+  const [updateRentOrder, { data: updateData, isLoading: updatingOrder }] = useUpdateSingleRentOrderMutation();
+
+  useEffect(() => {
+    dispatch(setLoading(isCustomerLoading));
+  }, [isCustomerLoading]);
+  useEffect(() => {
+    dispatch(setLoading(rentItemLoading));
+  }, [rentItemLoading]);
+  useEffect(() => {
+    dispatch(setLoading(addingRentOrder));
+  }, [addingRentOrder]);
+  useEffect(() => {
+    dispatch(setLoading(updatingOrder));
+  }, [updatingOrder]);
 
   const [customerSearchQuery, setCustomerSearchQuery] = useState('');
 
   const [productSearchQuery, setProductSearchQuery] = useState('');
 
   const [rentItemDetails, setRentItemDetails] = useState<RentItemDetails>(initialRentItemDetails);
+
+  const [showOtherMobile, setShowOtherMobile] = useState(false);
 
   const [rowData, setRowData] = useState<RentItemDetails[]>([]);
 
@@ -263,7 +278,7 @@ const NewRentOut = () => {
         description: rentItem.description,
         color: rentItem.color,
         size: rentItem.size,
-        type: rentItem.type,
+        type: rentItem.itemType,
         rentItemId: rentItem.rentItemId,
       }));
       clearErrors();
@@ -341,12 +356,27 @@ const NewRentOut = () => {
                     </div>
                   </div>
                   <div className="row">
-                    <div className="col-6 mb-3">
+                    <div className="col-6 d-flex gap-2 mb-3 align-items-end">
                       <RHFTextField<RentOrderSchema> label="Mobile" name="customer.mobile" />
+                      <button className="icon-button" type="button" aria-label="search_customer" onClick={() => setShowOtherMobile(!showOtherMobile)}>
+                        <span>
+                          <FaPlus />
+                        </span>
+                      </button>
                     </div>
                     <div className="col-6 mb-3">
                       <RHFTextField<RentOrderSchema> label="Name" name="customer.name" />
                     </div>
+                    {showOtherMobile && (
+                      <>
+                        <div className="col-6 mb-3">
+                          <TextField label="Secondary Mobile" name="other phone" />
+                        </div>
+                        <div className="col-6 mb-3">
+                          <TextField label="Other Mobile" name="other phone" />
+                        </div>
+                      </>
+                    )}
                     <div className="col-6 mb-3">
                       <RHFDropDown<RentOrderSchema> options={salesPeople} name="salesPerson" label="Sales Person" />
                     </div>

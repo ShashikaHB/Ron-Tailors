@@ -10,6 +10,8 @@ import { useEffect } from 'react';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
 import { piecePricesSchema, PiecePricesSchema } from '../formSchemas/piecesSchema';
 import { useGetAllPiecePricesQuery, useUpdatePiecePricesMutation } from '../../redux/features/pieces/pieceApiSlice';
+import { useAppDispatch } from '../../redux/reduxHooks/reduxHooks';
+import { setLoading } from '../../redux/features/common/commonSlice';
 
 // Static predefined list of General items
 const generalItems = [
@@ -33,13 +35,22 @@ const generalItems = [
 
 const EditPiecePrices = () => {
   const { reset, handleSubmit, getValues } = useFormContext<PiecePricesSchema>();
-  const [updatePiecePrices] = useUpdatePiecePricesMutation();
+  const [updatePiecePrices, { isLoading: updatingPiecePrices }] = useUpdatePiecePricesMutation();
   const { data: piecePrices, isLoading: piecePricesLoading } = useGetAllPiecePricesQuery();
+
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     // Fetch current piece prices from the backend and populate the form
     reset(piecePrices);
   }, [piecePrices, reset]);
+
+  useEffect(() => {
+    dispatch(setLoading(updatingPiecePrices));
+  }, [updatingPiecePrices]);
+  useEffect(() => {
+    dispatch(setLoading(piecePricesLoading));
+  }, [piecePricesLoading]);
 
   const onSubmit: SubmitHandler<PiecePricesSchema> = async (data) => {
     try {
@@ -80,7 +91,7 @@ const EditPiecePrices = () => {
                         {generalItems.map((itemType, itemIndex) => (
                           <div className="row gap-2 mx-0 g-0" key={itemIndex}>
                             <div>
-                              <div className='font-weight-bold'>{itemType}</div>
+                              <div className="font-weight-bold">{itemType}</div>
                             </div>
                             {/* Cutting Price */}
                             <div className="col mb-3">

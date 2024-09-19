@@ -24,6 +24,7 @@ import { ProductSchema, productSchema, defaultProductValues } from '../forms/for
 import { setSelectedProduct } from '../redux/features/product/productSlice';
 import { useAppDispatch } from '../redux/reduxHooks/reduxHooks';
 import PrintMeasurement from '../forms/printMeasurement/PrintMeasurement';
+import { setLoading } from '../redux/features/common/commonSlice';
 
 const SalesOrderBook = () => {
   const { data: salesOrders, isError: salesOrderError, isLoading } = useGetAllSalesOrdersQuery('');
@@ -118,6 +119,10 @@ const SalesOrderBook = () => {
       setRowData(salesOrders);
     }
   }, [orderSearchQuery]);
+
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, []);
 
   return (
     <div className="h-100 d-flex flex-column gap-3">

@@ -18,10 +18,11 @@ import { useDeleteRentItemMutation, useGetAllRentItemsQuery } from '../redux/fea
 import { useAppDispatch } from '../redux/reduxHooks/reduxHooks';
 import { setSelectedRentItemId } from '../redux/features/orders/orderSlice';
 import ActionButtonNew from '../components/agGridTable/customComponents/ActionButtonNew';
+import { setLoading } from '../redux/features/common/commonSlice';
 
 const AddRentItem = () => {
   const { data: rentItems, isLoading: rentItemLoading } = useGetAllRentItemsQuery();
-  const [deleteRentItem] = useDeleteRentItemMutation();
+  const [deleteRentItem, { isLoading: deleteRent }] = useDeleteRentItemMutation();
   const methods = useForm<RentItemSchema>({
     mode: 'all',
     resolver: zodResolver(rentItemSchema),
@@ -37,6 +38,13 @@ const AddRentItem = () => {
   const handleDelete = (id: number) => {
     deleteRentItem(id);
   };
+
+  useEffect(() => {
+    dispatch(setLoading(deleteRent));
+  }, [deleteRent]);
+  useEffect(() => {
+    dispatch(setLoading(rentItemLoading));
+  }, [rentItemLoading]);
 
   const initialColDefs: ColDef<RentItemTableSchema>[] = [
     { headerName: 'Barcode', field: 'rentItemId' },

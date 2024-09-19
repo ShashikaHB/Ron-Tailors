@@ -13,11 +13,11 @@ import RHFTextField from '../../components/customFormComponents/customTextField/
 import { measurementSchema, MeasurementSchema } from '../formSchemas/measurementSchema';
 import RHFSwitch from '../../components/customFormComponents/customSwitch/RHFSwitch';
 import RHFDatePicker from '../../components/customFormComponents/customDatePicker/RHFDatePricker';
-import { useAppSelector } from '../../redux/reduxHooks/reduxHooks';
+import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
 import { selectSelectedProduct } from '../../redux/features/product/productSlice';
 import { useLazyGetSingleProductQuery, useUpdateSingleProductMutation } from '../../redux/features/product/productApiSlice';
 import { useCreateMeasurementMutation, useUpdateMeasurementMutation } from '../../redux/features/measurement/measurementApiSlice';
-import { selectProductId } from '../../redux/features/common/commonSlice';
+import { selectProductId, setLoading } from '../../redux/features/common/commonSlice';
 import { selectCustomerId } from '../../redux/features/orders/orderSlice';
 
 type AddEditProductProps = {
@@ -29,21 +29,17 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
 
   const [triggerGetProduct, { data: productData, isLoading: productDataLoading }] = useLazyGetSingleProductQuery();
 
+  const dispatch = useAppDispatch();
+
   const productId = useAppSelector(selectProductId);
-
-  useEffect(() => {
-    const sub = watch((value) => {
-      console.log(value);
-    });
-
-    return () => {
-      sub.unsubscribe();
-    };
-  }, [watch]);
 
   useEffect(() => {
     triggerGetProduct(productId);
   }, [productId]);
+
+  useEffect(() => {
+    dispatch(setLoading(productDataLoading));
+  }, [productDataLoading]);
 
   const selectedProductId = useAppSelector(selectSelectedProduct);
   const selectedCustomer = useAppSelector(selectCustomerId);
@@ -52,13 +48,23 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
   const variant = useWatch({ control, name: 'variant' });
   const customerId = useWatch({ control, name: 'customer' });
 
-  const [addMeasurement, { data: newMeasurement }] = useCreateMeasurementMutation();
+  const [addMeasurement, { data: newMeasurement, isLoading: addMeasurementLoading }] = useCreateMeasurementMutation();
 
-  const [updateProduct, { data: updatedProduct }] = useUpdateSingleProductMutation();
+  const [updateProduct, { data: updatedProduct, isLoading: updateProductLoading }] = useUpdateSingleProductMutation();
 
-  const [updateMeasurement, { data: updatedMeasurement }] = useUpdateMeasurementMutation();
+  const [updateMeasurement, { data: updatedMeasurement, isLoading: updateMeasurementLoading }] = useUpdateMeasurementMutation();
 
   //   const { data: productData, isLoading } = useGetSingleProductQuery(selectedProductId);
+
+  useEffect(() => {
+    dispatch(setLoading(addMeasurementLoading));
+  }, [addMeasurementLoading]);
+  useEffect(() => {
+    dispatch(setLoading(updateProductLoading));
+  }, [updateProductLoading]);
+  useEffect(() => {
+    dispatch(setLoading(updateMeasurementLoading));
+  }, [updateMeasurementLoading]);
 
   const addText = (text: string) => {
     const currentStyle = getValues('style');

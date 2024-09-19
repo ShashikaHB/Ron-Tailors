@@ -177,6 +177,51 @@ export const buildRentPdf = (dataCallBack, endCallBack, data) => {
 
   doc.end();
 };
+export const buildRentShopPdf = (dataCallBack, endCallBack, data) => {
+    const { customer, rentOrderDetails, totals, orderNo } = data;
+  
+    const doc = new PDFDocument({ margin: 30, size: "A4" });
+  
+    doc.on("data", dataCallBack);
+    doc.on("end", endCallBack);
+  
+    // Add customer details
+    doc.moveDown().fontSize(12).text(`Customer Name: ${customer.name}`);
+    doc.moveDown(0.25).text(`Mobile: ${customer.mobile}`);
+    doc.moveDown(0.5)
+
+    doc.fontSize(12).font("Helvetica-Bold").text(`Rent No: ${orderNo}`);
+    doc.moveDown(0.5)
+    doc.fontSize(12).font("Helvetica-Bold").text(`Rent Date: ${customer.rentDate}`);
+
+
+    doc.moveDown(2);
+  
+      // Loop through rentOrderDetails and print each item on a new line
+  rentOrderDetails.forEach((detail) => {
+    doc.fontSize(11).font("Helvetica").text(`Bar Code: ${detail.rentItemId}`);
+    doc.moveDown(0.5);
+
+    doc.text(`${detail.description}`);
+    doc.moveDown(0.5);
+
+    doc.text(`Color: ${detail.color}`);
+    doc.moveDown(0.5);
+
+    doc.text(`Hand length: ${detail.handLength}`);
+    doc.moveDown(0.5);
+
+    doc.text(`Hand length: ${detail.notes}`);
+    doc.moveDown(0.5);
+
+    doc
+    .moveTo(doc.page.margins.left, doc.y)
+    .lineTo(doc.page.width - doc.page.margins.right, doc.y)
+    .stroke();
+  });
+  
+    doc.end();
+  };
 export const buildReadyMadePdf = (dataCallBack, endCallBack, data) => {
   const { customer, orderDetails, totals, orderNo } = data;
 
