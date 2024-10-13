@@ -492,7 +492,7 @@ const AddEditOrder = () => {
                   <div className="col-12 mb-3">
                     <TextField label="Description" value={description} onChange={(e) => setDescription(e?.target?.value)} />
                   </div>
-                  <div className="col-12 d-flex gap-3">
+                  <div className="col-12 d-flex gap-3 align-items-end">
                     <div className="col-5 mb-3">
                       <FormControl sx={{ m: 1, maxWidth: 165 }} size="small">
                         <Select value={selectedCategory} onChange={handleCategoryChange}>

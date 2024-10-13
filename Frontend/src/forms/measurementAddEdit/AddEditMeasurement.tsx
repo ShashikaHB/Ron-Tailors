@@ -140,7 +140,7 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
   }, [productData, reset, updatedMeasurement, selectedCustomer]);
 
   return (
-    <div className="modal-dialog modal-dialog-centered">
+    <div className="modal-dialog modal-dialog-centered add-edit-modal">
       <div className="modal-content">
         <div className="modal-header">
           <h5 className="modal-title">
@@ -151,7 +151,7 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
             <RiCloseLargeLine size={18} />
           </button>
         </div>
-        <div className="modal-body d-flex h-100 flex-column">
+        <div className="d-flex flex-column modal-body flex-grow-1 overflow-hidden">
           <div>
             <div className="d-flex align-items-center mb-3 gap-2">
               <RiClipboardLine size={18} />
@@ -159,66 +159,68 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="inputGroup">
-              <div>
-                <br />
-                <div style={{ border: '1px solid black', marginTop: '20px' }} />
+          <form className='d-flex flex-column flex-grow-1 overflow-hidden' onSubmit={handleSubmit(onSubmit)}>
+            <div className='h-100 overflow-y-auto'>
+              <div className="inputGroup">
+                <div>
+                  <br />
+                  <div style={{ border: '1px solid black', marginTop: '20px' }} />
+                </div>
+                <div className="d-flex gap-1">
+                  <button className="primary-button" type="button" onClick={() => addText('SB')}>
+                    SB
+                  </button>
+                  <button className="primary-button" type="button" onClick={() => addText('DB')}>
+                    DB
+                  </button>
+                  <button className="primary-button" type="button" onClick={() => addText('Hinec')}>
+                    Hinec
+                  </button>
+                </div>
+                <div className="d-flex gap-1">
+                  <button className="primary-button" type="button" onClick={() => addText('1 BT')}>
+                    1 BT
+                  </button>
+                  <button className="primary-button" type="button" onClick={() => addText('2 BT')}>
+                    2 BT
+                  </button>
+                  <button className="primary-button" type="button" onClick={() => addText('3 BT')}>
+                    3 BT
+                  </button>
+                </div>
+                <div className="d-flex gap-1">
+                  <button className="primary-button" type="button" onClick={() => addText('Normal')}>
+                    Normal
+                  </button>
+                  <button className="primary-button" type="button" onClick={() => addText('Half Satting')}>
+                    Half Satting
+                  </button>
+                  <button className="primary-button" type="button" onClick={() => addText('Full Satting')}>
+                    Full Satting
+                  </button>
+                </div>
               </div>
-              <div className="d-flex gap-1">
-                <button className="primary-button" type="button" onClick={() => addText('SB')}>
-                  SB
-                </button>
-                <button className="primary-button" type="button" onClick={() => addText('DB')}>
-                  DB
-                </button>
-                <button className="primary-button" type="button" onClick={() => addText('Hinec')}>
-                  Hinec
-                </button>
+              <div className="inputGroup my-3 w-30 d-flex flex-direction-row">
+                <RHFTextField<MeasurementSchema> label="Style" name="style" />
               </div>
-              <div className="d-flex gap-1">
-                <button className="primary-button" type="button" onClick={() => addText('1 BT')}>
-                  1 BT
-                </button>
-                <button className="primary-button" type="button" onClick={() => addText('2 BT')}>
-                  2 BT
-                </button>
-                <button className="primary-button" type="button" onClick={() => addText('3 BT')}>
-                  3 BT
-                </button>
+              <h6>Add Measurements</h6>
+              <div className="my-3">
+                <div className="d-flex gap-1 mb-1">
+                  {[0, 1, 2, 3, 4].map((index) => (
+                    <TextField key={index} value={measurements[index]} onChange={(e) => addMeasurements(index, e.target.value)} />
+                  ))}
+                </div>
+                <div className="d-flex gap-1 mb-1">
+                  {[5, 6, 7, 8, 9].map((index) => (
+                    <TextField key={index} value={measurements[index]} onChange={(e) => addMeasurements(index, e.target.value)} />
+                  ))}
+                </div>
               </div>
-              <div className="d-flex gap-1">
-                <button className="primary-button" type="button" onClick={() => addText('Normal')}>
-                  Normal
-                </button>
-                <button className="primary-button" type="button" onClick={() => addText('Half Satting')}>
-                  Half Satting
-                </button>
-                <button className="primary-button" type="button" onClick={() => addText('Full Satting')}>
-                  Full Satting
-                </button>
+              <div className="inputGroup">
+                <RHFTextField<MeasurementSchema> label="Remarks" name="remarks" />
+                <RHFSwitch<MeasurementSchema> name="isNecessary" label="Necessary on the release date" />
+                <RHFDatePicker<MeasurementSchema> name="estimatedReleaseDate" label="Estimated release date" />
               </div>
-            </div>
-            <div className="inputGroup my-3 w-30 d-flex flex-direction-row">
-              <RHFTextField<MeasurementSchema> label="Style" name="style" />
-            </div>
-            <h6>Add Measurements</h6>
-            <div className="my-3">
-              <div className="d-flex gap-1 mb-1">
-                {[0, 1, 2, 3, 4].map((index) => (
-                  <TextField key={index} value={measurements[index]} onChange={(e) => addMeasurements(index, e.target.value)} />
-                ))}
-              </div>
-              <div className="d-flex gap-1 mb-1">
-                {[5, 6, 7, 8, 9].map((index) => (
-                  <TextField key={index} value={measurements[index]} onChange={(e) => addMeasurements(index, e.target.value)} />
-                ))}
-              </div>
-            </div>
-            <div className="inputGroup">
-              <RHFTextField<MeasurementSchema> label="Remarks" name="remarks" />
-              <RHFSwitch<MeasurementSchema> name="isNecessary" label="Necessary on the release date" />
-              <RHFDatePicker<MeasurementSchema> name="estimatedReleaseDate" label="Estimated release date" />
             </div>
             <div className="modal-footer mt-3">
               <button className="secondary-button" type="button" onClick={() => handleClear()}>
