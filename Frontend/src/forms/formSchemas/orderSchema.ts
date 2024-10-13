@@ -12,9 +12,23 @@ import Stores from '../../enums/Stores';
 const baseOrderSchema = z.object({
   customer: z.object({
     name: z.string().min(1, 'Name is required'),
-    mobile: z.string().refine((value) => /^\d{10}$/.test(value), {
+    mobile: z.string().refine((value) => !value || /^\d{10}$/.test(value), {
       message: 'Mobile number should be exactly 10 digits',
     }),
+    secondaryMobile: z
+      .string()
+      .refine((value) => !value || /^\d{10}$/.test(value), {
+        message: 'Mobile number should be exactly 10 digits',
+      })
+      .optional()
+      .default(''),
+    otherMobile: z
+      .string()
+      .refine((value) => !value || /^\d{10}$/.test(value), {
+        message: 'Mobile number should be exactly 10 digits',
+      })
+      .optional()
+      .default(''), // Default to empty string if not provided
   }),
   store: z.nativeEnum(Stores).default(Stores.Kegalle),
   salesPerson: z.number().min(1, 'Sales person is required.'),
@@ -30,6 +44,7 @@ const baseOrderSchema = z.object({
       description: z.string().optional(),
       category: z.string().optional(),
       products: z.array(z.number()),
+      amount: z.number().min(1),
     })
   ),
   fitOnRounds: z.array(z.date()).optional(),
@@ -68,6 +83,8 @@ export const defaultOrderValues: OrderSchema = {
   customer: {
     name: '',
     mobile: '',
+    secondaryMobile: '',
+    otherMobile: '',
   },
   store: Stores.Kegalle,
   orderDate: new Date(),

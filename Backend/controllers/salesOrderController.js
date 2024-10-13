@@ -72,6 +72,7 @@ export const createOrder = asyncHandler(async (req, res) => {
         description: detail.description,
         category: detail?.category,
         products: productsData,
+        amount: detail.amount
       };
     })
   );
@@ -364,6 +365,9 @@ export const updateSalesOrRentOrder = asyncHandler(async (req, res) => {
       amount: paymentAmount,
       description: `${orderType}: ${orderId}`, // Include orderId in the transaction description
     });
+
+    const messageBody = `Hi ${order.customer.name}. Your order balance is ${newOrder?.balance}. Thank you come again.`
+    await sendSMS(messageBody, order.customer.mobile);
   
     // Return the updated order and new transaction
     res.json({

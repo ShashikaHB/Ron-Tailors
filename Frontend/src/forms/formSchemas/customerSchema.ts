@@ -12,6 +12,18 @@ export const customerSchema = z.intersection(
     mobile: z.string().refine((value) => /^\d{10}$/.test(value), {
       message: 'Mobile number should be exactly 10 digits',
     }),
+    secondaryMobile: z
+      .string()
+      .refine((value) => /^\d{10}$/.test(value), {
+        message: 'Mobile number should be exactly 10 digits',
+      })
+      .optional(),
+    otherMobile: z
+      .string()
+      .refine((value) => /^\d{10}$/.test(value), {
+        message: 'Mobile number should be exactly 10 digits',
+      })
+      .optional(),
   }),
   z.discriminatedUnion('variant', [
     z.object({ variant: z.literal('create') }),

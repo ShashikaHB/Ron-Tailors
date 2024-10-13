@@ -39,7 +39,7 @@ export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
   doc.moveDown(0.25).text(`Mobile: ${customer.mobile}`);
   doc.moveDown(0.25).text(`Order Date: ${customer.orderDate}`);
   doc.moveDown(0.25).text(`Delivery Date: ${customer.deliveryDate}`);
-  doc.moveDown(0.25).text(`Wedding Date: ${customer.weddingDate}`);
+  doc.moveDown(0.25).text(`Wedding Date: ${customer.weddingDate ?? ''}`);
 
   doc.moveDown();
 

@@ -49,6 +49,10 @@ const salesOrderSchema = new mongoose.Schema(
             ref: "Product",
           },
         ],
+        amount: {
+            type: Number,
+            required: [true, "Amount is required."],
+        }
       },
     ],
     fitOnRounds: [

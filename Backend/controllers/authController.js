@@ -9,6 +9,7 @@ import asyncHandler from "express-async-handler";
 import { sendSMS } from "../notificationSMS/smsNotification.js";
 import { generateOtp } from "../utils/otp.js";
 import { OTPModel } from "../models/otpModel.js";
+import { Customer } from "../models/customerModel.js";
 
 dotenv.config();
 
@@ -224,13 +225,27 @@ export const handleLogOut = asyncHandler(async (req, res) => {
 });
 
 export const sendOtp = asyncHandler(async (req, res) => {
-  const { mobile } = req?.body;
+  const { mobile, isCustomer } = req?.body;
 
   if (!mobile) {
     throw new Error("Mobile number not found");
   }
 
-  const duplicates = await User.findOne({ mobile }).lean().exec();
+  let duplicates = false;
+
+  if (isCustomer) {
+    duplicates = await Customer.findOne({
+      $or: [
+        { mobile: mobile },
+        { secondaryMobile: mobile },
+        { otherMobile: mobile },
+      ],
+    })
+      .lean()
+      .exec();
+  } else {
+    duplicates = await User.findOne({ mobile }).lean().exec();
+  }
 
   if (duplicates) {
     throw new Error("User Already Exists");
@@ -266,7 +281,7 @@ export const sendOtp = asyncHandler(async (req, res) => {
 });
 
 export const verifyOtp = asyncHandler(async (req, res) => {
-  const { mobile, otp } = req.body;
+  const { mobile, name, otp } = req.body;
 
   if (!otp || !mobile) {
     res.status(404);
@@ -279,9 +294,21 @@ export const verifyOtp = asyncHandler(async (req, res) => {
     throw new Error("Invalid OTP");
   }
 
+  let newCustomer = {};
+
+  const duplicates = await Customer.findOne({mobile})
+
+  if (name && !duplicates) {
+    newCustomer = await Customer.create(req.body);
+    if (!newCustomer) {
+      throw new Error("Cannot find created Customer");
+    }
+  }
+
   res.json({
     success: true,
     message: "OTP verified!",
+    data: newCustomer,
   });
   await OTPModel.findOneAndDelete({ mobile, otp });
 });

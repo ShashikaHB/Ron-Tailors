@@ -57,9 +57,9 @@ const UserRegistrationForm = () => {
   const [otp, setOtp] = useState(new Array(6).fill(''));
   const [tempUserData, setTempUserData] = useState({ name: '', mobile: '', role: '', password: '', confirmPassword: '' });
 
-  const [registerUser] = useRegisterMutation();
-  const [sendOtp] = useSendOtpMutation();
-  const [verifyOtp] = useVerifyOtpMutation();
+  const [registerUser, { isLoading: loadingRegister }] = useRegisterMutation();
+  const [sendOtp, { isLoading: sendingOtp }] = useSendOtpMutation();
+  const [verifyOtp, { isLoading: verifyingOtp }] = useVerifyOtpMutation();
 
   const handleOtpInputChange = (e: any, i: number) => {
     if (Number.isNaN(e.target.value)) return false;

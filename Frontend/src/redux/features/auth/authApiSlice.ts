@@ -31,14 +31,14 @@ export const authApiSlice = apiSlice.injectEndpoints({
       }),
     }),
     sendOtp: builder.mutation<any, any>({
-      query: (mobile: string) => ({
+      query: (otpData: { mobile: string; isCustomer?: boolean }) => ({
         url: '/auth/sendOtp',
         method: 'POST',
-        body: { mobile },
+        body: { ...otpData },
       }),
     }),
     verifyOtp: builder.mutation<{ mobile: string; otp: string }, any>({
-      query: (otpData: { mobile: string; otp: string }) => ({
+      query: (otpData: { mobile: string; otp: string; name?: string }) => ({
         url: '/auth/verifyOtp',
         method: 'POST',
         body: { ...otpData },

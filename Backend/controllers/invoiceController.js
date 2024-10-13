@@ -36,9 +36,7 @@ export const getSalesInvoice = asyncHandler(async (req, res) => {
     orderDetails: orderData.orderDetails.map((detail) => ({
       description: detail.description,
       items: detail.products.map((product) => product.itemType),
-      amount: `Rs ${detail.products
-        .reduce((total, product) => total + product.price, 0)
-        .toFixed(2)}`,
+      amount: `Rs ${detail.amount.toFixed(2)}`,
     })),
     orderNo: orderData.salesOrderId,
     totals: {
@@ -139,7 +137,7 @@ export const getRentShopInvoice = asyncHandler(async (req, res) => {
   const stream = res.writeHead(200, {
     "Content-Type": "application/pdf",
   });
-  buildRentShopPdf (
+  buildRentShopPdf(
     (chunk) => stream.write(chunk),
     () => stream.end(),
     data

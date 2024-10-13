@@ -1,8 +1,6 @@
 import asyncHandler from "express-async-handler";
 import { Product } from "../models/productModel.js";
-import { User } from "../models/userModel.js";
 import { Measurement } from "../models/measurementModel.js";
-import { Material } from "../models/materialModel.js";
 import { getDocId } from "../utils/docIds.js";
 import { PiecePrices } from "../models/piecePriceModel.js";
 import { logWork } from "./workLogController.js";
@@ -17,9 +15,9 @@ import { SalesOrder } from "../models/salesOrderModel.js";
 // @route   POST /api/products
 // @access  Public
 export const createProduct = asyncHandler(async (req, res) => {
-  const { itemType, itemCategory, price } = req.body;
+  const { itemType, itemCategory } = req.body;
 
-  if (!itemType || !itemCategory || !price) {
+  if (!itemType || !itemCategory) {
     res.status(400);
     throw new Error("Required fields are not provided.");
   }
@@ -30,18 +28,10 @@ export const createProduct = asyncHandler(async (req, res) => {
     throw new Error("Internal server error product not created.");
   }
 
-  //   const populatedProduct = await Product.findById(newProduct._id)
-  //     .populate("cutter", "name") // Replace 'name' with the fields you want to populate
-  //     .populate("tailor", "name")
-  //     .populate("measurer", "name")
-  //     .populate("materials.material")
-  //     .lean()
-  //     .exec();
-
   res.json({
     message: "New product created Successfully.",
     success: true,
-    data: newProduct.productId,
+    data: {productId: newProduct.productId, productType: newProduct.itemType},
   });
 });
 

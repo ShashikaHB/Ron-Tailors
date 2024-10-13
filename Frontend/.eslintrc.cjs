@@ -78,5 +78,7 @@ module.exports = {
     'no-console': 'warn', // Added rule to disallow console statements
     '@typescript-eslint/no-explicit-any': 'off', // Disabled rule for no-explicit-any
     'react/no-array-index-key': 'off',
+    'no-use-before-define': 'off',
+    '@typescript-eslint/no-use-before-define': 'error',
   },
 };

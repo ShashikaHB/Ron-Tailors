@@ -4,7 +4,7 @@
  * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
-import { Checkbox, FormControl, FormControlLabel, FormGroup, FormLabel, TextField } from '@mui/material';
+import { Checkbox, FormControl, FormControlLabel, FormGroup, FormLabel } from '@mui/material';
 import { OptionCheckBox } from '../../../types/common';
 
 type CheckBoxGroupProps = {
@@ -39,17 +39,6 @@ export const CheckBoxWithInput = ({ option, handleCheckBoxChange, handleInputCha
         control={<Checkbox disabled={disableCheckboxes && !option.checked} checked={option.checked} onChange={() => handleCheckBoxChange(option.id)} />}
         label={option.label}
       />
-      {option.checked && (
-        <TextField
-          type="number"
-          label="Price"
-          value={option.price}
-          onChange={(e) => handleInputChange(option.id, e.target.value)}
-          disabled={disableCheckboxes && !option.checked}
-          size="small"
-          style={{ marginLeft: '10px', width: '100px' }}
-        />
-      )}
     </div>
   );
 };

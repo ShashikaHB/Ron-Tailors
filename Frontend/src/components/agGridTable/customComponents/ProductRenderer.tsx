@@ -4,7 +4,7 @@
  * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
-import { RiCloseLargeLine, RiCheckLine } from '@remixicon/react';
+import { RiCheckLine } from '@remixicon/react';
 import { memo } from 'react';
 import { useAppDispatch } from '../../../redux/reduxHooks/reduxHooks';
 import { setProductId } from '../../../redux/features/common/commonSlice';
@@ -37,8 +37,7 @@ const ProductRenderer = ({ data, handleOpenMeasurement, handleRemove }: ProductR
               }}
               className="d-flex gap-4"
             >
-              <span style={{ marginRight: '10px' }}>{product.type}</span>
-              <span>Rs.{product.price}</span>
+              <span style={{ marginRight: '10px' }}>{product.productType}</span>
               <div className="d-flex gap-2">
                 {product.type === 'Rent Coat' || product.type === 'Rent West Coat' ? (
                   <button
@@ -70,16 +69,6 @@ const ProductRenderer = ({ data, handleOpenMeasurement, handleRemove }: ProductR
                     <RiCheckLine size={24} />
                   </div>
                 )}
-                <button
-                  type="button"
-                  aria-label="close-btn"
-                  className="icon-button"
-                  onClick={() => {
-                    handleRemove(product.productId);
-                  }}
-                >
-                  <RiCloseLargeLine size={18} />
-                </button>
               </div>
             </div>
           );

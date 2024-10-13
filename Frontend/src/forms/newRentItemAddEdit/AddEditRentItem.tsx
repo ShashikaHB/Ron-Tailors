@@ -12,8 +12,9 @@ import { defaultRentItemValues, RentItemSchema } from '../formSchemas/rentItemSc
 import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
 import ProductType from '../../enums/ProductType';
 import { useAddNewRentItemMutation, useLazyGetSingleRentItemQuery, useUpdateSingleRentItemMutation } from '../../redux/features/rentItem/rentItemApiSlice';
-import { useAppSelector } from '../../redux/reduxHooks/reduxHooks';
+import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
 import { selectedRentItemId } from '../../redux/features/orders/orderSlice';
+import { setLoading } from '../../redux/features/common/commonSlice';
 
 const productTypes = [
   {
@@ -57,11 +58,14 @@ type AddMaterialFormProps = {
 
 const AddEditRentItemForm = ({ handleClose, rentItemId }: AddMaterialFormProps) => {
   const { control, unregister, watch, reset, setValue, handleSubmit, getValues } = useFormContext<RentItemSchema>();
+
+  const dispatch = useAppDispatch();
+
   const selectedRentItem = useAppSelector(selectedRentItemId);
 
-  const [addNewRentItem] = useAddNewRentItemMutation();
-  const [updateSingleRentItem] = useUpdateSingleRentItemMutation();
-  const [triggerGetSingleRentItem, { data: singleRentItem, error: Error, isLoading }] = useLazyGetSingleRentItemQuery();
+  const [addNewRentItem, { isLoading: addingRentItem }] = useAddNewRentItemMutation();
+  const [updateSingleRentItem, { isLoading: updatingRentItem }] = useUpdateSingleRentItemMutation();
+  const [triggerGetSingleRentItem, { data: singleRentItem, error: Error, isLoading: loadingSingleItem }] = useLazyGetSingleRentItemQuery();
 
   const variant = useWatch({ control, name: 'variant' });
 
@@ -84,16 +88,6 @@ const AddEditRentItemForm = ({ handleClose, rentItemId }: AddMaterialFormProps) 
   useEffect(() => {
     if (selectedRentItem) triggerGetSingleRentItem(selectedRentItem);
   }, [selectedRentItem]);
-
-  useEffect(() => {
-    const sub = watch((value) => {
-      console.log(value);
-    });
-
-    return () => {
-      sub.unsubscribe();
-    };
-  }, [watch]);
 
   const onSubmit: SubmitHandler<RentItemSchema> = async (data) => {
     try {
@@ -120,6 +114,15 @@ const AddEditRentItemForm = ({ handleClose, rentItemId }: AddMaterialFormProps) 
       //   toast.error(`Rent Item Action Failed. ${error.message}`);
     }
   };
+  useEffect(() => {
+    dispatch(setLoading(addingRentItem));
+  }, [addingRentItem]);
+  useEffect(() => {
+    dispatch(setLoading(updatingRentItem));
+  }, [updatingRentItem]);
+  useEffect(() => {
+    dispatch(setLoading(loadingSingleItem));
+  }, [loadingSingleItem]);
 
   return (
     <div className="modal-dialog modal-dialog-centered">
