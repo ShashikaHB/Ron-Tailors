@@ -8,6 +8,7 @@ import { Controller, FieldValues, Path, useFormContext } from 'react-hook-form';
 import { MenuItem, TextField, TextFieldProps } from '@mui/material';
 import { capitalize } from 'lodash';
 import { Option } from '../../../types/common';
+import StakeOptions from '../../../enums/StakeOptions';
 
 type Props<T extends FieldValues> = {
   name: Path<T>;
@@ -25,7 +26,7 @@ const RHFDropDown = <T extends FieldValues>({ name, options, ...props }: Props<T
         <TextField {...field} {...props} select helperText={error?.message} error={!!error} size="small">
           {options?.map((option, index) => (
             <MenuItem key={index} value={option.value} disabled={option.value === 0 || option.value === ''}>
-              {capitalize(option.label)}
+              {option.label !== StakeOptions.NIC ? capitalize(option.label) : option.label}
             </MenuItem>
           ))}
         </TextField>

@@ -11,3 +11,9 @@ export type Product = {
   materials: MaterialNeededforProduct[];
   selectedProduct: number;
 };
+
+export type ProductOptions = {
+  id: string;
+  label: string;
+  checked: boolean;
+};

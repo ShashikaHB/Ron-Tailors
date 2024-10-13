@@ -4,11 +4,13 @@
  * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FormControl, Select, MenuItem } from '@mui/material';
 import { toast } from 'sonner';
 import salaryGradeOptions, { restrictedRoles } from '../../../consts/salary';
 import { useUpdateUserSalaryGradeMutation } from '../../../redux/features/user/userApiSlice';
+import { setLoading } from '../../../redux/features/common/commonSlice';
+import { useAppDispatch } from '../../../redux/reduxHooks/reduxHooks';
 
 type SalaryGradeRendererProps = {
   data: any;
@@ -17,9 +19,15 @@ type SalaryGradeRendererProps = {
 const SalaryGradeRenderer = ({ data }: SalaryGradeRendererProps) => {
   const { userId, role, salaryGrade } = data; // Extract relevant fields from row data
   const [grade, setGrade] = useState(salaryGrade || '');
-  const [updateSalaryGrade] = useUpdateUserSalaryGradeMutation();
+  const [updateSalaryGrade, { isLoading: updatingGrade }] = useUpdateUserSalaryGradeMutation();
+
+  const dispatch = useAppDispatch();
 
   //   const handleSalaryGradeChange = () => {};
+
+  useEffect(() => {
+    dispatch(setLoading(updatingGrade));
+  }, [updatingGrade]);
 
   // Function to handle salary grade change
   const handleSalaryGradeChange = async (event: React.ChangeEvent<{ value: unknown }>) => {

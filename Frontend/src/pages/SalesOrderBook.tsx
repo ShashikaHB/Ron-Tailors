@@ -27,7 +27,7 @@ import PrintMeasurement from '../forms/printMeasurement/PrintMeasurement';
 import { setLoading } from '../redux/features/common/commonSlice';
 
 const SalesOrderBook = () => {
-  const { data: salesOrders, isError: salesOrderError, isLoading } = useGetAllSalesOrdersQuery('');
+  const { data: salesOrders, isError: salesOrderError, isLoading: loadingSalesBook } = useGetAllSalesOrdersQuery('');
 
   const dispatch = useAppDispatch();
 
@@ -121,8 +121,8 @@ const SalesOrderBook = () => {
   }, [orderSearchQuery]);
 
   useEffect(() => {
-    dispatch(setLoading(isLoading));
-  }, []);
+    dispatch(setLoading(loadingSalesBook));
+  }, [loadingSalesBook]);
 
   return (
     <div className="h-100 d-flex flex-column gap-3">

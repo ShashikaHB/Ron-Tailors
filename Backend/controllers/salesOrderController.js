@@ -72,6 +72,7 @@ export const createOrder = asyncHandler(async (req, res) => {
         description: detail.description,
         category: detail?.category,
         products: productsData,
+        amount: detail.amount
       };
     })
   );
@@ -92,13 +93,13 @@ export const createOrder = asyncHandler(async (req, res) => {
     paymentType: paymentType,
     salesPerson: salesPersonDoc.name,
     store: req.body?.store,
-    amount: newOrder.subTotal,
+    amount: newOrder.advPayment,
     description: `Sales Order: ${newOrder.salesOrderId}`,
   });
 
   await updateDailySummary(newTransaction);
   const messageBody = `Hi ${name}. Your Order Id is ${newOrder.salesOrderId}. Your order balance is ${newOrder?.balance}. Thank you come again.`
-//   await sendSMS(messageBody, mobile);
+  await sendSMS(messageBody, mobile);
 
 
 
@@ -364,6 +365,9 @@ export const updateSalesOrRentOrder = asyncHandler(async (req, res) => {
       amount: paymentAmount,
       description: `${orderType}: ${orderId}`, // Include orderId in the transaction description
     });
+
+    const messageBody = `Hi ${order.customer.name}. Your order balance is ${newOrder?.balance}. Thank you come again.`
+    await sendSMS(messageBody, order.customer.mobile);
   
     // Return the updated order and new transaction
     res.json({

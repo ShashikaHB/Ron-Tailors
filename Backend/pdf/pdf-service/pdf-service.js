@@ -39,7 +39,7 @@ export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
   doc.moveDown(0.25).text(`Mobile: ${customer.mobile}`);
   doc.moveDown(0.25).text(`Order Date: ${customer.orderDate}`);
   doc.moveDown(0.25).text(`Delivery Date: ${customer.deliveryDate}`);
-  doc.moveDown(0.25).text(`Wedding Date: ${customer.weddingDate}`);
+  doc.moveDown(0.25).text(`Wedding Date: ${customer.weddingDate ?? ''}`);
 
   doc.moveDown();
 
@@ -238,7 +238,7 @@ export const buildReadyMadePdf = (dataCallBack, endCallBack, data) => {
   doc.fontSize(11).text("www.rontailors.com", { align: "center" });
 
   doc.moveDown();
-  doc.fontSize(16).text("Ready Made Item BILL", { align: "center" });
+  doc.fontSize(16).text("Ready Made Item bill", { align: "center" });
   doc.fontSize(13).text(`Order No: ${orderNo}`, { align: "center" });
 
   // Section breaker

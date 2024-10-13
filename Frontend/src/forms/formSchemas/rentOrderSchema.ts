@@ -17,6 +17,18 @@ const baseRentOrderSchema = z.object({
     mobile: z.string().refine((value) => /^\d{10}$/.test(value), {
       message: 'Mobile number should be exactly 10 digits',
     }),
+    secondaryMobile: z
+      .string()
+      .refine((value) => /^\d{10}$/.test(value), {
+        message: 'Mobile number should be exactly 10 digits',
+      })
+      .optional(),
+    otherMobile: z
+      .string()
+      .refine((value) => /^\d{10}$/.test(value), {
+        message: 'Mobile number should be exactly 10 digits',
+      })
+      .optional(),
   }),
   store: z.nativeEnum(Stores).default(Stores.Kegalle),
   salesPerson: z.number().min(1, 'Sales person is required.'),
@@ -47,6 +59,7 @@ const baseRentOrderSchema = z.object({
   paymentType: z.nativeEnum(PaymentType).default(PaymentType.Cash),
   stakeOption: z.nativeEnum(StakeOptions),
   stakeAmount: z.coerce.number().optional(),
+  nicNumber: z.string().optional(),
 });
 
 // Define the create schema with customer and salesPerson as numbers
@@ -71,6 +84,8 @@ export const defaultRentOrderValues: RentOrderSchema = {
   customer: {
     name: '',
     mobile: '',
+    secondaryMobile: '',
+    otherMobile: '',
   },
   store: Stores.Kegalle,
   rentDate: new Date(),
@@ -85,5 +100,6 @@ export const defaultRentOrderValues: RentOrderSchema = {
   paymentType: PaymentType.Cash,
   stakeOption: StakeOptions.NIC,
   stakeAmount: 0,
+  nicNumber: '',
   // orderId is required only for 'edit' variant
 };

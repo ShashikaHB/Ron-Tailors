@@ -10,13 +10,23 @@ import { ICellRendererParams } from 'ag-grid-community';
 interface SimpleActionButtonProps extends ICellRendererParams {
   handleRemove: (id: number) => void;
   idField: string;
+  rowIndex?: number;
 }
 
 const SimpleActionButton = (props: SimpleActionButtonProps) => {
-  const { handleRemove, data, idField } = props;
+  const { handleRemove, data, idField, rowIndex } = props;
+
+  const onRemoveClick = () => {
+    if (rowIndex && rowIndex > -1) {
+      handleRemove(rowIndex);
+    } else {
+      handleRemove(data[idField]);
+    }
+  };
+
   return (
     <div>
-      <button type="button" className="primary-button-sm" onClick={() => handleRemove(data[idField])}>
+      <button type="button" className="primary-button-sm" onClick={onRemoveClick}>
         X
       </button>
     </div>

@@ -37,9 +37,9 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
     reset(defaultMaterialValues);
   };
 
-  useEffect(() => {
-    dispatch(setLoading(addingMaterial));
-  }, [addingMaterial]);
+  //   useEffect(() => {
+  //     dispatch(setLoading(addingMaterial));
+  //   }, [addingMaterial]);
 
   //   useEffect(() => {
   //     dispatch(setLoading(updatingMaterial));

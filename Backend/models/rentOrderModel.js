@@ -104,6 +104,9 @@ const rentOrderSchema = new mongoose.Schema({
   stakeAmount : {
     type: Number,
   },
+  nicNumber: {
+    type: String
+  },
   orderStatus: {
     type: String,
     enum: ["Completed", "Advanced", "Incomplete"],

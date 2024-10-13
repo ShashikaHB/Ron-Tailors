@@ -100,7 +100,7 @@ export const orderApiSlice = apiSlice.injectEndpoints({
           body: data.orderData,
         };
       },
-      invalidatesTags: ['Transactions', 'DayEnd'],
+      invalidatesTags: ['Transactions', 'Payment'],
     }),
   }),
 });

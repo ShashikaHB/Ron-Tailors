@@ -30,7 +30,7 @@ const CashBook = () => {
   // Fetch transactions with the selected date range
   const {
     data: transactions,
-    isLoading,
+    isLoading: transactionLoading,
     isError,
   } = useGetFilteredTransactionsQuery({
     fromDate: selectedFromDate?.toISOString(),
@@ -39,8 +39,8 @@ const CashBook = () => {
   });
 
   useEffect(() => {
-    dispatch(setLoading(isLoading));
-  }, [isLoading]);
+    dispatch(setLoading(transactionLoading));
+  }, [transactionLoading]);
 
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
@@ -98,6 +98,7 @@ const CashBook = () => {
     { headerName: 'Date', field: 'date', maxWidth: 400 },
     { headerName: 'Transaction Category', field: 'transactionCategory', maxWidth: 400 },
     { headerName: 'Transaction Type', field: 'transactionType', maxWidth: 400 },
+    { headerName: 'Description', field: 'description', maxWidth: 400 },
     { headerName: 'Payment Type', field: 'paymentType', maxWidth: 400 },
     { headerName: 'Amount', field: 'amount', maxWidth: 400 },
     { headerName: 'Recorded By', field: 'salesPerson', maxWidth: 400 },

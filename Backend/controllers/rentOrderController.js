@@ -72,7 +72,7 @@ if (!salesPersonDoc) {
   });
 
   const messageBody = `Hi ${name}. Your Order Id is ${newOrder.rentOrderId}. Your order balance is ${newOrder?.balance}. Thank you come again.`
-//   await sendSMS(messageBody, mobile);
+  await sendSMS(messageBody, mobile);
 
   // Update the status of each rent item in the order to 'Not Returned'
   for (const detail of rentOrderDetails) {

@@ -15,7 +15,13 @@ type OrderItem = {
   products: number[];
 };
 
-type OrderItems = { orderProducts: OrderItem[]; createdProducts: number[] };
+export type OrderItems = {
+  category: string;
+  description: string;
+  products: { productType: string; productId: number }[];
+  amount: number;
+  isMeasurementSet: boolean;
+};
 
 export type SalesOrderDetails = {
   rentOrderId: number | null;

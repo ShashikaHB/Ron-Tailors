@@ -39,7 +39,7 @@ const AddDayEnd = ({ handleClose }: AddDayEndProps) => {
     handleClose();
   };
 
-  const handleClear = (): void => { };
+  const handleClear = (): void => {};
 
   const handleDateChange = (date: Date) => {
     setSelectedDate(date); // Trigger a new fetch when the fromDate changes
@@ -74,11 +74,11 @@ const AddDayEnd = ({ handleClose }: AddDayEndProps) => {
           </button>
         </div>
         <div className="modal-body">
-          <div className='d-flex flex-column gap-3'>
+          <div className="d-flex flex-column gap-3">
             <div className="inputGroup">
               <SimpleDatePicker label="From Date" onDateChange={handleDateChange} />
             </div>
-            <div className='row'>
+            <div className="row">
               <div className="col-12">
                 <FormControl size="small">
                   <Select value={selectedStore} onChange={handleStoreChange}>
@@ -91,7 +91,7 @@ const AddDayEnd = ({ handleClose }: AddDayEndProps) => {
                 </FormControl>
               </div>
             </div>
-            <div className='row g-0 gap-2'>
+            <div className="row g-0 gap-2">
               <div className="col">
                 <TextField label="Total Income" value={dailySummaryData?.totalIncome} disabled />
               </div>

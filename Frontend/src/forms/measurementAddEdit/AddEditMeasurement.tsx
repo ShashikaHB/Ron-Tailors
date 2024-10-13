@@ -224,9 +224,6 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
               <button className="secondary-button" type="button" onClick={() => handleClear()}>
                 Clear
               </button>
-              {/* {              <button className="secondary-button" type="button" onClick={() => validate()}>
-                validate
-              </button>} */}
               <button className="primary-button" type="submit">
                 Save
               </button>

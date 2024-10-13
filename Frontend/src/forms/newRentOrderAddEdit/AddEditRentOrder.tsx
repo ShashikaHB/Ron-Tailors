@@ -5,7 +5,7 @@
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
 import { TextField } from '@mui/material';
-import { FaPlus, FaSearch } from 'react-icons/fa';
+import { FaSearch } from 'react-icons/fa';
 import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -32,6 +32,7 @@ import { Roles } from '../../enums/Roles';
 import stores from '../../consts/stores';
 import StakeOptions from '../../enums/StakeOptions';
 import { setLoading } from '../../redux/features/common/commonSlice';
+import CustomMobileWithOtp from '../../components/customFormComponents/customMobileWithOtp/CustomMobileWithOtp';
 
 // const salesPeople = [
 //   {
@@ -77,7 +78,7 @@ const stakeOptions = [
   },
   {
     value: StakeOptions.Deposit,
-    label: 'Card',
+    label: 'Deposit',
   },
 ];
 
@@ -220,6 +221,13 @@ const NewRentOut = () => {
     }
   };
 
+  const handleKeyPressProductAdd = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Prevent the form submission
+      handleRentItemAdd();
+    }
+  };
+
   const handleKeyPressProductSearch = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault(); // Prevent the form submission
@@ -268,11 +276,10 @@ const NewRentOut = () => {
       setValue('customer.mobile', customer.mobile);
       clearErrors();
     }
-  }, [customer, setValue, clearErrors, customerSearchQuery]);
+  }, [customer]);
 
   useEffect(() => {
     if (rentItem) {
-      toast.success('Rent Item fetched successfully.');
       setRentItemDetails((prevDetails) => ({
         ...prevDetails,
         description: rentItem.description,
@@ -314,7 +321,7 @@ const NewRentOut = () => {
           toast.success('New Rent Order Added successfully');
           handleResetRentOrder();
           const baseUrl = import.meta.env.VITE_BASE_URL;
-          const invoiceUrl = `${baseUrl}/api/v1/invoice/rentOrder/${newOrderId}`;
+          const invoiceUrl = `${baseUrl}/api/v1/invoice/rentOrder/shop/${newOrderId}`;
           if (newWindow) {
             newWindow.location.href = invoiceUrl;
           }
@@ -356,27 +363,9 @@ const NewRentOut = () => {
                     </div>
                   </div>
                   <div className="row">
-                    <div className="col-6 d-flex gap-2 mb-3 align-items-end">
-                      <RHFTextField<RentOrderSchema> label="Mobile" name="customer.mobile" />
-                      <button className="icon-button" type="button" aria-label="search_customer" onClick={() => setShowOtherMobile(!showOtherMobile)}>
-                        <span>
-                          <FaPlus />
-                        </span>
-                      </button>
-                    </div>
-                    <div className="col-6 mb-3">
-                      <RHFTextField<RentOrderSchema> label="Name" name="customer.name" />
-                    </div>
-                    {showOtherMobile && (
-                      <>
-                        <div className="col-6 mb-3">
-                          <TextField label="Secondary Mobile" name="other phone" />
-                        </div>
-                        <div className="col-6 mb-3">
-                          <TextField label="Other Mobile" name="other phone" />
-                        </div>
-                      </>
-                    )}
+                    <CustomMobileWithOtp<RentOrderSchema> label="Mobile" name="customer.mobile" />
+                    <CustomMobileWithOtp<RentOrderSchema> label="Secondary Mobile" name="customer.secondaryMobile" />
+                    <CustomMobileWithOtp<RentOrderSchema> label="Other Mobile" name="customer.otherMobile" />
                     <div className="col-6 mb-3">
                       <RHFDropDown<RentOrderSchema> options={salesPeople} name="salesPerson" label="Sales Person" />
                     </div>
@@ -420,7 +409,11 @@ const NewRentOut = () => {
                       <RHFDropDown<RentOrderSchema> label="Stake Options" options={stakeOptions} name="stakeOption" />
                     </div>
                     <div className="col-6 mb-3">
-                      <RHFTextField<RentOrderSchema> label="Amount" name="stakeAmount" disabled={stakeOption === StakeOptions.NIC} />
+                      {stakeOption === StakeOptions.NIC ? (
+                        <RHFTextField<RentOrderSchema> label="NIC Number" name="nicNumber" />
+                      ) : (
+                        <RHFTextField<RentOrderSchema> label="Deposit Amount" name="stakeAmount" />
+                      )}
                     </div>
                   </div>
                   <div className="d-flex justify-content-end gap-2">
@@ -494,7 +487,13 @@ const NewRentOut = () => {
                         />
                       </div>
                       <div className="col-4">
-                        <TextField label="Amount" type="number" value={rentItemDetails.amount} onChange={(e) => handleAmountChange(e)} />
+                        <TextField
+                          label="Amount"
+                          type="number"
+                          value={rentItemDetails.amount}
+                          onChange={(e) => handleAmountChange(e)}
+                          onKeyDown={handleKeyPressProductAdd}
+                        />
                       </div>
                     </div>
                   </div>

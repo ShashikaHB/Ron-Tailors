@@ -5,7 +5,7 @@
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
 import { memo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigation } from 'react-router-dom';
 
 interface SelectCardProps {
   title: string;
@@ -15,8 +15,9 @@ interface SelectCardProps {
 }
 
 const SelectCard = ({ title, subtitle, image, link }: SelectCardProps) => {
+  const navigate = useNavigation();
   return (
-    <div className="select-card d-flex flex-row">
+    <div className="select-card d-flex flex-row" onClick={() => navigate(link)}>
       <div className="select-card-body d-flex flex-column">
         <div className="select-card-header">{title}</div>
         <div className="select-card-body-text">{subtitle}</div>

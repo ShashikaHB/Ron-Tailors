@@ -19,7 +19,7 @@ import { setLoading } from '../redux/features/common/commonSlice';
 const MonthlySummary = () => {
   const [rowData, setRowData] = useState<any>([]);
   const [selectedMonth, setSelectedMonth] = useState<any>(format(new Date(), 'yyyy-MM'));
-  const { data: monthlySummaryData, isLoading, isError } = useGetAllMonthlySummaryQuery(selectedMonth);
+  const { data: monthlySummaryData, isLoading: summaryLoading, isError } = useGetAllMonthlySummaryQuery(selectedMonth);
 
   const defaultColDef: ColDef = {
     flex: 1,
@@ -38,8 +38,8 @@ const MonthlySummary = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(setLoading(isLoading));
-  }, [isLoading]);
+    dispatch(setLoading(summaryLoading));
+  }, [summaryLoading]);
 
   useEffect(() => {
     if (monthlySummaryData) {
