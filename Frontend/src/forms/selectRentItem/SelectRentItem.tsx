@@ -13,8 +13,8 @@ import { RentItemDetailTypes } from '../../enums/RentItemDetails';
 import { useLazySearchRentItemQuery } from '../../redux/features/product/productApiSlice';
 import { RentItemDetails } from '../../types/rentItem';
 import ProductType from '../../enums/ProductType';
-import { useAppSelector } from '../../redux/reduxHooks/reduxHooks';
-import { selectProductId } from '../../redux/features/common/commonSlice';
+import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
+import { selectProductId, setLoading } from '../../redux/features/common/commonSlice';
 
 const initialRentItemDetails: RentItemDetails = {
   rentItemId: 0,
@@ -31,11 +31,17 @@ const SelectRentItem = ({ handleClose }) => {
   const [productSearchQuery, setProductSearchQuery] = useState('');
   const [rentItemDetails, setRentItemDetails] = useState<RentItemDetails>(initialRentItemDetails);
 
+  const dispatch = useAppDispatch();
+
   const [triggerProductSearch, { data: rentItem, isLoading: rentItemLoading }] = useLazySearchRentItemQuery();
 
   const handleSearchProduct = () => {
     triggerProductSearch(productSearchQuery);
   };
+
+  useEffect(() => {
+    dispatch(setLoading(rentItemLoading));
+  }, [rentItemLoading]);
 
   useEffect(() => {
     if (rentItem) {

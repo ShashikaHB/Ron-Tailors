@@ -27,7 +27,7 @@ const AddDayEnd = ({ handleClose }: AddDayEndProps) => {
 
   const dispatch = useAppDispatch();
 
-  const { data: dailySummaryData, isLoading } = useGetSingleDayEndRecordsQuery({ selectedDate, selectedStore });
+  const { data: dailySummaryData, isLoading: loadingDayRecord } = useGetSingleDayEndRecordsQuery({ selectedDate, selectedStore });
 
   const [addDayEnd, { isLoading: dayEndLoading }] = useUpdateCashInHandMutation();
 
@@ -54,8 +54,8 @@ const AddDayEnd = ({ handleClose }: AddDayEndProps) => {
   };
 
   useEffect(() => {
-    dispatch(setLoading(isLoading));
-  }, [isLoading]);
+    dispatch(setLoading(loadingDayRecord));
+  }, [loadingDayRecord]);
   useEffect(() => {
     dispatch(setLoading(dayEndLoading));
   }, [dayEndLoading]);

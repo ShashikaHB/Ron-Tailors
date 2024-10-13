@@ -17,7 +17,7 @@ const SimpleActionButton = (props: SimpleActionButtonProps) => {
   const { handleRemove, data, idField, rowIndex } = props;
 
   const onRemoveClick = () => {
-    if (rowIndex && rowIndex > -1) {
+    if (rowIndex !== undefined && rowIndex !== null) {
       handleRemove(rowIndex);
     } else {
       handleRemove(data[idField]);

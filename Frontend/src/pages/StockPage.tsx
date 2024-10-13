@@ -22,7 +22,7 @@ import { useAppDispatch } from '../redux/reduxHooks/reduxHooks';
 import { setLoading } from '../redux/features/common/commonSlice';
 
 const StockPage = () => {
-  const { data: materials, isError, isLoading, error } = useGetAllMaterialsQuery();
+  const { data: materials, isError, isLoading: loadingMaterials, error } = useGetAllMaterialsQuery();
   const [triggerDelete, { data, isLoading: deletingMaterial }] = useDeleteNewMaterialMutation();
 
   const [rowData, setRowData] = useState<any[]>([]);
@@ -41,8 +41,8 @@ const StockPage = () => {
     dispatch(setLoading(deletingMaterial));
   }, [deletingMaterial]);
   useEffect(() => {
-    dispatch(setLoading(isLoading));
-  }, [isLoading]);
+    dispatch(setLoading(loadingMaterials));
+  }, [loadingMaterials]);
 
   const handleOpen = useCallback((materialId: number | null) => {
     setOpen(true);

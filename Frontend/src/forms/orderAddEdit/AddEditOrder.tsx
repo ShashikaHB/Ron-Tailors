@@ -203,25 +203,26 @@ const AddEditOrder = () => {
     dispatch(setSelectedProduct(productId));
   }, []);
 
-  const handleRemove = (productId: number) => {
+  const handleRemove = (rowIndex: number) => {
     // Filter out the products that do not match the given productId
-    const updatedItems = selectedItems
-      .map((item: any) => ({
-        ...item,
-        products: item.products.filter((product: any) => product !== productId),
-      }))
-      .filter((item: any) => item.products.length > 0); // Remove items with no products
+    const updatedItems = selectedItems.filter((item: any, index: number) => index !== rowIndex); // Remove items with no products
 
     // Update the state with the filtered items
     setSelectedItems(updatedItems);
   };
 
-  const transformOrderDetails = (orderDetails: any) => {
+  const transformOrderDetails = (orderDetails: any, isRowData?: boolean) => {
     return orderDetails.map((detail: any) => {
       return {
-        category: detail.description,
+        category: detail.category,
         description: detail.description,
-        products: detail.products.map((product: any) => product.productId),
+        products: detail.products.map((product: any) => {
+          if (isRowData) {
+            return { productId: product.productId, productType: product.itemType };
+          }
+          return product.productId;
+        }),
+        amount: detail.amount,
       };
     });
   };
@@ -233,6 +234,7 @@ const AddEditOrder = () => {
     const deliveryDate = data?.deliveryDate ? new Date(data.deliveryDate) : null;
     const fitOnRounds = data?.fitOnRounds.map((round: any) => (round ? new Date(round) : null));
     const orderDetails = transformOrderDetails(data?.orderDetails);
+    setSelectedItems(orderDetails);
     return { ...data, salesPerson, weddingDate, orderDate, deliveryDate, fitOnRounds, orderDetails };
   };
 
@@ -300,7 +302,7 @@ const AddEditOrder = () => {
         if (response.data) {
           reset(getUpdatingFormattedData(response.data)); // Populate the form with fetched data
           dispatch(setSelectedCustomerId(response.data.customer.customerId));
-          const formattedOrderDetails = transformOrderDetails(response.data.orderDetails);
+          const formattedOrderDetails = transformOrderDetails(response.data.orderDetails, true);
           setSelectedItems(formattedOrderDetails);
         }
       });
@@ -351,9 +353,14 @@ const AddEditOrder = () => {
         if (response.error) {
           console.log(response.error);
         } else {
+          const baseUrl = import.meta.env.VITE_BASE_URL;
+          const invoiceUrl = `${baseUrl}/api/v1/invoice/salesOrder/${salesOrderId}`;
           toast.success('Order Updated!');
           dispatch(removeSelectedCustomerId());
           reset();
+          if (newWindow) {
+            newWindow.location.href = invoiceUrl;
+          }
         }
       } else {
         const response = await addOrder(data);

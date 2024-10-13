@@ -24,7 +24,7 @@ const MarkAttendance = ({ handleClose }: MarkAttendanceProps) => {
 
   const [selectedUser, setSelectedUser] = useState<any>(0);
 
-  const [markAttendance, { data, isLoading }] = useMarkAttendanceMutation();
+  const [markAttendance, { data, isLoading: loadingAttendance }] = useMarkAttendanceMutation();
 
   const users = useAppSelector(allUsers);
 
@@ -40,8 +40,8 @@ const MarkAttendance = ({ handleClose }: MarkAttendanceProps) => {
   };
 
   useEffect(() => {
-    dispatch(setLoading(isLoading));
-  }, [isLoading]);
+    dispatch(setLoading(loadingAttendance));
+  }, [loadingAttendance]);
 
   return (
     <div className="modal-dialog modal-dialog-centered">

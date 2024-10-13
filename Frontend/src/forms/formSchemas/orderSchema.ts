@@ -38,7 +38,14 @@ const baseOrderSchema = z.object({
   deliveryDate: z.date().refine((date) => date instanceof Date && !Number.isNaN(date.getTime()), {
     message: 'Delivery date is required and must be a valid date.',
   }),
-  weddingDate: z.date().optional(),
+  weddingDate: z
+    .union([
+      z.date().refine((date) => date instanceof Date && !Number.isNaN(date.getTime()), {
+        message: 'Wedding date must be a valid date.',
+      }),
+      z.null(),
+    ])
+    .optional(),
   orderDetails: z.array(
     z.object({
       description: z.string().optional(),
@@ -89,7 +96,7 @@ export const defaultOrderValues: OrderSchema = {
   store: Stores.Kegalle,
   orderDate: new Date(),
   deliveryDate: new Date(),
-  weddingDate: undefined,
+  weddingDate: null,
   salesPerson: 0,
   orderDetails: [],
   fitOnRounds: [new Date()],

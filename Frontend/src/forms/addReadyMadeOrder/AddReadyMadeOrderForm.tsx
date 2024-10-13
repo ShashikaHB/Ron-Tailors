@@ -29,7 +29,7 @@ const AddReadyMadeOrderForm = () => {
   const dispatch = useAppDispatch();
   const [triggerCustomerSearch, { data: customer, isLoading: customerLoading }] = useLazySearchCustomerQuery();
 
-  const [addReadyMadeItem, { data, isLoading }] = useAddReadyMadeItemOrderMutation();
+  const [addReadyMadeItem, { data, isLoading: addingItem }] = useAddReadyMadeItemOrderMutation();
   const [customerSearchQuery, setCustomerSearchQuery] = useState('');
 
   const users = useAppSelector(allUsers);
@@ -51,8 +51,8 @@ const AddReadyMadeOrderForm = () => {
   }, [customerLoading]);
 
   useEffect(() => {
-    dispatch(setLoading(isLoading));
-  }, [isLoading]);
+    dispatch(setLoading(addingItem));
+  }, [addingItem]);
 
   useEffect(() => {
     if (customer) {
@@ -62,10 +62,6 @@ const AddReadyMadeOrderForm = () => {
       clearErrors();
     }
   }, [customer, setValue, clearErrors]);
-
-  useEffect(() => {
-    dispatch(setLoading(isLoading));
-  }, [isLoading]);
 
   const onSubmit: SubmitHandler<ReadyMadeItemSchema> = async (data) => {
     try {

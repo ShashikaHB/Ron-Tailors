@@ -22,7 +22,7 @@ import { setLoading } from '../redux/features/common/commonSlice';
 
 const UsersPage = () => {
   const [rowData, setRowData] = useState<User[]>([]);
-  const { data: users, isLoading, isError } = useGetAllUsersQuery();
+  const { data: users, isLoading: loadingUsers, isError } = useGetAllUsersQuery();
   const [open, setOpen] = useState(false);
   const [openAttendance, setOpenAttendance] = useState(false);
 
@@ -35,8 +35,8 @@ const UsersPage = () => {
   });
 
   useEffect(() => {
-    dispatch(setLoading(isLoading));
-  }, [isLoading]);
+    dispatch(setLoading(loadingUsers));
+  }, [loadingUsers]);
 
   const handleOpen = useCallback((materialId: number | null) => {
     setOpen(true);

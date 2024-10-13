@@ -28,7 +28,7 @@ import { useAppDispatch } from '../redux/reduxHooks/reduxHooks';
 import { setLoading } from '../redux/features/common/commonSlice';
 
 const AccountsPage = () => {
-  const { data: transactionCategories, isError: transactionError, isLoading } = useGetAllTransactionCategoriesQuery({});
+  const { data: transactionCategories, isError: transactionError, isLoading: categoryLoading } = useGetAllTransactionCategoriesQuery({});
 
   const methods = useForm<TransactionCategorySchema>({
     mode: 'all',
@@ -72,8 +72,8 @@ const AccountsPage = () => {
   const [rowData, setRowData] = useState<any>([]);
 
   useEffect(() => {
-    dispatch(setLoading(isLoading));
-  }, [isLoading]);
+    dispatch(setLoading(categoryLoading));
+  }, [categoryLoading]);
   useEffect(() => {
     dispatch(setLoading(isDeletingCategory));
   }, [isDeletingCategory]);

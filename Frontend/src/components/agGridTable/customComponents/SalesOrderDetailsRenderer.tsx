@@ -23,15 +23,15 @@ type SalesOrderDetailsRendererProps = {
 const SalesOrderDetailsRenderer = ({ data, handleOpenMeasurement, handleOpenProductEdit }: SalesOrderDetailsRendererProps) => {
   const { orderDetails } = data ?? '';
 
-  const [updateStatus, { isLoading }] = useUpdateProductStatusMutation();
+  const [updateStatus, { isLoading: updatingOrderDetails }] = useUpdateProductStatusMutation();
   const dispatch = useAppDispatch();
 
   // Initialize a state to store product statuses
   const [productStatuses, setProductStatuses] = useState<{ [key: number]: string }>({});
 
   useEffect(() => {
-    dispatch(setLoading(isLoading));
-  }, [isLoading]);
+    dispatch(setLoading(updatingOrderDetails));
+  }, [updatingOrderDetails]);
 
   // Populate initial statuses when data changes
   useEffect(() => {
@@ -43,10 +43,6 @@ const SalesOrderDetailsRenderer = ({ data, handleOpenMeasurement, handleOpenProd
     });
     setProductStatuses(initialStatuses); // Set the initial statuses
   }, [orderDetails]);
-
-  useEffect(() => {
-    dispatch(setLoading(isLoading));
-  }, [isLoading]);
 
   // Function to handle status change
   const handleStatusChange = async (productId: number, newStatus: string) => {

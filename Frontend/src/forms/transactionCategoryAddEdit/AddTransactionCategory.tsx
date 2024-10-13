@@ -27,7 +27,7 @@ const AddTransactionCategory = ({ handleClose, materialId }: AddMaterialFormProp
 
   const dispatch = useAppDispatch();
 
-  const [addTransactionCategory, { isLoading }] = useAddCustomTransactionCategoryMutation();
+  const [addTransactionCategory, { isLoading: transactionLoading }] = useAddCustomTransactionCategoryMutation();
 
   const handleFormClose = (): void => {
     handleClose();
@@ -39,8 +39,8 @@ const AddTransactionCategory = ({ handleClose, materialId }: AddMaterialFormProp
   };
 
   useEffect(() => {
-    dispatch(setLoading(isLoading));
-  }, [isLoading]);
+    dispatch(setLoading(transactionLoading));
+  }, [transactionLoading]);
 
   const onSubmit: SubmitHandler<TransactionCategorySchema> = async (data) => {
     try {

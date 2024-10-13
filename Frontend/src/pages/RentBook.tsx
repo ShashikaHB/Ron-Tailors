@@ -21,7 +21,7 @@ import { useAppDispatch } from '../redux/reduxHooks/reduxHooks';
 import PrintShopBill from '../forms/printshopbill/PrintShopBill';
 
 const RentBook = () => {
-  const { data: rentOrders, isError: rentOrderError, isLoading } = useGetAllRentOrdersQuery();
+  const { data: rentOrders, isError: rentOrderError, isLoading: allRentOrdersLoading } = useGetAllRentOrdersQuery();
 
   const navigate = useNavigate();
 
@@ -46,8 +46,8 @@ const RentBook = () => {
   };
 
   useEffect(() => {
-    dispatch(setLoading(isLoading));
-  }, [isLoading]);
+    dispatch(setLoading(allRentOrdersLoading));
+  }, [allRentOrdersLoading]);
 
   const initialColDefs: ColDef<any>[] = [
     { headerName: 'Id', field: 'rentOrderId', minWidth: 100 },

@@ -237,7 +237,9 @@ export const updateSalesOrder = asyncHandler(async (req, res) => {
 
       return {
         description: detail.description,
+        category: detail?.category,
         products: productsData,
+        amount: detail.amount
       };
     })
   );

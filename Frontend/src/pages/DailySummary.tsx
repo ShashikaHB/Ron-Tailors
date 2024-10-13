@@ -27,7 +27,7 @@ import { setLoading } from '../redux/features/common/commonSlice';
 const DailySummary = () => {
   const [selectedStore, setSelectedStore] = useState<any>(Stores.Kegalle);
 
-  const { data: dailySummary, isLoading } = useGetAllDayEndRecordsQuery(selectedStore);
+  const { data: dailySummary, isLoading: dayEndLoading } = useGetAllDayEndRecordsQuery(selectedStore);
 
   const [open, setOpen] = useState(false);
 
@@ -36,8 +36,8 @@ const DailySummary = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(setLoading(isLoading));
-  }, [isLoading]);
+    dispatch(setLoading(dayEndLoading));
+  }, [dayEndLoading]);
   useEffect(() => {
     dispatch(setLoading(deletingCategory));
   }, [deletingCategory]);

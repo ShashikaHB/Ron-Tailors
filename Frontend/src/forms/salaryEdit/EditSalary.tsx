@@ -19,12 +19,12 @@ const EditSalary = () => {
 
   const dispatch = useAppDispatch();
 
-  const { data: salaryData, isLoading } = useGetSalaryQuery();
+  const { data: salaryData, isLoading: salaryLoading } = useGetSalaryQuery();
   const [updateSalary, { isLoading: updatingSalary }] = useUpdateSalaryMutation();
 
   useEffect(() => {
-    dispatch(setLoading(isLoading));
-  }, [isLoading]);
+    dispatch(setLoading(salaryLoading));
+  }, [salaryLoading]);
   useEffect(() => {
     dispatch(setLoading(updatingSalary));
   }, [updatingSalary]);

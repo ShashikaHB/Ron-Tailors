@@ -32,12 +32,12 @@ const RootLayout = () => {
           </div>
         </div>
       </div>
-      {isLoading && <div className='backdrop'>
-        <div className='loading-image'>
-
+      {isLoading && (
+        <div className="backdrop">
+          <div className="loading-image" />
+          Loading...
         </div>
-        Loading...
-        </div>}
+      )}
     </div>
   );
 };
