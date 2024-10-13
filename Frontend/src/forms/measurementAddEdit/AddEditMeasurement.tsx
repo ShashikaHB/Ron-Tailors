@@ -160,7 +160,7 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
           </div>
 
           <form className='d-flex flex-column flex-grow-1 overflow-hidden' onSubmit={handleSubmit(onSubmit)}>
-            <div className='h-100 overflow-y-auto'>
+            <div className='h-100 overflow-y-auto pe-2'>
               <div className="inputGroup">
                 <div>
                   <br />
@@ -216,10 +216,16 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
                   ))}
                 </div>
               </div>
-              <div className="inputGroup">
+              <div className="mb-3">
                 <RHFTextField<MeasurementSchema> label="Remarks" name="remarks" />
-                <RHFSwitch<MeasurementSchema> name="isNecessary" label="Necessary on the release date" />
-                <RHFDatePicker<MeasurementSchema> name="estimatedReleaseDate" label="Estimated release date" />
+              </div>
+              <div className="row g-0">
+                <div className="col-6">
+                  <RHFSwitch<MeasurementSchema> name="isNecessary" label="Necessary on the release date" />
+                </div>
+                <div className="col-6">
+                  <RHFDatePicker<MeasurementSchema> name="estimatedReleaseDate" label="Estimated release date" />
+                </div>
               </div>
             </div>
             <div className="modal-footer mt-3">
