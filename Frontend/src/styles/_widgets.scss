@@ -8,6 +8,7 @@ body {
   font-family: "Inter", sans-serif !important;
   height: 100%;
   width: 100%;
+  position: relative;
 
   #root {
     height: 100%;
@@ -352,5 +353,21 @@ body {
     .MuiFormControl-root{
       width: 100% !important;
     }
+  }
+  #simple-popover{
+    z-index: 200;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    .popover-otp-container{
+      background-color: var(--bg-color-2);
+      border-radius: 16px;
+      padding: 32px;
+      border: 1px solid rgba(0, 0, 0, 0.26);
+      box-shadow: 0px 6px 12px -3px #25292e0a, 0px 6px 18px 0px #25292e1f;
+    }
+  }
+  .otp-add-btn{
+    margin-top: 19.5px;
   }
 }

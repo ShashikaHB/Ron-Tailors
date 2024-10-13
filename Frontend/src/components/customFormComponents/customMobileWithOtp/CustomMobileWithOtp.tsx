@@ -90,9 +90,9 @@ const CustomMobileWithOtp = <T extends FieldValues>({ name, label, onVerify }: C
   };
 
   return (
-    <div className="col-6 d-flex gap-2 mb-3 align-items-end">
+    <div className="col-6 d-flex gap-2 mb-3 align-items-start">
       <RHFTextField<T> label={label} name={name} />
-      <button className="icon-button" type="button" aria-label="mobile_add" aria-describedby={id} onClick={handleClick} disabled={verified || sendingOtp}>
+      <button className="icon-button otp-add-btn" type="button" aria-label="mobile_add" aria-describedby={id} onClick={handleClick} disabled={verified || sendingOtp}>
         {verified ? (
           <span>
             <FaCheck />
@@ -105,17 +105,17 @@ const CustomMobileWithOtp = <T extends FieldValues>({ name, label, onVerify }: C
       </button>
       <Popper id={id} open={open} anchorEl={anchorEl}>
         <ClickAwayListener onClickAway={handleClosePopOver}>
-          <div className="d-flex flex-column align-items-center">
-            <div className="otp-area">
+          <div className="popover-otp-container">
+            <div className="d-flex gap-2 mb-4">
               {otp.map((data: string, index: number) => {
                 return <input type="text" key={index} className="otp-input" value={data} maxLength={1} onChange={(e) => handleOtpInputChange(e, index)} />;
               })}
             </div>
-            <div className="otp-area d-flex align-item-center justify-content-center">
-              <button type="button" className="primary-button w-50" onClick={handleOtpVerification}>
+            <div className="d-flex align-item-center justify-content-center gap-2">
+              <button type="button" className="primary-button" onClick={handleOtpVerification}>
                 Verify OTP
               </button>
-              <button type="button" className="secondary-button w-50" onClick={() => handleOtpSend()}>
+              <button type="button" className="secondary-button" onClick={() => handleOtpSend()}>
                 Send Otp
               </button>
             </div>
