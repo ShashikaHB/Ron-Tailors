@@ -7,7 +7,7 @@
 import { Outlet } from 'react-router-dom';
 import LoginLogo from '../assets/images/logo-login.png';
 
-const SignInSignUpLayout = () => (
+const SignLayout = () => (
   <div className="login-container">
     <div className="row login-background">
       <div className="col-6 d-flex justify-content-center">
@@ -24,4 +24,4 @@ const SignInSignUpLayout = () => (
   </div>
 );
 
-export default SignInSignUpLayout;
+export default SignLayout;

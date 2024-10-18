@@ -6,7 +6,6 @@
  */
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 import ErrorPage from '../pages/ErrorPage';
-import SignInSignUpLayout from '../pageLayouts/SignInSignUpLayout';
 import RegisterPage from '../pages/RegisterPage';
 import LoginPage from '../pages/LoginPage';
 import RootLayout from '../pageLayouts/RootLayout';
@@ -32,11 +31,12 @@ import DailySummary from '../pages/DailySummary';
 import SalesOrRentOrderUpdatePage from '../pages/SalesOrRentOrderUpdatePage';
 import RequireAdminAuth from '../components/adminAuthHandler/AdminAuthHandler';
 import MonthlySummary from '../pages/MonthlySummary';
+import SignLayout from '../pageLayouts/SignLayout';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <SignInSignUpLayout />,
+    element: <SignLayout />,
     errorElement: <ErrorPage />,
     children: [
       { path: '/', element: <Navigate to="/login" replace /> },
