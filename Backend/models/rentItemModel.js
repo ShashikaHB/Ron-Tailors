@@ -19,7 +19,7 @@ const rentItemSchema = new mongoose.Schema({
   itemCategory: {
     type: String,
     enum: ["General", "Full Suit", "National Suit", "Rent Full Suit"],
-    default: "General",
+    default: "Rent Full Suit",
   },
   itemType: {
     type: String,

@@ -49,6 +49,50 @@ const salesOrderSchema = new mongoose.Schema(
             ref: "Product",
           },
         ],
+        rentItems: [
+            {
+              description: {
+                type: String,
+                required: [true, "Type is required"],
+              },
+              color: { type: String },
+              size: { type: Number },
+              rentItemId: {
+                type: Number,
+                required: [true, "Rent Item Id is required"],
+              },
+              itemCategory: {
+                type: String,
+                enum: ["General", "Full Suit", "National Suit", "Rent Full Suit"],
+                default: "Rent Full Suit",
+              },
+              itemType: {
+                type: String,
+                enum: [
+                  "Coat",
+                  "National Coat",
+                  "West Coat",
+                  "Shirt",
+                  "Trouser",
+                  "Designed Trouser",
+                  "Designed Shirt",
+                  "National Shirt",
+                  "Rent Coat",
+                  "Rent West Coat",
+                  "Sarong",
+                  "Tie",
+                  "Bow",
+                  "Cravat",
+                  "Hanky",
+                  "Chain",
+                ],
+                required: [true, "Item Type is required."],
+              },
+              handLength: { type: String },
+              notes: { type: String },
+              amount: { type: Number },
+            },
+          ],
         amount: {
             type: Number,
             required: [true, "Amount is required."],
@@ -57,7 +101,17 @@ const salesOrderSchema = new mongoose.Schema(
     ],
     fitOnRounds: [
       {
-        type: Date,
+        fitOnNumber: {
+            type: Number,
+        },
+        date: {
+            type: Date,
+            default: new Date()
+        },
+        isChecked: {
+            type: Boolean,
+            default: false
+        }
       },
     ],
     totalPrice: {

@@ -50,6 +50,8 @@ const AddDayEnd = ({ handleClose }: AddDayEndProps) => {
 
     if (response) {
       toast.success('Daily summary updated successfully!');
+      dispatch(setLoading(false));
+      handleClose();
     }
   };
 

@@ -7,6 +7,7 @@
 import z from 'zod';
 import PaymentType from '../../enums/PaymentType';
 import Stores from '../../enums/Stores';
+import ProductType from '../../enums/ProductType';
 
 // Create a base schema without the conditional fields
 const baseOrderSchema = z.object({
@@ -51,10 +52,21 @@ const baseOrderSchema = z.object({
       description: z.string().optional(),
       category: z.string().optional(),
       products: z.array(z.number()),
+      rentItems: z.array(
+        z.object({
+          color: z.string().optional(),
+          size: z.union([z.coerce.number(), z.undefined()]),
+          description: z.string().optional(),
+          handLength: z.string().optional(),
+          notes: z.string().optional(),
+          itemType: z.nativeEnum(ProductType),
+          rentItemId: z.number().min(1),
+          amount: z.number().optional(),
+        })
+      ),
       amount: z.number().min(1),
     })
   ),
-  fitOnRounds: z.array(z.date()).optional(),
   totalPrice: z.coerce.number().min(1, 'Total price is required.'),
   subTotal: z.coerce.number().min(1, 'Sub Total is required.'),
   discount: z.coerce.number().optional(),
@@ -99,7 +111,6 @@ export const defaultOrderValues: OrderSchema = {
   weddingDate: null,
   salesPerson: 0,
   orderDetails: [],
-  fitOnRounds: [new Date()],
   totalPrice: 0,
   subTotal: 0,
   discount: 0,

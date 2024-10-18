@@ -5,7 +5,7 @@
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
 import { useCallback, useEffect, useState } from 'react';
-import { capitalize, FormControl, FormGroup, FormLabel, MenuItem, Modal, Select, TextField } from '@mui/material';
+import { capitalize, FormControl, FormGroup, FormLabel, InputLabel, MenuItem, Modal, Select, TextField } from '@mui/material';
 import { FaSearch } from 'react-icons/fa';
 import { toast } from 'sonner';
 import { FormProvider, SubmitHandler, useForm, useFormContext, useWatch } from 'react-hook-form';
@@ -27,7 +27,7 @@ import Table from '../../components/agGridTable/Table';
 import { MeasurementSchema, defaultMeasurementValues, measurementSchema } from '../formSchemas/measurementSchema';
 import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
 import { setSelectedProduct } from '../../redux/features/product/productSlice';
-import { removeSelectedCustomerId, setSelectedCustomerId } from '../../redux/features/orders/orderSlice';
+import { removeSelectedCustomerId, selectCustomerId, setSelectedCustomerId } from '../../redux/features/orders/orderSlice';
 import { useAddNewProductMutation } from '../../redux/features/product/productApiSlice';
 import ProductRenderer from '../../components/agGridTable/customComponents/ProductRenderer';
 import AddEditMeasurement from '../measurementAddEdit/AddEditMeasurement';
@@ -45,6 +45,8 @@ import CustomMobileWithOtp from '../../components/customFormComponents/customMob
 import { ProductOptions } from '../../types/products';
 import { OrderItems } from '../../types/order';
 import SimpleActionButton from '../../components/agGridTable/customComponents/SimpleActionButton';
+
+const tempProductIdStart = 1;
 
 const AddEditOrder = () => {
   const { control, watch, reset, setValue, handleSubmit, clearErrors, getValues } = useFormContext<OrderSchema>();
@@ -76,6 +78,8 @@ const AddEditOrder = () => {
   const [itemTotal, setItemTotal] = useState(0);
   //   const [productOptions, setProductOptions] = useState<OptionCheckBox[]>(initialProductOptions);
 
+  const [tempProductId, setTempProductId] = useState(1); // Start with 1
+
   const total = useWatch({ control, name: 'totalPrice' });
   const advance = useWatch({ control, name: 'advPayment' });
   const discount = useWatch({ control, name: 'discount' });
@@ -92,6 +96,7 @@ const AddEditOrder = () => {
   const [addOrder, { data: newOrder, isLoading: salesOrderLoading }] = useAddNewOrderMutation();
 
   const [customerSearchQuery, setCustomerSearchQuery] = useState('');
+  const selectedCustomer = useAppSelector(selectCustomerId);
 
   useEffect(() => {
     dispatch(setLoading(isOrderUpdating));
@@ -155,23 +160,43 @@ const AddEditOrder = () => {
       }));
 
     if (selectedProducts.length > 0 && selectedCategory) {
-      const productDetails = await Promise.all(
-        selectedProducts.map(async (product) => {
-          const response = await addProduct({
-            itemType: product.productType,
-            itemCategory: selectedCategory,
-          }).unwrap(); // Get the API response and unwrap if necessary
-          return { productId: response.productId as number, productType: response.productType }; // Assuming productId is returned from the API
-        })
-      );
+      let newItem = {} as OrderItems;
 
-      const newItem = {
-        category: selectedCategory,
-        description,
-        products: productDetails,
-        amount: itemTotal,
-        isMeasurementSet: false,
-      };
+      if (selectedCategory === ProductCategory.RentFullSuit) {
+        let tempId = tempProductId; // Get the current tempProductId
+        const rentItems = selectedProducts.map((product) => {
+          // eslint-disable-next-line no-plusplus
+          return { rentItemId: tempId++, productType: product.productType }; // Assuming productId is returned from the API
+        });
+
+        newItem = {
+          category: selectedCategory,
+          description,
+          rentItems,
+          amount: itemTotal,
+          isMeasurementSet: false,
+        };
+        setTempProductId(tempId);
+      } else {
+        const productDetails = await Promise.all(
+          selectedProducts.map(async (product) => {
+            const response = await addProduct({
+              itemType: product.productType,
+              itemCategory: selectedCategory,
+            }).unwrap(); // Get the API response and unwrap if necessary
+            return { productId: response.productId as number, productType: response.productType }; // Assuming productId is returned from the API
+          })
+        );
+
+        newItem = {
+          category: selectedCategory,
+          description,
+          products: productDetails,
+          amount: itemTotal,
+          isMeasurementSet: false,
+        };
+      }
+
       setSelectedItems([...selectedItems, newItem]);
       clearErrors();
       clearOrderItems();
@@ -194,6 +219,10 @@ const AddEditOrder = () => {
   const handleRentClose = useCallback(() => setOpenRentSelect(false), []);
 
   const handleOpenMeasurement = useCallback((productId: number, isRent: boolean) => {
+    // if (!selectedCustomer) {
+    //   toast.error('No customer is selected!');
+    //   return;
+    // }
     if (isRent) {
       setOpenRentSelect(true);
     } else {
@@ -218,10 +247,11 @@ const AddEditOrder = () => {
         description: detail.description,
         products: detail.products.map((product: any) => {
           if (isRowData) {
-            return { productId: product.productId, productType: product.itemType };
+            return { productId: product.productId, productType: product.itemType, isMeasurementAvailable: product.measurementId };
           }
           return product.productId;
         }),
+        rentItems: detail.rentItems,
         amount: detail.amount,
       };
     });
@@ -269,6 +299,7 @@ const AddEditOrder = () => {
 
   const clearOrderItems = () => {
     setProductOptions(initialProductOptions);
+    setSelectedCategory(ProductCategory.FullSuit);
     setItemTotal(0);
     setDescription('');
   };
@@ -281,6 +312,24 @@ const AddEditOrder = () => {
     reset(defaultOrderValues);
     setSelectedItems([]);
     setCustomerSearchQuery('');
+  };
+
+  const updateRowDataOnMeasurement = (productId: number) => {
+    setSelectedItems((prev) =>
+      prev.map((item) => ({
+        ...item,
+        products: item.products?.map((product) => (product.productId === productId ? { ...product, isMeasurementAvailable: true } : product)),
+        rentItems: item.rentItems ? item.rentItems : [],
+      }))
+    );
+  };
+  const updateRowDataOnRentOrder = (rentItemId: number, rentItemData: any) => {
+    setSelectedItems((prev) =>
+      prev.map((item) => ({
+        ...item,
+        rentItems: item.rentItems?.map((rentItem) => (rentItem.rentItemId === rentItemId ? rentItemData : rentItem)),
+      }))
+    );
   };
 
   useEffect(() => {
@@ -309,7 +358,7 @@ const AddEditOrder = () => {
     } else {
       handleOrderFormReset();
     }
-  }, [salesOrderId, salesOrderData]);
+  }, [salesOrderId]);
 
   useEffect(() => {
     if (selectedItems) {
@@ -318,7 +367,7 @@ const AddEditOrder = () => {
 
       const updatedItems = selectedItems.map((item) => ({
         ...item,
-        products: item.products.map((product) => product.productId),
+        products: (item?.products ?? []).map((product) => product.productId),
       }));
 
       setValue('orderDetails', updatedItems);
@@ -357,7 +406,7 @@ const AddEditOrder = () => {
           const invoiceUrl = `${baseUrl}/api/v1/invoice/salesOrder/${salesOrderId}`;
           toast.success('Order Updated!');
           dispatch(removeSelectedCustomerId());
-          reset();
+          handleOrderFormReset();
           if (newWindow) {
             newWindow.location.href = invoiceUrl;
           }
@@ -469,9 +518,9 @@ const AddEditOrder = () => {
                     <button className="primary-button" type="submit">
                       {variant === 'create' ? 'Create Order ' : 'Edit Order '}
                     </button>
-                    {/* <button className="primary-button" type="button" onClick={() => handleValidateData()}>
+                    <button className="primary-button" type="button" onClick={() => handleValidateData()}>
                       validate
-                    </button> */}
+                    </button>
                   </div>
                 </div>
               </div>
@@ -495,6 +544,7 @@ const AddEditOrder = () => {
                   <div className="col-12 d-flex gap-3 align-items-end">
                     <div className="col-5 mb-3">
                       <FormControl sx={{ m: 1, maxWidth: 165 }} size="small">
+                        <InputLabel id="demo-simple-select-label">Category</InputLabel>
                         <Select value={selectedCategory} onChange={handleCategoryChange}>
                           {productCategoryItemMap.map((option) => (
                             <MenuItem key={option.category} value={option.category}>
@@ -552,7 +602,7 @@ const AddEditOrder = () => {
         <div>
           <FormProvider {...measurementMethods}>
             <div>
-              <AddEditMeasurement handleClose={handleMeasurementClose} />
+              <AddEditMeasurement handleClose={handleMeasurementClose} onMeasurementSuccess={updateRowDataOnMeasurement} />
               <DevTool control={measurementMethods.control} />
             </div>
           </FormProvider>
@@ -560,7 +610,7 @@ const AddEditOrder = () => {
       </Modal>
       <Modal open={rentSelect} onClose={handleRentClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
         <div>
-          <SelectRentItem handleClose={handleRentClose} />
+          <SelectRentItem handleClose={handleRentClose} onRentItemSelection={updateRowDataOnRentOrder} />
         </div>
       </Modal>
     </div>

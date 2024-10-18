@@ -40,6 +40,14 @@ const monthlySummarySchema = new mongoose.Schema({
     type: Number, // Store the number of days the user worked
     default: 0,
   },
+  advancePaid: {
+    type: Number,
+    default: 0
+  },
+  salaryPaid: {
+    type: Number,
+    default: 0
+  },
   fixedSalary: {
     type: Number,
     default: 0, // 0 means the user is not on a fixed salary

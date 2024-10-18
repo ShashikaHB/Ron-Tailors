@@ -15,8 +15,9 @@ export type RentItemDetails = {
   description: string;
   handLength: string;
   notes: string;
-  amount: number;
+  amount?: number;
   itemType: ProductType;
+  suitType: string;
 };
 
 export type RentItem = {

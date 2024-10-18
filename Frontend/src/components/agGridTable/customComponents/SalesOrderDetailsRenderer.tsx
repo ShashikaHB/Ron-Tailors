@@ -63,7 +63,7 @@ const SalesOrderDetailsRenderer = ({ data, handleOpenMeasurement, handleOpenProd
   return (
     <div>
       {orderDetails?.map((order: any, index: number) => {
-        const { products, description, category } = order;
+        const { products, description, category, rentItems } = order;
         return (
           <div key={index}>
             <div>
@@ -81,17 +81,6 @@ const SalesOrderDetailsRenderer = ({ data, handleOpenMeasurement, handleOpenProd
               return (
                 <div className="d-flex gap-2 mx-3" key={productId}>
                   <p>{itemType}</p>
-                  {/* <button
-                    type="button"
-                    aria-label="measurement-btn"
-                    className="icon-button"
-                    onClick={() => {
-                      handleOpenMeasurement(productId);
-                      dispatch(setProductId(productId));
-                    }}
-                  >
-                    M
-                  </button> */}
                   <button
                     type="button"
                     aria-label="edit-btn"
@@ -119,6 +108,15 @@ const SalesOrderDetailsRenderer = ({ data, handleOpenMeasurement, handleOpenProd
                       ))}
                     </Select>
                   </FormControl>
+                </div>
+              );
+            })}
+            {rentItems?.map((product: any) => {
+              const { itemType, rentItemId } = product;
+
+              return (
+                <div className="d-flex gap-2 mx-3" key={rentItemId}>
+                  <p>{itemType}</p>
                 </div>
               );
             })}

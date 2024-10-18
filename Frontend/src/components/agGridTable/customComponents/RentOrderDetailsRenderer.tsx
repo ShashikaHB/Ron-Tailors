@@ -29,7 +29,7 @@ const RentOrderDetailsRenderer = (props: ICellRendererParams) => {
               Notes:
               {notes}
             </p>
-            {index !== rentOrderDetails.length - 1 && <div className="border-top border-primary" />}
+            {index !== rentOrderDetails.length - 1 && <div style={{ borderTop: '1.25px solid black', margin: '10px 0' }} />}
           </div>
         );
       })}

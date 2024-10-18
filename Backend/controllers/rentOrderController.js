@@ -108,6 +108,10 @@ export const getAllOrders = asyncHandler(async (req, res) => {
   if (!orders) {
     throw new Error("no orders found!");
   }
+
+  const sortedOrders = orders.sort(
+    (a, b) => new Date(b.rentDate) - new Date(a.rentDate)
+  );
   res.json({
     message: "All Orders Fetched Successfully.",
     success: true,

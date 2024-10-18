@@ -51,8 +51,17 @@ const AddRentItem = () => {
     { headerName: 'Description', field: 'description' },
     { headerName: 'Color', field: 'color' },
     { headerName: 'Size', field: 'size' },
-    { headerName: 'Status', field: 'status' },
-    { headerName: 'Type', field: 'type' },
+    { headerName: 'Type', field: 'itemType' },
+    {
+      headerName: 'Status',
+      field: 'status',
+      cellStyle: (params) => {
+        if (params.value === 'Available') {
+          return { color: 'green' }; // Completed orders in green
+        }
+        return { color: 'red' }; // Other orders in black
+      },
+    },
     {
       headerName: 'Actions',
       field: 'action',

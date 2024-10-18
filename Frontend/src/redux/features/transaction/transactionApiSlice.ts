@@ -40,7 +40,7 @@ export const transactionApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body: transaction,
       }),
-      invalidatesTags: ['Transactions'],
+      invalidatesTags: ['Transactions', 'MonthlySummary'],
     }),
 
     getAllTransactionCategories: builder.query({

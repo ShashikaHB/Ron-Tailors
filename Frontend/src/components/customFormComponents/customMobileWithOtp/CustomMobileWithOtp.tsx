@@ -5,7 +5,7 @@
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
 
-import { ClickAwayListener, Popper } from '@mui/material';
+import { Box, CircularProgress, ClickAwayListener, Popper } from '@mui/material';
 import { FaPlus, FaCheck } from 'react-icons/fa';
 import { useState } from 'react';
 import { FieldValues, Path, useFormContext } from 'react-hook-form';
@@ -92,7 +92,14 @@ const CustomMobileWithOtp = <T extends FieldValues>({ name, label, onVerify }: C
   return (
     <div className="col-6 d-flex gap-2 mb-3 align-items-start">
       <RHFTextField<T> label={label} name={name} />
-      <button className="icon-button otp-add-btn" type="button" aria-label="mobile_add" aria-describedby={id} onClick={handleClick} disabled={verified || sendingOtp}>
+      <button
+        className="icon-button otp-add-btn"
+        type="button"
+        aria-label="mobile_add"
+        aria-describedby={id}
+        onClick={handleClick}
+        disabled={verified || sendingOtp}
+      >
         {verified ? (
           <span>
             <FaCheck />
@@ -111,13 +118,19 @@ const CustomMobileWithOtp = <T extends FieldValues>({ name, label, onVerify }: C
                 return <input type="text" key={index} className="otp-input" value={data} maxLength={1} onChange={(e) => handleOtpInputChange(e, index)} />;
               })}
             </div>
-            <div className="d-flex align-item-center justify-content-center gap-2">
+            <div className="d-flex align-item-center justify-content-center gap-3">
               <button type="button" className="primary-button" onClick={handleOtpVerification}>
                 Verify OTP
               </button>
-              <button type="button" className="secondary-button" onClick={() => handleOtpSend()}>
-                Send Otp
-              </button>
+              {sendingOtp ? (
+                <Box sx={{ display: 'flex', color: 'black' }}>
+                  <CircularProgress color="inherit" />
+                </Box>
+              ) : (
+                <button type="button" className="secondary-button" onClick={() => handleOtpSend()}>
+                  Send Otp
+                </button>
+              )}
             </div>
           </div>
         </ClickAwayListener>

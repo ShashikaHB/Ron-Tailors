@@ -14,16 +14,16 @@ export const updateUserSummaryWithPieceType = async (
   piecePrice
 ) => {
   // Find the monthly summary for the user
-  const summary = await MonthlySummary.findOne({ user: userId, month });
+  let summary = await MonthlySummary.findOne({ user: userId, month });
 
   if (!summary) {
     // If no summary exists, create one
-    const newSummary = new MonthlySummary({
+    summary = new MonthlySummary({
       user: userId,
       month: month,
     });
 
-    await newSummary.save();
+    await summary.save();
   }
 
   // Determine if the action is "Cutting" or "Tailoring"
@@ -41,7 +41,7 @@ export const updateUserSummaryWithPieceType = async (
     }
   } else if (actionType === "Tailoring Done") {
     // Check if the itemType already exists in the piecesTailored array
-    const existingTailoredPiece = summary.piecesTailored.find(
+    const existingTailoredPiece = summary?.piecesTailored.find(
       (p) => p.itemType === itemType
     );
     if (existingTailoredPiece) {
@@ -188,3 +188,34 @@ export const getAllMonthlyRecords = asyncHandler(async (req, res) => {
     data: monthlyRecord,
   });
 });
+
+export const updateMonthlySummaryWithSalary = async (
+  userId,
+  month,
+  category,
+  amount
+) => {
+
+
+    const user = await User.findOne({userId});
+
+
+  const monthlySummary = await MonthlySummary.findOne({
+    user: user._id,
+    month,
+  });
+
+  if (!monthlySummary) {
+    monthlySummary = new MonthlySummary({
+      user: userId,
+      month: currentMonth,
+    });
+  }
+
+  if (category === "Salary Advance") {
+    monthlySummary.advancePaid += amount;
+    await monthlySummary.save();
+  }
+  monthlySummary.salaryPaid += amount;
+  return await monthlySummary.save();
+};

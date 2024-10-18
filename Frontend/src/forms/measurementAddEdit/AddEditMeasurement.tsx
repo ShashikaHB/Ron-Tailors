@@ -10,43 +10,41 @@ import { TextField } from '@mui/material';
 import { RiCloseLargeLine, RiClipboardLine } from '@remixicon/react';
 import { toast } from 'sonner';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
-import { measurementSchema, MeasurementSchema } from '../formSchemas/measurementSchema';
+import { defaultMeasurementValues, measurementSchema, MeasurementSchema } from '../formSchemas/measurementSchema';
 import RHFSwitch from '../../components/customFormComponents/customSwitch/RHFSwitch';
 import RHFDatePicker from '../../components/customFormComponents/customDatePicker/RHFDatePricker';
 import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
 import { selectSelectedProduct } from '../../redux/features/product/productSlice';
 import { useLazyGetSingleProductQuery, useUpdateSingleProductMutation } from '../../redux/features/product/productApiSlice';
-import { useCreateMeasurementMutation, useUpdateMeasurementMutation } from '../../redux/features/measurement/measurementApiSlice';
+import {
+  useCreateMeasurementMutation,
+  useLazyGetPreviousMeasurementsQuery,
+  useUpdateMeasurementMutation,
+} from '../../redux/features/measurement/measurementApiSlice';
 import { selectProductId, setLoading } from '../../redux/features/common/commonSlice';
 import { selectCustomerId } from '../../redux/features/orders/orderSlice';
 
 type AddEditProductProps = {
   handleClose: () => void;
+  onMeasurementSuccess: (productId: number) => void;
 };
 
-const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
+const AddEditMeasurement = ({ handleClose, onMeasurementSuccess }: AddEditProductProps) => {
   const { control, unregister, watch, reset, setValue, handleSubmit, getValues, clearErrors } = useFormContext<MeasurementSchema>();
-
-  const [triggerGetProduct, { data: productData, isLoading: productDataLoading }] = useLazyGetSingleProductQuery();
-
-  const dispatch = useAppDispatch();
-
-  const productId = useAppSelector(selectProductId);
-
-  useEffect(() => {
-    triggerGetProduct(productId);
-  }, [productId]);
-
-  useEffect(() => {
-    dispatch(setLoading(productDataLoading));
-  }, [productDataLoading]);
-
-  const selectedProductId = useAppSelector(selectSelectedProduct);
-  const selectedCustomer = useAppSelector(selectCustomerId);
 
   const measurements = useWatch({ control, name: 'measurements' }) as string[];
   const variant = useWatch({ control, name: 'variant' });
   const customerId = useWatch({ control, name: 'customer' });
+
+  const selectedProductId = useAppSelector(selectSelectedProduct);
+  const selectedCustomer = useAppSelector(selectCustomerId);
+
+  const [triggerGetProduct, { data: productData, isLoading: productDataLoading }] = useLazyGetSingleProductQuery();
+  const [getPrvMeasurements, { data: prevMeasurements, isLoading: prevMeasurementLoading }] = useLazyGetPreviousMeasurementsQuery();
+
+  const dispatch = useAppDispatch();
+
+  const productId = useAppSelector(selectProductId);
 
   const [addMeasurement, { data: newMeasurement, isLoading: addMeasurementLoading }] = useCreateMeasurementMutation();
 
@@ -56,12 +54,29 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
 
   //   const { data: productData, isLoading } = useGetSingleProductQuery(selectedProductId);
 
+  //   useEffect(() => {
+  //     if (productData) {
+  //       getPrvMeasurements({ customerId: selectedCustomer, productType: productData?.itemType });
+  //     }
+  //   }, [productData]);
+
+  useEffect(() => {
+    triggerGetProduct(productId);
+  }, [productId]);
+
+  useEffect(() => {
+    dispatch(setLoading(productDataLoading));
+  }, [productDataLoading]);
+  useEffect(() => {
+    dispatch(setLoading(prevMeasurementLoading));
+  }, [prevMeasurementLoading]);
+
   useEffect(() => {
     dispatch(setLoading(addMeasurementLoading));
   }, [addMeasurementLoading]);
-  useEffect(() => {
-    dispatch(setLoading(updateProductLoading));
-  }, [updateProductLoading]);
+  //   useEffect(() => {
+  //     dispatch(setLoading(updateProductLoading));
+  //   }, [updateProductLoading]);
   useEffect(() => {
     dispatch(setLoading(updateMeasurementLoading));
   }, [updateMeasurementLoading]);
@@ -79,8 +94,30 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
     setValue('measurements', updatedMeasurements);
   };
 
+  const handleMeasurementClose = () => {
+    handleClose();
+    handleClear();
+  };
+
   const handleClear = () => {
-    reset();
+    reset(defaultMeasurementValues);
+  };
+
+  const handleValidateData = () => {
+    const formData = getValues();
+
+    const result = measurementSchema.safeParse(formData);
+
+    console.log(result);
+  };
+
+  const handleAddPrevMeasurement = (prevMeasurement: any) => {
+    reset({
+      ...prevMeasurement,
+      estimatedReleaseDate: new Date(prevMeasurement.estimatedReleaseDate), // Convert date
+      customer: prevMeasurement?.customer?.customerId,
+      variant: 'create', // Set variant to 'edit'
+    });
   };
 
   const onSubmit: SubmitHandler<MeasurementSchema> = async (data) => {
@@ -102,10 +139,11 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
           if (newResponse.error) {
             console.log(newResponse.error);
           } else {
+            onMeasurementSuccess(selectedProductId);
             toast.success('New measurement Added.');
           }
           reset();
-          handleClose();
+          handleMeasurementClose();
         }
       }
     } catch (e) {
@@ -121,6 +159,9 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
   useEffect(() => {
     if (productData) {
       setValue('itemType', productData.itemType);
+      if (productData) {
+        const prevMeasures = getPrvMeasurements({ customerId: selectedCustomer, productType: productData?.itemType }).unwrap();
+      }
     }
     if (productData?.measurement) {
       reset({
@@ -147,7 +188,7 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
             Add Measurements to
             {` ${productData?.itemType}`}
           </h5>
-          <button aria-label="close-btn" className="icon-button" type="button" onClick={handleClose}>
+          <button aria-label="close-btn" className="icon-button" type="button" onClick={handleMeasurementClose}>
             <RiCloseLargeLine size={18} />
           </button>
         </div>
@@ -157,10 +198,18 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
               <RiClipboardLine size={18} />
               <div>Copy form other Measurement</div>
             </div>
+            <div className="d-flex gap-3">
+              {prevMeasurements?.length > 0 &&
+                prevMeasurements.map((item) => (
+                  <button key={item} className="primary-button" type="button" onClick={() => handleAddPrevMeasurement(item)}>
+                    {`${item.measurementId}-${item.itemType}`}
+                  </button>
+                ))}
+            </div>
           </div>
 
-          <form className='d-flex flex-column flex-grow-1 overflow-hidden' onSubmit={handleSubmit(onSubmit)}>
-            <div className='h-100 overflow-y-auto pe-2'>
+          <form className="d-flex flex-column flex-grow-1 overflow-hidden" onSubmit={handleSubmit(onSubmit)}>
+            <div className="h-100 overflow-y-auto">
               <div className="inputGroup">
                 <div>
                   <br />
@@ -232,6 +281,9 @@ const AddEditMeasurement = ({ handleClose }: AddEditProductProps) => {
               <button className="secondary-button" type="button" onClick={() => handleClear()}>
                 Clear
               </button>
+              {/* <button className="secondary-button" type="button" onClick={() => handleValidateData()}>
+                validate
+              </button> */}
               <button className="primary-button" type="submit">
                 Save
               </button>

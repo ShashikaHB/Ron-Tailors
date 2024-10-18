@@ -25,6 +25,8 @@ import { setSelectedProduct } from '../redux/features/product/productSlice';
 import { useAppDispatch } from '../redux/reduxHooks/reduxHooks';
 import PrintMeasurement from '../forms/printMeasurement/PrintMeasurement';
 import { setLoading } from '../redux/features/common/commonSlice';
+import FitOnRenderer from '../components/agGridTable/customComponents/FitOnRenderer';
+import PrintOrderBook from '../forms/printOrderBook/PrintOrderBook';
 
 const SalesOrderBook = () => {
   const { data: salesOrders, isError: salesOrderError, isLoading: loadingSalesBook } = useGetAllSalesOrdersQuery('');
@@ -52,10 +54,14 @@ const SalesOrderBook = () => {
 
   const [openProducts, setOpenProducts] = useState(false);
   const [openMeasurement, setOpenMeasurement] = useState(false);
+  const [openOrderBookPrint, setOpenOrderBookPrint] = useState(false);
 
   const handleOpenMeasurement = useCallback(() => {
     setOpenMeasurement(true);
-    dispatch(setSelectedProduct(productId));
+    // dispatch(setSelectedProduct(productId));
+  }, []);
+  const handleOpenOrderBookPrint = useCallback(() => {
+    setOpenOrderBookPrint(true);
   }, []);
   const handleOpenProductEdit = useCallback((productId: number) => {
     setOpenProducts(true);
@@ -64,17 +70,24 @@ const SalesOrderBook = () => {
 
   const initialColDefs: ColDef<any>[] = [
     { headerName: 'Order Id', field: 'salesOrderId', minWidth: 100 },
-    { headerName: 'Customer', field: 'customer', cellRenderer: CustomerRenderer, autoHeight: true, minWidth: 200 },
+    { headerName: 'Customer', field: 'customer', cellRenderer: CustomerRenderer, autoHeight: true, minWidth: 150 },
     {
       headerName: 'Order Details',
       field: 'orderDetails',
       cellRenderer: SalesOrderDetailsRenderer,
       cellRendererParams: { handleOpenMeasurement, handleOpenProductEdit },
       autoHeight: true,
-      minWidth: 400,
+      minWidth: 300,
     },
-    { headerName: 'Order Date', field: 'orderDate', valueFormatter: (params) => format(params.value as Date, 'dd-MM-yyyy') },
-    { headerName: 'Delivery Date', field: 'deliveryDate', valueFormatter: (params) => format(params.value as Date, 'dd-MM-yyyy') },
+    {
+      headerName: 'FitOn Rounds',
+      field: 'fitOnRounds',
+      cellRenderer: FitOnRenderer,
+      autoHeight: true,
+      minWidth: 200,
+    },
+    { headerName: 'Order Date', field: 'orderDate', valueFormatter: (params) => format(params.value as Date, 'yyyy-MM-dd') },
+    { headerName: 'Delivery Date', field: 'deliveryDate', valueFormatter: (params) => format(params.value as Date, 'yyyy-MM-dd') },
     {
       headerName: 'Actions',
       field: 'action',
@@ -97,6 +110,7 @@ const SalesOrderBook = () => {
 
   const handleClose = useCallback(() => setOpenProducts(false), []);
   const handleMeasurementClose = useCallback(() => setOpenMeasurement(false), []);
+  const handleOrderBookPrintClose = useCallback(() => setOpenOrderBookPrint(false), []);
 
   useEffect(() => {
     if (salesOrders) {
@@ -136,6 +150,9 @@ const SalesOrderBook = () => {
           />
         </div>
         <div className="d-flex gap-3">
+          <button type="button" className="primary-button" onClick={() => handleOpenOrderBookPrint()}>
+            Print Order Book
+          </button>
           <button type="button" className="primary-button" onClick={() => handleOpenMeasurement()}>
             Print Measurement
           </button>
@@ -160,6 +177,11 @@ const SalesOrderBook = () => {
       <Modal open={openMeasurement} onClose={handleMeasurementClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
         <div>
           <PrintMeasurement handleClose={handleMeasurementClose} />
+        </div>
+      </Modal>
+      <Modal open={openOrderBookPrint} onClose={handleOrderBookPrintClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+        <div>
+          <PrintOrderBook handleClose={handleOrderBookPrintClose} />
         </div>
       </Modal>
     </div>

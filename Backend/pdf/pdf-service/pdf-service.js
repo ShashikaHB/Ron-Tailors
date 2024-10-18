@@ -39,7 +39,7 @@ export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
   doc.moveDown(0.25).text(`Mobile: ${customer.mobile}`);
   doc.moveDown(0.25).text(`Order Date: ${customer.orderDate}`);
   doc.moveDown(0.25).text(`Delivery Date: ${customer.deliveryDate}`);
-  doc.moveDown(0.25).text(`Wedding Date: ${customer.weddingDate ?? ''}`);
+  doc.moveDown(0.25).text(`Wedding Date: ${customer.weddingDate ?? ""}`);
 
   doc.moveDown();
 
@@ -178,26 +178,21 @@ export const buildRentPdf = (dataCallBack, endCallBack, data) => {
   doc.end();
 };
 export const buildRentShopPdf = (dataCallBack, endCallBack, data) => {
-    const { customer, rentOrderDetails, totals, orderNo } = data;
-  
-    const doc = new PDFDocument({ margin: 30, size: "A4" });
-  
-    doc.on("data", dataCallBack);
-    doc.on("end", endCallBack);
-  
-    // Add customer details
-    doc.moveDown().fontSize(12).text(`Customer Name: ${customer.name}`);
-    doc.moveDown(0.25).text(`Mobile: ${customer.mobile}`);
-    doc.moveDown(0.5)
+  const { customer, rentOrderDetails, totals, orderNo } = data;
 
-    doc.fontSize(12).font("Helvetica-Bold").text(`Rent No: ${orderNo}`);
-    doc.moveDown(0.5)
-    doc.fontSize(12).font("Helvetica-Bold").text(`Rent Date: ${customer.rentDate}`);
+  const doc = new PDFDocument({ margin: 30, size: "A4" });
 
+  doc.on("data", dataCallBack);
+  doc.on("end", endCallBack);
 
-    doc.moveDown(2);
-  
-      // Loop through rentOrderDetails and print each item on a new line
+  // Add customer details
+  doc.moveDown().fontSize(12).text(`Customer Name: ${customer.name}`);
+  doc.moveDown(0.25).text(`Mobile: ${customer.mobile}`);
+  doc.moveDown(2);
+
+  doc.fontSize(12).font("Helvetica-Bold").text(`Rent No: ${orderNo}`);
+  doc.moveDown(0.5);
+  // Loop through rentOrderDetails and print each item on a new line
   rentOrderDetails.forEach((detail) => {
     doc.fontSize(11).font("Helvetica").text(`Bar Code: ${detail.rentItemId}`);
     doc.moveDown(0.5);
@@ -211,17 +206,25 @@ export const buildRentShopPdf = (dataCallBack, endCallBack, data) => {
     doc.text(`Hand length: ${detail.handLength}`);
     doc.moveDown(0.5);
 
-    doc.text(`Hand length: ${detail.notes}`);
+    doc.text(`Notes: ${detail.notes}`);
     doc.moveDown(0.5);
 
     doc
-    .moveTo(doc.page.margins.left, doc.y)
-    .lineTo(doc.page.width - doc.page.margins.right, doc.y)
-    .stroke();
+      .moveTo(doc.page.margins.left, doc.y)
+      .lineTo(doc.page.width - doc.page.margins.right, doc.y)
+      .stroke();
+    doc.moveDown(1.25);
   });
-  
-    doc.end();
-  };
+
+  doc.text(`Suit Type: ${customer.suitType}`);
+  doc.moveDown(0.5);
+  doc
+    .fontSize(12)
+    .font("Helvetica-Bold")
+    .text(`Rent Date: ${customer.rentDate}`);
+
+  doc.end();
+};
 export const buildReadyMadePdf = (dataCallBack, endCallBack, data) => {
   const { customer, orderDetails, totals, orderNo } = data;
 
@@ -272,7 +275,6 @@ export const buildReadyMadePdf = (dataCallBack, endCallBack, data) => {
   });
 
   doc.text(`Total: ${totals.totalPrice}`, { align: "right" });
-
 
   doc
     .moveTo(doc.page.margins.left, doc.y)
@@ -350,6 +352,52 @@ export const buildMeasurementPdf = (dataCallBack, endCallBack, data) => {
     }
 
     doc.moveDown(2);
+  });
+
+  doc.end();
+};
+export const buildOrderBookPdf = (dataCallBack, endCallBack, data) => {
+  const doc = new PDFDocument({ margin: 30, size: "A4" });
+
+  doc.on("data", dataCallBack);
+  doc.on("end", endCallBack);
+
+  data.map((item, index) => {
+    // Add customer name, mobile, and item type
+    const { customer, orderData, salesOrderId } = item;
+
+    if (index > 0) {
+      doc
+        .moveTo(doc.page.margins.left, doc.y)
+        .lineTo(doc.page.width - doc.page.margins.right, doc.y)
+        .stroke();
+      doc.moveDown(1);
+    }
+    // Set X-positions for even spacing
+    const left = doc.page.margins.left; // Left margin position
+    const middle1 = left + 50; // Adjust the spacing for customer name
+    const middle2 = middle1 + 100; // Adjust the spacing for mobile number
+
+    // Draw each field with specified X-coordinates
+    doc
+      .fontSize(13)
+      .font("Helvetica-Bold")
+      .text(`${salesOrderId}`, left, doc.y, { continued: true });
+    doc.text(`${customer.name}`, middle1, doc.y, { continued: true });
+    doc.text(`${customer.mobile}`, middle2, doc.y);
+
+    doc.moveDown(1);
+
+    orderData.forEach((item, index) => {
+      // Add a section breaker for each measurement
+      // Add customer name, mobile, and item type
+      doc
+        .fontSize(13)
+        .font("Helvetica")
+        .text(`${item.productType}`, left, doc.y, { continued: true });
+      doc.text(`${item.description}`, middle2, doc.y);
+      doc.moveDown(0.5);
+    });
   });
 
   doc.end();

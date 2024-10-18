@@ -8,6 +8,7 @@ import { RiCheckLine } from '@remixicon/react';
 import { memo } from 'react';
 import { useAppDispatch } from '../../../redux/reduxHooks/reduxHooks';
 import { setProductId } from '../../../redux/features/common/commonSlice';
+import { setSelectedRentItemId } from '../../../redux/features/orders/orderSlice';
 
 type ProductRendererProps = {
   data: any;
@@ -16,17 +17,17 @@ type ProductRendererProps = {
 };
 
 const ProductRenderer = ({ data, handleOpenMeasurement, handleRemove }: ProductRendererProps) => {
-  const { description, products, selectedCategory } = data;
+  const { description, products, category, rentItems } = data;
 
   const dispatch = useAppDispatch();
 
   return (
     <div>
       <div>
-        <strong>{`${description} (${selectedCategory})`}</strong>
+        <strong>{`${description} (${category})`}</strong>
       </div>
       <div>
-        {products.map((product: any, index: any) => {
+        {products?.map((product: any, index: any) => {
           return (
             <div
               key={index}
@@ -39,32 +40,52 @@ const ProductRenderer = ({ data, handleOpenMeasurement, handleRemove }: ProductR
             >
               <span style={{ marginRight: '10px' }}>{product.productType}</span>
               <div className="d-flex gap-2">
-                {product.type === 'Rent Coat' || product.type === 'Rent West Coat' ? (
-                  <button
-                    type="button"
-                    aria-label="close-btn"
-                    className="icon-button"
-                    onClick={() => {
-                      handleOpenMeasurement(product.productId, true);
-                      dispatch(setProductId(product.productId));
-                    }}
-                  >
-                    R
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    aria-label="close-btn"
-                    className="icon-button"
-                    onClick={() => {
-                      handleOpenMeasurement(product.productId);
-                      dispatch(setProductId(product.productId));
-                    }}
-                  >
-                    M
-                  </button>
+                <button
+                  type="button"
+                  aria-label="close-btn"
+                  className="icon-button"
+                  onClick={() => {
+                    handleOpenMeasurement(product.productId);
+                    dispatch(setProductId(product.productId));
+                  }}
+                >
+                  M
+                </button>
+
+                {product.isMeasurementAvailable && (
+                  <div className="check-btn">
+                    <RiCheckLine size={24} />
+                  </div>
                 )}
-                {product.isMeasurementAvailable && product.type !== 'Rent Coat || Rent West Coat' && (
+              </div>
+            </div>
+          );
+        })}
+        {rentItems?.map((product: any, index: any) => {
+          return (
+            <div
+              key={index}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginTop: '5px',
+              }}
+              className="d-flex gap-4"
+            >
+              <span style={{ marginRight: '10px' }}>{product.productType || product.itemType}</span>
+              <div className="d-flex gap-2">
+                <button
+                  type="button"
+                  aria-label="close-btn"
+                  className="icon-button"
+                  onClick={() => {
+                    handleOpenMeasurement(product.rentItemId, true);
+                    dispatch(setSelectedRentItemId(product.rentItemId));
+                  }}
+                >
+                  R
+                </button>
+                {product.description && (
                   <div className="check-btn">
                     <RiCheckLine size={24} />
                   </div>

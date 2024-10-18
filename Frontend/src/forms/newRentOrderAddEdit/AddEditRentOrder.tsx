@@ -4,7 +4,7 @@
  * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
-import { TextField } from '@mui/material';
+import { FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { FaSearch } from 'react-icons/fa';
 import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
 import { useEffect, useState } from 'react';
@@ -33,6 +33,8 @@ import stores from '../../consts/stores';
 import StakeOptions from '../../enums/StakeOptions';
 import { setLoading } from '../../redux/features/common/commonSlice';
 import CustomMobileWithOtp from '../../components/customFormComponents/customMobileWithOtp/CustomMobileWithOtp';
+import { SuitTypes } from '../../enums/RentOrderTypes';
+import { suitSelectOptions } from '../../consts/rentOrder';
 
 // const salesPeople = [
 //   {
@@ -58,6 +60,7 @@ const initialRentItemDetails: RentItemDetails = {
   notes: '',
   amount: 0,
   itemType: ProductType.Coat,
+  suitType: SuitTypes.Wedding,
 };
 
 const paymentOptions = [
@@ -111,6 +114,8 @@ const NewRentOut = () => {
   const [customerSearchQuery, setCustomerSearchQuery] = useState('');
 
   const [productSearchQuery, setProductSearchQuery] = useState('');
+
+  const [selectedSuitType, setSelectedSuitType] = useState(SuitTypes.Wedding);
 
   const [rentItemDetails, setRentItemDetails] = useState<RentItemDetails>(initialRentItemDetails);
 
@@ -194,6 +199,9 @@ const NewRentOut = () => {
         break;
       case RentItemDetailTypes.amount:
         setRentItemDetails((prevDetails) => ({ ...prevDetails, amount: value as number }));
+        break;
+      case RentItemDetailTypes.suitType:
+        setRentItemDetails((prevDetails) => ({ ...prevDetails, suitType: value as string }));
         break;
       default:
         toast.error(`No key found for ${key} in Rent item details`);
@@ -309,7 +317,13 @@ const NewRentOut = () => {
           console.log(response.error);
         } else {
           toast.success('Order Updated!');
-          reset();
+          handleResetRentOrder();
+          const newOrderId = response.data.data.rentOrderId;
+          const baseUrl = import.meta.env.VITE_BASE_URL;
+          const invoiceUrl = `${baseUrl}/api/v1/invoice/rentOrder/customer/${newOrderId}`;
+          if (newWindow) {
+            newWindow.location.href = invoiceUrl;
+          }
         }
       } else {
         console.log(data);
@@ -321,7 +335,7 @@ const NewRentOut = () => {
           toast.success('New Rent Order Added successfully');
           handleResetRentOrder();
           const baseUrl = import.meta.env.VITE_BASE_URL;
-          const invoiceUrl = `${baseUrl}/api/v1/invoice/rentOrder/shop/${newOrderId}`;
+          const invoiceUrl = `${baseUrl}/api/v1/invoice/rentOrder/customer/${newOrderId}`;
           if (newWindow) {
             newWindow.location.href = invoiceUrl;
           }
@@ -363,6 +377,9 @@ const NewRentOut = () => {
                     </div>
                   </div>
                   <div className="row">
+                    <div className="col-6 mb-3">
+                      <RHFTextField<RentOrderSchema> label="Name" name="customer.name" />
+                    </div>
                     <CustomMobileWithOtp<RentOrderSchema> label="Mobile" name="customer.mobile" />
                     <CustomMobileWithOtp<RentOrderSchema> label="Secondary Mobile" name="customer.secondaryMobile" />
                     <CustomMobileWithOtp<RentOrderSchema> label="Other Mobile" name="customer.otherMobile" />
@@ -374,6 +391,27 @@ const NewRentOut = () => {
                     </div>
                     <div className="col-6 mb-3">
                       <RHFDatePicker<RentOrderSchema> name="returnDate" label="Return Date" />
+                    </div>
+                    <div className="col-6 mb-3">
+                      <FormControl sx={{ minWidth: 120 }} size="small">
+                        <InputLabel id="demo-simple-select-label">Suit Type</InputLabel>
+
+                        <Select
+                          value={rentItemDetails.suitType}
+                          onChange={(e) => handleRentItemDetailsChange(RentItemDetailTypes.suitType, e.target.value)}
+                          displayEmpty
+                          sx={{
+                            backgroundColor: 'white',
+                            color: 'black',
+                          }}
+                        >
+                          {suitSelectOptions.map((option) => (
+                            <MenuItem key={option.value} value={option.value} disabled={!option.value}>
+                              {option.label}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
                     </div>
                   </div>
                 </div>
@@ -419,10 +457,13 @@ const NewRentOut = () => {
                   <div className="d-flex justify-content-end gap-2">
                     <button
                       className="secondary-button"
-                      type="submit"
+                      type="button"
                       //   onClick={handleCancelOrder}
                     >
                       Cancel Order
+                    </button>
+                    <button className="secondary-button" type="submit" onClick={handleValidateData}>
+                      validate Order
                     </button>
                     <button className="primary-button" type="submit">
                       {variant === 'create' ? 'Create Order ' : 'Edit Order '}

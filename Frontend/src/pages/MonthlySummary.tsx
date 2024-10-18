@@ -31,7 +31,9 @@ const MonthlySummary = () => {
     { headerName: 'Role', field: 'user.role' },
     { headerName: 'Work In Month', cellRenderer: WorkDataRenderer, autoHeight: true },
     { headerName: 'Days Worked', field: 'daysWorked' },
-    { headerName: 'Salary', field: 'totalSalary' },
+    { headerName: 'Total Salary', field: 'totalSalary' },
+    { headerName: 'Salary Paid', field: 'salaryPaid' },
+    { headerName: 'Salary Advance', field: 'advancePaid' },
     { headerName: 'Bonus', field: 'bonus' },
   ];
 

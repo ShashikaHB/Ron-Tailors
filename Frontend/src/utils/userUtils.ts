@@ -9,9 +9,9 @@ import { User } from '../types/user';
 
 const attendanceMarkingRoles = ['Sales Person', 'Altering', 'Ironing', 'Cleaning'];
 
-const getUserRoleBasedOptions = (users: User[], role: string): Option[] => {
+const getUserRoleBasedOptions = (users: User[], role?: string): Option[] => {
   if (!users || users.length === 0) return [];
-  const filteredUsers = users.filter((user) => user.role === role);
+  const filteredUsers = role ? users.filter((user) => user.role === role) : users; // If role is empty, return all users
   const options = filteredUsers.map((user) => ({
     value: user.userId,
     label: user.name,
@@ -19,7 +19,7 @@ const getUserRoleBasedOptions = (users: User[], role: string): Option[] => {
   return [
     {
       value: 0,
-      label: `Select a ${role}`,
+      label: `Select a ${role || 'user'}`,
     },
     ...options,
   ];

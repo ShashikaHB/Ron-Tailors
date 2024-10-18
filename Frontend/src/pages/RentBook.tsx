@@ -50,12 +50,35 @@ const RentBook = () => {
   }, [allRentOrdersLoading]);
 
   const initialColDefs: ColDef<any>[] = [
-    { headerName: 'Id', field: 'rentOrderId', minWidth: 100 },
+    {
+      headerName: 'Id',
+      field: 'rentOrderId',
+      minWidth: 120,
+      cellRenderer: (params) => {
+        const rentOrderId = params.value;
+        const linkedSalesOrderId = params.data?.linkedSalesOrderId;
+        return (
+          <div>
+            <div>{rentOrderId}</div>
+            {linkedSalesOrderId && <div> Order: {linkedSalesOrderId}</div>}
+          </div>
+        );
+      },
+    },
     { headerName: 'Customer', field: 'customer', cellRenderer: CustomerRenderer, autoHeight: true, minWidth: 200 },
     { headerName: 'Order Details', field: 'rentOrderDetails', cellRenderer: RentOrderDetailsRenderer, autoHeight: true, minWidth: 300 },
-    { headerName: 'Rent Date', field: 'rentDate', valueFormatter: (params) => format(params.value as Date, 'dd-MM-yyyy'), minWidth: 100 },
-    { headerName: 'Return Date', field: 'returnDate', valueFormatter: (params) => format(params.value as Date, 'dd-MM-yyyy'), minWidth: 100 },
-    { headerName: 'Order Status', field: 'orderStatus' },
+    { headerName: 'Rent Date', field: 'rentDate', valueFormatter: (params) => format(params.value as Date, 'yyyy-MM-dd'), minWidth: 100 },
+    { headerName: 'Return Date', field: 'returnDate', valueFormatter: (params) => format(params.value as Date, 'yyyy-MM-dd'), minWidth: 100 },
+    {
+      headerName: 'Order Status',
+      field: 'orderStatus',
+      cellStyle: (params) => {
+        if (params.value === 'Completed') {
+          return { color: 'green' }; // Completed orders in green
+        }
+        return { color: 'red' }; // Other orders in black
+      },
+    },
     {
       headerName: 'Actions',
       field: 'action',

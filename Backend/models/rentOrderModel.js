@@ -14,6 +14,9 @@ const rentOrderSchema = new mongoose.Schema({
     type: String,
     unique: true,
   },
+  linkedSalesOrderId: {
+    type: String,
+  },
   store: {
     enum: ["RW", "KE"],
     type: String,
@@ -31,6 +34,11 @@ const rentOrderSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
+  suitType: {
+    type: String,
+    enum: ["Wedding", "Normal"],
+    default:"Wedding"
+  },
   rentOrderDetails: [
     {
       description: {
@@ -46,7 +54,7 @@ const rentOrderSchema = new mongoose.Schema({
       itemCategory: {
         type: String,
         enum: ["General", "Full Suit", "National Suit", "Rent Full Suit"],
-        default: "General",
+        default: "Rent Full Suit",
       },
       itemType: {
         type: String,
@@ -72,9 +80,10 @@ const rentOrderSchema = new mongoose.Schema({
       },
       handLength: { type: String },
       notes: { type: String },
-      amount: { type: Number, required: [true, "Amount is required"] },
+      amount: { type: Number },
     },
   ],
+
   totalPrice: {
     type: Number,
     required: [true, "Total is required."],
@@ -101,11 +110,11 @@ const rentOrderSchema = new mongoose.Schema({
     type: String,
     enum: ["NIC", "Deposit"],
   },
-  stakeAmount : {
+  stakeAmount: {
     type: Number,
   },
   nicNumber: {
-    type: String
+    type: String,
   },
   orderStatus: {
     type: String,

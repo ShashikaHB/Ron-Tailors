@@ -8,11 +8,13 @@
 import { ICellRendererParams } from 'ag-grid-community';
 
 const CustomerRenderer = (params: ICellRendererParams) => {
-  const { name, mobile } = params?.data?.customer ?? '';
+  const { name, mobile, secondaryMobile, otherMobile } = params?.data?.customer ?? '';
   return (
     <div>
-      <p className='font-weight-bold'>Name: {name}</p>
+      <p className="font-weight-bold">Name: {name}</p>
       <p>Mobile: {mobile}</p>
+      {secondaryMobile && <p>Secondary Mobile: {secondaryMobile}</p>}
+      {otherMobile && <p>Other Mobile: {otherMobile}</p>}
     </div>
   );
 };

@@ -24,6 +24,7 @@ export const getProductFields = async (_id) => {
   try {
     const product = await Product.findById(_id)
       .select("productId status itemType price")
+      .populate('measurement')
       .lean()
       .exec();
     return product
@@ -31,7 +32,7 @@ export const getProductFields = async (_id) => {
           productId: product.productId,
           status: product.status,
           itemType: product.itemType,
-          price: product.price
+          measurementId: product?.measurement?.measurementId
         }
       : null;
   } catch (error) {

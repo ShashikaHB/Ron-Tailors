@@ -9,6 +9,7 @@ import PaymentType from '../../enums/PaymentType';
 import ProductType from '../../enums/ProductType';
 import StakeOptions from '../../enums/StakeOptions';
 import Stores from '../../enums/Stores';
+import { SuitTypes } from '../../enums/RentOrderTypes';
 
 // Create a base schema without the conditional fields
 const baseRentOrderSchema = z.object({
@@ -19,16 +20,18 @@ const baseRentOrderSchema = z.object({
     }),
     secondaryMobile: z
       .string()
-      .refine((value) => /^\d{10}$/.test(value), {
+      .refine((value) => !value || /^\d{10}$/.test(value), {
         message: 'Mobile number should be exactly 10 digits',
       })
-      .optional(),
+      .optional()
+      .default(''),
     otherMobile: z
       .string()
-      .refine((value) => /^\d{10}$/.test(value), {
+      .refine((value) => !value || /^\d{10}$/.test(value), {
         message: 'Mobile number should be exactly 10 digits',
       })
-      .optional(),
+      .optional()
+      .default(''), // Default to empty string if not provided
   }),
   store: z.nativeEnum(Stores).default(Stores.Kegalle),
   salesPerson: z.number().min(1, 'Sales person is required.'),
@@ -38,6 +41,7 @@ const baseRentOrderSchema = z.object({
   returnDate: z.date().refine((date) => date instanceof Date && !Number.isNaN(date.getTime()), {
     message: 'Delivery date is required and must be a valid date.',
   }),
+  suitType: z.nativeEnum(SuitTypes).default(SuitTypes.Wedding),
   rentOrderDetails: z.array(
     z.object({
       productId: z.union([z.coerce.number(), z.undefined()]),
@@ -46,13 +50,13 @@ const baseRentOrderSchema = z.object({
       description: z.string().optional(),
       handLength: z.string().optional(),
       notes: z.string().optional(),
-      amount: z.coerce.number().min(1, 'Price is required.'),
+      amount: z.coerce.number(),
       itemType: z.nativeEnum(ProductType),
       rentItemId: z.number().min(1),
     })
   ),
-  totalPrice: z.coerce.number().min(1, 'Total price is required.'),
-  subTotal: z.coerce.number().min(1, 'Sub Total is required.'),
+  totalPrice: z.coerce.number().min(0, 'Total price is required.'),
+  subTotal: z.coerce.number().min(0, 'Sub Total is required.'),
   discount: z.coerce.number().optional(),
   advPayment: z.coerce.number().optional(),
   balance: z.coerce.number().optional(),

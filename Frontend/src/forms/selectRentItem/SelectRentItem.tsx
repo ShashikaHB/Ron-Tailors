@@ -9,12 +9,14 @@ import { TextField } from '@mui/material';
 import { FaSearch } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
 import { RiCloseLargeLine } from '@remixicon/react';
+import { toast } from 'sonner';
 import { RentItemDetailTypes } from '../../enums/RentItemDetails';
 import { useLazySearchRentItemQuery } from '../../redux/features/product/productApiSlice';
 import { RentItemDetails } from '../../types/rentItem';
 import ProductType from '../../enums/ProductType';
 import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
-import { selectProductId, setLoading } from '../../redux/features/common/commonSlice';
+import { setLoading } from '../../redux/features/common/commonSlice';
+import { selectedRentItemId } from '../../redux/features/orders/orderSlice';
 
 const initialRentItemDetails: RentItemDetails = {
   rentItemId: 0,
@@ -23,15 +25,21 @@ const initialRentItemDetails: RentItemDetails = {
   description: '',
   handLength: '',
   notes: '',
-  amount: 0,
   itemType: ProductType.Coat,
 };
 
-const SelectRentItem = ({ handleClose }) => {
+type SelectRentItemProps = {
+  handleClose: () => void;
+  onRentItemSelection: (rentItemId, rentData) => void;
+};
+
+const SelectRentItem = ({ handleClose, onRentItemSelection }: SelectRentItemProps) => {
   const [productSearchQuery, setProductSearchQuery] = useState('');
   const [rentItemDetails, setRentItemDetails] = useState<RentItemDetails>(initialRentItemDetails);
 
   const dispatch = useAppDispatch();
+
+  const storedRentItemId = useAppSelector(selectedRentItemId);
 
   const [triggerProductSearch, { data: rentItem, isLoading: rentItemLoading }] = useLazySearchRentItemQuery();
 
@@ -50,26 +58,32 @@ const SelectRentItem = ({ handleClose }) => {
         description: rentItem.description,
         color: rentItem.color,
         size: rentItem.size,
-        type: rentItem.itemType,
+        itemType: rentItem.itemType,
         rentItemId: rentItem.rentItemId,
+        amount: 0,
       }));
     }
   }, [rentItem]);
 
-  const productId = useAppSelector(selectProductId);
-
-  console.log(productId);
-
   const handleRentItemAdd = () => {
     // setRowData((prev) => [...prev, rentItemDetails]);
+    onRentItemSelection(storedRentItemId, rentItemDetails);
     setRentItemDetails(initialRentItemDetails);
     setProductSearchQuery('');
+    handleClose();
   };
 
   const handleKeyPressProductSearch = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault(); // Prevent the form submission
       handleSearchProduct();
+    }
+  };
+
+  const handleKeyPressAddItem = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Prevent the form submission
+      handleRentItemAdd();
     }
   };
 
@@ -144,11 +158,13 @@ const SelectRentItem = ({ handleClose }) => {
             </div>
             <div className="col-12 mb-3 d-flex gap-4">
               <div className="row gap-2 mx-0 g-0 w-100">
-                <div className="col">
+                <div className="col-12">
                   <TextField
+                    className="w-100"
                     label="Notes"
                     value={rentItemDetails.notes}
                     onChange={(e) => handleRentItemDetailsChange(RentItemDetailTypes.notes, e.target.value)}
+                    onKeyDown={handleKeyPressAddItem}
                   />
                 </div>
               </div>
@@ -162,10 +178,10 @@ const SelectRentItem = ({ handleClose }) => {
                 setRentItemDetails(initialRentItemDetails);
               }}
             >
-              Clear Item
+              Clear
             </button>
-            <button className="primary-button" type="button" disabled={rentItemDetails.amount === 0} onClick={handleRentItemAdd}>
-              Add Item
+            <button className="primary-button" type="button" onClick={handleRentItemAdd}>
+              Save Details
             </button>
           </div>
         </div>

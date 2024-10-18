@@ -30,7 +30,16 @@ export const measurementApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: ['Products'],
     }),
+    getPreviousMeasurements: builder.query({
+      query: ({ customerId, productType }) => ({
+        url: `/measurement/${customerId}/${productType}`, // This is where you define the dynamic URL
+        method: 'GET',
+      }),
+      transformResponse: (res: ApiResponse<any>) => {
+        return res.data;
+      },
+    }),
   }),
 });
 
-export const { useCreateMeasurementMutation, useUpdateMeasurementMutation } = measurementApiSlice;
+export const { useCreateMeasurementMutation, useUpdateMeasurementMutation, useLazyGetPreviousMeasurementsQuery } = measurementApiSlice;

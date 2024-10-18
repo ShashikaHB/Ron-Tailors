@@ -15,12 +15,12 @@ import RHFDropDown from '../../components/customFormComponents/customDropDown/RH
 import RHFDatePicker from '../../components/customFormComponents/customDatePicker/RHFDatePricker';
 import { useAddCustomTransactionMutation, useGetAllTransactionCategoriesQuery } from '../../redux/features/transaction/transactionApiSlice';
 import transactionType from '../../consts/transactionTypes';
-import { Roles } from '../../enums/Roles';
 import { allUsers } from '../../redux/features/auth/authSlice';
 import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
 import getUserRoleBasedOptions from '../../utils/userUtils';
 import stores from '../../consts/stores';
 import { setLoading } from '../../redux/features/common/commonSlice';
+import { Roles } from '../../enums/Roles';
 
 type AddMaterialFormProps = {
   handleClose: () => void;
@@ -32,14 +32,17 @@ const AddTransaction = ({ handleClose, materialId }: AddMaterialFormProps) => {
 
   const dispatch = useAppDispatch();
 
+  const transactionCategory = useWatch({ control, name: 'transactionCategory' });
+
   // Fetch transactions with the selected date range
   const { data: transactionCategories, isLoading: categoryLoading } = useGetAllTransactionCategoriesQuery({});
   const [addTransaction, { isLoading: addTransactionLoading }] = useAddCustomTransactionMutation();
   const [categories, setCategories] = useState([]);
+  const [showUserField, setShowUserField] = useState(false);
   const selectedTransactionType = useWatch({ control, name: 'transactionType' });
 
   const users = useAppSelector(allUsers);
-
+  const employees = getUserRoleBasedOptions(users);
   const salesPeople = getUserRoleBasedOptions(users, Roles.SalesPerson);
 
   const handleFormClose = (): void => {
@@ -71,13 +74,22 @@ const AddTransaction = ({ handleClose, materialId }: AddMaterialFormProps) => {
     }
   }, [transactionCategories, selectedTransactionType]);
 
+  useEffect(() => {
+    if (transactionCategory === 'Salary' || transactionCategory === 'Salary Advance') {
+      setShowUserField(true);
+    } else {
+      setShowUserField(false);
+    }
+  }, [transactionCategory]);
+
   const onSubmit: SubmitHandler<TransactionSchema> = async (data) => {
     try {
       const response = await addTransaction(data);
       if (response?.data?.success) {
         toast.success('Transaction Recorded!');
         reset(defaultTransactionValues);
-        // handleClose();
+        dispatch(setLoading(false));
+        handleClose();
       }
     } catch (error) {
       toast.error(`Transaction addition Failed. ${error.message}`);
@@ -98,6 +110,7 @@ const AddTransaction = ({ handleClose, materialId }: AddMaterialFormProps) => {
             <div className="inputGroup">
               <RHFDropDown<TransactionSchema> options={transactionType} name="transactionType" label="Transaction Type" />
               <RHFDropDown<TransactionSchema> options={categories} name="transactionCategory" label="Transaction Category" />
+              {showUserField && <RHFDropDown<TransactionSchema> options={employees} name="user" label="Employee" />}
               <RHFDropDown<TransactionSchema> options={stores} name="store" label="Store" />
               <RHFTextField<TransactionSchema> label="Description" name="description" type="Transaction Description" />
               <RHFDatePicker<TransactionSchema> name="date" label="Transaction Date" />
@@ -109,7 +122,7 @@ const AddTransaction = ({ handleClose, materialId }: AddMaterialFormProps) => {
               <button className="secondary-button" onClick={handleClear} type="button">
                 Clear
               </button>
-              <button className="primary-button" type="submit" onClick={() => console.log('btn clicked')}>
+              <button className="primary-button" type="submit">
                 Add Transaction
               </button>
             </div>

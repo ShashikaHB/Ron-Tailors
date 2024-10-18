@@ -4,6 +4,7 @@ import {
   getAllOrders,
   getSalesOrderOrRentOrderForPayment,
   getSingleSalesOrder,
+  updateFitOnRounds,
   updateSalesOrder,
   updateSalesOrRentOrder,
 } from "../controllers/salesOrderController.js";
@@ -16,6 +17,7 @@ router.get("/:salesOrderId", getSingleSalesOrder);
 router.patch("/:salesOrderId", updateSalesOrder);
 router.get('/payment/:orderId', getSalesOrderOrRentOrderForPayment)
 router.post('/payment/:orderId', updateSalesOrRentOrder)
+router.post('/updateFitOn', updateFitOnRounds)
 
 
 export default router;

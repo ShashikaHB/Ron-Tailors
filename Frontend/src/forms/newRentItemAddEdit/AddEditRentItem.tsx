@@ -22,8 +22,8 @@ const productTypes = [
     label: 'Select a Product Type',
   },
   {
-    value: ProductType.Coat,
-    label: 'Coat',
+    value: ProductType.RentCoat,
+    label: 'Rent Coat',
   },
   {
     value: ProductType.Shirt,
@@ -34,8 +34,8 @@ const productTypes = [
     label: 'Bow',
   },
   {
-    value: ProductType.WestCoat,
-    label: 'WestCoat',
+    value: ProductType.RentWestCoat,
+    label: 'Rent West Coat',
   },
   {
     value: ProductType.Cravat,
@@ -99,6 +99,7 @@ const AddEditRentItemForm = ({ handleClose, rentItemId }: AddMaterialFormProps) 
           //   toast.success('Rent Item Updated.');
           setValue('size', null);
           reset(defaultRentItemValues);
+          handleClose();
         }
       } else {
         const response = await addNewRentItem(data);
@@ -108,6 +109,7 @@ const AddEditRentItemForm = ({ handleClose, rentItemId }: AddMaterialFormProps) 
           //   toast.success('New material Added.');
           setValue('size', null);
           reset(defaultRentItemValues);
+          handleClose();
         }
       }
     } catch (error) {

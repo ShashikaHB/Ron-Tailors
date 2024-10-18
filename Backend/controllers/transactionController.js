@@ -12,6 +12,7 @@ import {
 import { DailySummary } from "../models/dailySummaryModel.js";
 import { updateDailySummary } from "../utils/updateDailySummary.js";
 import { User } from "../models/userModel.js";
+import { updateMonthlySummaryWithSalary } from "./monthlySummaryController.js";
 
 export const getAllTransactions = asyncHandler(async (req, res) => {
   const transactions = await Transaction.find().lean().exec();
@@ -145,6 +146,8 @@ export const addCustomTransaction = asyncHandler(async (req, res) => {
     store,
     salesPerson,
     transactionCategory,
+    user,
+    date
   } = req.body;
 
   if (
@@ -172,6 +175,23 @@ export const addCustomTransaction = asyncHandler(async (req, res) => {
 
   if (!newTransaction) {
     throw new Error("Internal server error");
+  }
+
+  if (transactionCategory === "Salary" || transactionCategory === "Salary Advance") {
+    if (!user) {
+        throw new Error("Employee details not provided!")
+    }
+
+  }
+
+  const month = (new Date(date) || new Date)
+
+  if (transactionCategory === "Salary" || transactionCategory === 'Salary Advance') {
+      const addSalary = await updateMonthlySummaryWithSalary(user, month.toISOString().slice(0, 7), transactionCategory, amount );
+      if (!addSalary) {
+        throw new Error ("Salary updating failed!")
+      }
+
   }
 
   res.json({

@@ -13,6 +13,7 @@ import { Transaction } from "../models/transactionModel.js";
 import { updateDailySummary } from "../utils/updateDailySummary.js";
 import { RentOrder } from "../models/rentOrderModel.js";
 import { sendSMS } from "../notificationSMS/smsNotification.js";
+import { RentItem } from "../models/rentItemModel.js";
 
 export const createOrder = asyncHandler(async (req, res) => {
   const {
@@ -55,11 +56,13 @@ export const createOrder = asyncHandler(async (req, res) => {
     throw new Error(`No user found for ID ${salesPerson}`);
   }
 
+  let rentOrderDetails = [];
+
   // Loop through the orderDetails array and replace productId with the corresponding _id
   const orderDetailsData = await Promise.all(
     orderDetails.map(async (detail) => {
       const productsData = await Promise.all(
-        detail.products.map(async (productId) => {
+        detail?.products.map(async (productId) => {
           const product = await getDocId(Product, "productId", productId);
           if (!product) {
             throw new Error(`No product found for ID ${productId}`);
@@ -68,11 +71,16 @@ export const createOrder = asyncHandler(async (req, res) => {
         })
       );
 
+      if (detail.category === "Rent Full Suit") {
+        rentOrderDetails = [...rentOrderDetails, ...detail?.rentItems];
+      }
+
       return {
         description: detail.description,
         category: detail?.category,
         products: productsData,
-        amount: detail.amount
+        rentItems: detail.rentItems,
+        amount: detail.amount,
       };
     })
   );
@@ -86,6 +94,37 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   const newOrder = await SalesOrder.create(orderData);
 
+  if (rentOrderDetails.length > 0) {
+    const rentOrderData = {
+      ...req.body,
+      totalPrice: 0,
+      subTotal: 0,
+      discount: 0,
+      advPayment: 0,
+      balance: 0,
+      stakeOption: "NIC",
+      rentOrderDetails,
+      linkedSalesOrderId: newOrder.salesOrderId,
+      suitType: "Wedding",
+      rentDate: new Date(orderDate),
+      returnDate: new Date(deliveryDate).setDate(
+        new Date(deliveryDate).getDate() + 5
+      ),
+      customer: customer._id,
+      salesPerson: salesPersonDoc._id,
+    };
+
+    const newRentOrder = await RentOrder.create(rentOrderData);
+
+    // Update the status of each rent item in the order to 'Not Returned'
+    for (const detail of rentOrderDetails) {
+      await RentItem.findOneAndUpdate(
+        { rentItemId: detail.rentItemId },
+        { status: "Not Returned" }
+      );
+    }
+  }
+
   // Create a credit transaction
   const newTransaction = await Transaction.create({
     transactionType: "Income",
@@ -98,10 +137,8 @@ export const createOrder = asyncHandler(async (req, res) => {
   });
 
   await updateDailySummary(newTransaction);
-  const messageBody = `Hi ${name}. Your Order Id is ${newOrder.salesOrderId}. Your order balance is ${newOrder?.balance}. Thank you come again.`
+  const messageBody = `Hi ${name}. Your Order Id is ${newOrder.salesOrderId}. Your order balance is ${newOrder?.balance}. Thank you come again.`;
   await sendSMS(messageBody, mobile);
-
-
 
   res.json({
     message: "New order created successfully.",
@@ -149,10 +186,14 @@ export const getAllOrders = asyncHandler(async (req, res) => {
     })
   );
 
+  const sortedOrders = ordersWithProductFields.sort(
+    (a, b) => new Date(b.orderDate) - new Date(a.orderDate)
+  );
+
   res.json({
     message: "All Orders Fetched Successfully.",
     success: true,
-    data: ordersWithProductFields,
+    data: sortedOrders,
   });
 });
 
@@ -222,6 +263,9 @@ export const updateSalesOrder = asyncHandler(async (req, res) => {
   }
   const salesPersonDoc = await getDocId(User, "userId", salesPerson);
 
+
+  let rentOrderDetails = [];
+
   // Loop through the orderDetails array and replace productId with the corresponding _id
   const orderDetailsData = await Promise.all(
     orderDetails.map(async (detail) => {
@@ -233,13 +277,17 @@ export const updateSalesOrder = asyncHandler(async (req, res) => {
           }
           return product._id; // Return only the _id of the product
         })
-      );
+    );
+    if (detail.category === "Rent Full Suit") {
+        rentOrderDetails = [...rentOrderDetails, ...detail?.rentItems];
+      }
 
       return {
         description: detail.description,
         category: detail?.category,
         products: productsData,
-        amount: detail.amount
+        rentItems: rentOrderDetails,
+        amount: detail.amount,
       };
     })
   );
@@ -268,116 +316,168 @@ export const updateSalesOrder = asyncHandler(async (req, res) => {
   });
 });
 
-export const getSalesOrderOrRentOrderForPayment = asyncHandler(async (req, res) => {
-  const { orderId } = req.params;
-  let order = null;
-  let transactions = [];
+export const getSalesOrderOrRentOrderForPayment = asyncHandler(
+  async (req, res) => {
+    const { orderId } = req.params;
+    let order = null;
+    let transactions = [];
 
-  // Determine if it's a Sales Order or Rent Order based on prefix (e.g., "RW" or "KE")
+    // Determine if it's a Sales Order or Rent Order based on prefix (e.g., "RW" or "KE")
 
-  // Check in SalesOrder collection
-  order = await SalesOrder.findOne({ salesOrderId: orderId })
-    .populate("customer", "name mobile")
-    .lean()
-    .exec();
-
-  // If no Sales Order found, check in RentOrder collection
-  if (!order) {
-    order = await RentOrder.findOne({ rentOrderId: orderId })
+    // Check in SalesOrder collection
+    order = await SalesOrder.findOne({ salesOrderId: orderId })
       .populate("customer", "name mobile")
       .lean()
       .exec();
+
+    // If no Sales Order found, check in RentOrder collection
+    if (!order) {
+      order = await RentOrder.findOne({ rentOrderId: orderId })
+        .populate("customer", "name mobile")
+        .lean()
+        .exec();
+    }
+
+    // If no order found, return an error
+    if (!order) {
+      res.status(404);
+      throw new Error(`No order found with ID: ${orderId}`);
+    }
+
+    // Find related transactions based on the orderId in the description
+    transactions = await Transaction.find({
+      description: new RegExp(orderId, "i"), // Search transactions that contain orderId in the description
+    })
+      .lean()
+      .exec();
+
+      const sortedTransactions = transactions.sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
+      );
+    
+
+    // Return the order details and transactions
+    res.json({
+      message: `order fetched successfully.`,
+      success: true,
+      data: {
+        order,
+        transactions:sortedTransactions,
+      },
+    });
+  }
+);
+
+export const updateSalesOrRentOrder = asyncHandler(async (req, res) => {
+  const { orderId } = req.params;
+  const { paymentAmount, paymentType } = req.body;
+
+  // Validate input
+  if (!paymentAmount || !paymentType) {
+    res.status(400);
+    throw new Error("Payment amount and payment type are required.");
   }
 
-  // If no order found, return an error
+  let order = null;
+  let orderType = "";
+  let balance = 0;
+
+  // Check if it's a Sales Order or Rent Order based on the orderId prefix
+  if (orderId.startsWith("RW") || orderId.startsWith("KE")) {
+    // Check in SalesOrder
+    order = await SalesOrder.findOne({ salesOrderId: orderId }).exec();
+    orderType = "Sales Order";
+  }
+
+  if (!order) {
+    // If no SalesOrder is found, check in RentOrder
+    order = await RentOrder.findOne({ rentOrderId: orderId }).exec();
+    orderType = "Rent Order";
+  }
+
   if (!order) {
     res.status(404);
-    throw new Error(`No order found with ID: ${orderId}`);
+    throw new Error(`Order not found with ID: ${orderId}`);
   }
 
-  // Find related transactions based on the orderId in the description
-  transactions = await Transaction.find({
-    description: new RegExp(orderId, "i"), // Search transactions that contain orderId in the description
-  })
-    .lean()
-    .exec();
+  // Calculate the new balance
+  const updatedAdvPayment = (order.advPayment || 0) + Number(paymentAmount);
+  balance = order.totalPrice - updatedAdvPayment;
 
-  // Return the order details and transactions
+  // Update the order with the new payment and balance
+  order.advPayment = updatedAdvPayment;
+  order.balance = balance;
+  order.paymentType = paymentType;
+
+  // Save the updated order
+  const updatedOrder = await order.save();
+
+  // Create a new transaction
+  const newTransaction = await Transaction.create({
+    transactionType: "Income",
+    transactionCategory: orderType,
+    paymentType: paymentType,
+    salesPerson: order.salesPerson, // Assuming this is already populated with user info
+    store: order.store,
+    amount: paymentAmount,
+    description: `${orderType}: ${orderId}`, // Include orderId in the transaction description
+  });
+
+  const messageBody = `Hi ${order.customer.name}. Your order balance is ${newOrder?.balance}. Thank you come again.`;
+  await sendSMS(messageBody, order.customer.mobile);
+
+  // Return the updated order and new transaction
   res.json({
-    message: `order fetched successfully.`,
+    message: "Payment updated successfully.",
     success: true,
     data: {
-      order,
-      transactions,
+      updatedOrder,
+      transaction: newTransaction,
     },
   });
 });
 
-export const updateSalesOrRentOrder = asyncHandler(async (req, res) => {
-    const { orderId } = req.params;
-    const { paymentAmount, paymentType } = req.body;
-  
-    // Validate input
-    if (!paymentAmount || !paymentType) {
-      res.status(400);
-      throw new Error("Payment amount and payment type are required.");
-    }
-  
-    let order = null;
-    let orderType = "";
-    let balance = 0;
-  
-    // Check if it's a Sales Order or Rent Order based on the orderId prefix
-    if (orderId.startsWith("RW") || orderId.startsWith("KE")) {
-      // Check in SalesOrder
-      order = await SalesOrder.findOne({ salesOrderId: orderId }).exec();
-      orderType = "Sales Order";
-    }
-  
-    if (!order) {
-      // If no SalesOrder is found, check in RentOrder
-      order = await RentOrder.findOne({ rentOrderId: orderId }).exec();
-      orderType = "Rent Order";
-    }
-  
-    if (!order) {
-      res.status(404);
-      throw new Error(`Order not found with ID: ${orderId}`);
-    }
-  
-    // Calculate the new balance
-    const updatedAdvPayment = (order.advPayment || 0) + paymentAmount;
-    balance = order.totalPrice - updatedAdvPayment;
-  
-    // Update the order with the new payment and balance
-    order.advPayment = updatedAdvPayment;
-    order.balance = balance;
-    order.paymentType = paymentType;
-  
-    // Save the updated order
-    const updatedOrder = await order.save();
-  
-    // Create a new transaction
-    const newTransaction = await Transaction.create({
-      transactionType: "Income",
-      transactionCategory: orderType,
-      paymentType: paymentType,
-      salesPerson: order.salesPerson, // Assuming this is already populated with user info
-      store: order.store,
-      amount: paymentAmount,
-      description: `${orderType}: ${orderId}`, // Include orderId in the transaction description
-    });
+export const updateFitOnRounds = asyncHandler(async (req, res) => {
+  const { fitOnNumber, date, isChecked, salesOrderId } = req.body;
 
-    const messageBody = `Hi ${order.customer.name}. Your order balance is ${newOrder?.balance}. Thank you come again.`
-    await sendSMS(messageBody, order.customer.mobile);
-  
-    // Return the updated order and new transaction
-    res.json({
-      message: "Payment updated successfully.",
-      success: true,
-      data: {
-        updatedOrder,
-        transaction: newTransaction,
-      },
+  if (!salesOrderId) {
+    throw new Error("Order Id is required!");
+  }
+  const order = await SalesOrder.findOne({ salesOrderId })
+    .populate("customer")
+    .exec();
+
+  // Check if the fitOnRound with the given fitOnNumber exists
+  const existingFitOnRound = order.fitOnRounds.find(
+    (round) => round.fitOnNumber === fitOnNumber
+  );
+
+  if (existingFitOnRound) {
+    // If the fitOnNumber exists, update the date and isChecked
+    existingFitOnRound.date = date || existingFitOnRound.date;
+    existingFitOnRound.isChecked =
+      isChecked !== undefined ? isChecked : existingFitOnRound.isChecked;
+  } else {
+    // If the fitOnNumber doesn't exist, add a new fitOnRound object
+    order.fitOnRounds.push({
+      fitOnNumber,
+      date,
+      isChecked,
     });
+  }
+
+  if (isChecked) {
+    const fitOnDate = new Date(date).toISOString().split("T")[0];
+    const smsBody = `Hi ${order.customer.name} your order ${salesOrderId} is ready for FitOn number ${fitOnNumber} on ${fitOnDate}.`;
+    await sendSMS(smsBody, order.customer.mobile);
+  }
+
+  // Save the updated sales order
+  const updatedOrder = await order.save();
+  // Return the updated sales order
+  res.json({
+    message: "Fit On Rounds updated successfully.",
+    success: true,
+    data: updatedOrder,
   });
+});

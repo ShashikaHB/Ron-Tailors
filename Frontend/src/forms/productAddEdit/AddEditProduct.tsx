@@ -45,7 +45,7 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
 
   const { data: users = [], isLoading: usersLoading } = useGetAllUsersQuery();
   const { data: materials, isLoading: materialLoading } = useGetAllMaterialsQuery();
-  const [triggerGetProduct, { data: productData, isLoading: productDataLoading }] = useLazyGetSingleProductQuery();
+  const [triggerGetProduct, { data: product, isLoading: productDataLoading }] = useLazyGetSingleProductQuery();
 
   const materialOptions = getAvailableMaterialOptions(materials as GetMaterial[]);
 
@@ -151,6 +151,7 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
         if (response) {
           toast.success('Product Updated.');
           setSelectedMaterialRowData([]);
+          dispatch(setLoading(false));
           handleClosePopup();
           reset();
         }
@@ -165,10 +166,10 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
   //   }, [productType]);
 
   useEffect(() => {
-    const mappedData = mapProductData(productData);
+    const mappedData = mapProductData(product);
     reset(mappedData);
     setSelectedMaterialRowData(mappedData.materials);
-  }, [productData]);
+  }, [product]);
 
   useEffect(() => {
     if (productId) {
@@ -186,7 +187,7 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
         <div className="modal-header">
           <h5 className="modal-title">
             Add New
-            {` ${productData?.itemType}`}
+            {` ${product?.itemType}`}
           </h5>
           <button aria-label="close-btn" type="button" className="icon-button" onClick={handleClosePopup}>
             <RiCloseLargeLine size={18} />
@@ -200,12 +201,9 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
                   <div className="inputGroup w-100">
                     <RHFTextField<ProductSchema> label="Color" name="color" />
                     <RHFTextField<ProductSchema> label="Style" name="style" />
-                    <RHFTextField<ProductSchema> label="Price" name="price" type="number" />
-                    <RHFTextField<ProductSchema> label="Number of Units" name="noOfUnits" type="number" disabled />
-                    <RHFSwitch<ProductSchema> name="isNewRentOut" label="New Rentout" />
+                    <RHFSwitch<ProductSchema> name="isNewRentOut" label="New RentOut" />
                   </div>
                   <div className="inputGroup w-100">
-                    <RHFTextField<ProductSchema> label="Rent Price" name="rentPrice" type="number" />
                     <RHFDropDown<ProductSchema> options={cuttersOptions} name="cutter" label="Cutter" />
                     <RHFDropDown<ProductSchema> options={tailorOptions} name="tailor" label="Tailor" />
                     <RHFDropDown<ProductSchema> options={measurerOptions} name="measurer" label="Measurer" />

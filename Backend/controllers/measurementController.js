@@ -131,3 +131,33 @@ export const deleteMeasurement = asyncHandler(async (req, res) => {
     throw new Error(error);
   }
 });
+// [TODO]- implement this method correctly if needed.
+export const getPreviousMeasurements = asyncHandler(async (req, res) => {
+  const { customerId, productType } = req.params;
+
+  if (!customerId || !productType) {
+    throw new Error("customer and product details not found!")
+  }
+
+  const customerObjId=  await getDocId(Customer, 'customerId', Number(customerId)) 
+
+  const measurements = await Measurement.find({
+    customer: customerObjId,          // Match the customerId
+    itemType: productType,          // Match the productType (itemType in the schema)
+  }).populate('customer').lean();           // Populate the customer field
+
+  if (!measurements) {
+    throw new Error('Measurements not found for given customer and item type!')
+  }
+
+  const updatedMeasurements  = measurements.map((measurement)=> ({
+    ...measurement, remarks: ''
+  }))
+
+  // Return the list of measurements with populated customer data
+  res.json({
+    message: "Measurements retrieved successfully.",
+    success: true,
+    data: updatedMeasurements,
+  });
+});

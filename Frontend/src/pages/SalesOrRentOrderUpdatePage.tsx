@@ -10,6 +10,7 @@ import { ColDef } from 'ag-grid-community';
 import { FormControl, MenuItem, Select, TextField } from '@mui/material';
 import { FaSearch } from 'react-icons/fa';
 import { toast } from 'sonner';
+import { format } from 'date-fns';
 import { useLazyGetSalesOrRentOrderForPaymentQuery, useUpdateSalesOrRentPaymentMutation } from '../redux/features/orders/orderApiSlice';
 import MemoizedTable from '../components/agGridTable/Table';
 import paymentOptions from '../consts/paymentOptions';
@@ -46,6 +47,7 @@ const SalesOrRentOrderUpdatePage = () => {
     {
       headerName: 'Date',
       field: 'date',
+      valueFormatter: (params) => format(params.value as Date, 'yyyy-MM-dd'),
     },
     { headerName: 'Payment Type', field: 'paymentType' },
     { headerName: 'Amount', field: 'amount' },
@@ -59,6 +61,12 @@ const SalesOrRentOrderUpdatePage = () => {
     if (e.key === 'Enter') {
       e.preventDefault(); // Prevent the form submission
       handleSearchCustomer();
+    }
+  };
+  const handleKeyPressOnPay = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Prevent the form submission
+      handlePayNow();
     }
   };
 
@@ -82,9 +90,9 @@ const SalesOrRentOrderUpdatePage = () => {
         <div className="row">
           <div className="col-6 d-flex gap-2 mb-3 align-items-end">
             <TextField
-              label="Search Customer"
+              label="Search Order No"
               size="small"
-              placeholder="Search the customer by mobile or name"
+              placeholder="Sales order no / Rent Order no"
               value={customerSearchQuery}
               onChange={(e) => setCustomerSearchQuery(e.target.value)}
               onKeyDown={handleKeyPress}
@@ -129,7 +137,7 @@ const SalesOrRentOrderUpdatePage = () => {
                       placeholder="Search the customer by mobile or name"
                       value={payment}
                       onChange={(e) => setPayment(e.target.value)}
-                      onKeyDown={handleKeyPress}
+                      onKeyDown={handleKeyPressOnPay}
                     />
                   </div>
                   <div className="col-4">
