@@ -16,11 +16,9 @@ const customerSchema = new mongoose.Schema({
   },
   secondaryMobile: {
     type: String,
-    unique: [true, "Mobile number already exists."],
   },
   otherMobile: {
     type: String,
-    unique: [true, "Mobile number already exists."],
   }
 });
 

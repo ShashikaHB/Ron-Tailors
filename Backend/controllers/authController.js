@@ -288,7 +288,7 @@ export const verifyOtp = asyncHandler(async (req, res) => {
     throw new Error("OTP not found");
   }
 
-  const otpDoc = OTPModel.findOne({ mobile, otp });
+  const otpDoc = OTPModel.findOne({ mobile });
 
   if (!otpDoc) {
     throw new Error("Invalid OTP");
@@ -298,7 +298,11 @@ export const verifyOtp = asyncHandler(async (req, res) => {
 
   const duplicates = await Customer.findOne({mobile})
 
-  if (name && !duplicates) {
+  if (duplicates) {
+    throw new Error("Customer already exists!")
+  }
+
+  if (name) {
     newCustomer = await Customer.create(req.body);
     if (!newCustomer) {
       throw new Error("Cannot find created Customer");
@@ -310,5 +314,5 @@ export const verifyOtp = asyncHandler(async (req, res) => {
     message: "OTP verified!",
     data: newCustomer,
   });
-  await OTPModel.findOneAndDelete({ mobile, otp });
+  await OTPModel.findOneAndDelete({ mobile });
 });
