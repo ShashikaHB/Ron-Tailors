@@ -83,6 +83,7 @@ const AddUserForm = ({ handleClose }: AddMaterialFormProps) => {
       if (response.success) {
         toast.success('New user created!');
         reset();
+        dispatch(setLoading(false));
         handleClose();
       }
     } catch (error) {

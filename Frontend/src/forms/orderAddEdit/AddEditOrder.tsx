@@ -518,9 +518,9 @@ const AddEditOrder = () => {
                     <button className="primary-button" type="submit">
                       {variant === 'create' ? 'Create Order ' : 'Edit Order '}
                     </button>
-                    <button className="primary-button" type="button" onClick={() => handleValidateData()}>
+                    {/* <button className="primary-button" type="button" onClick={() => handleValidateData()}>
                       validate
-                    </button>
+                    </button> */}
                   </div>
                 </div>
               </div>

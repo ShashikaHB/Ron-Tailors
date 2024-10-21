@@ -203,6 +203,9 @@ export const buildRentShopPdf = (dataCallBack, endCallBack, data) => {
     doc.text(`Color: ${detail.color}`);
     doc.moveDown(0.5);
 
+    doc.text(`Size: ${detail.size}`);
+    doc.moveDown(0.5);
+
     doc.text(`Hand length: ${detail.handLength}`);
     doc.moveDown(0.5);
 

@@ -16,9 +16,11 @@ const customerSchema = new mongoose.Schema({
   },
   secondaryMobile: {
     type: String,
+    sparse: true,
   },
   otherMobile: {
     type: String,
+    sparse: true,
   }
 });
 
