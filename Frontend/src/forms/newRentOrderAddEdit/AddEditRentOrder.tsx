@@ -462,9 +462,9 @@ const NewRentOut = () => {
                     >
                       Cancel Order
                     </button>
-                    <button className="secondary-button" type="submit" onClick={handleValidateData}>
+                    {/* <button className="secondary-button" type="submit" onClick={handleValidateData}>
                       validate Order
-                    </button>
+                    </button> */}
                     <button className="primary-button" type="submit">
                       {variant === 'create' ? 'Create Order ' : 'Edit Order '}
                     </button>
