@@ -23,6 +23,8 @@ import {
 } from '../../redux/features/measurement/measurementApiSlice';
 import { selectProductId, setLoading } from '../../redux/features/common/commonSlice';
 import { selectCustomerId } from '../../redux/features/orders/orderSlice';
+import measurementBtnMapping from '../../consts/measurementBtnMapping';
+import ProductType from '../../enums/ProductType';
 
 type AddEditProductProps = {
   handleClose: () => void;
@@ -96,7 +98,6 @@ const AddEditMeasurement = ({ handleClose, onMeasurementSuccess }: AddEditProduc
 
   const handleMeasurementClose = () => {
     handleClose();
-    handleClear();
   };
 
   const handleClear = () => {
@@ -118,6 +119,28 @@ const AddEditMeasurement = ({ handleClose, onMeasurementSuccess }: AddEditProduc
       customer: prevMeasurement?.customer?.customerId,
       variant: 'create', // Set variant to 'edit'
     });
+  };
+
+  const getButtonGroups = (productType: ProductType) => {
+    const btnGroups = measurementBtnMapping.find((btnGroup) => btnGroup.product === productType);
+
+    if (!btnGroups) {
+      return null;
+    }
+
+    return (
+      <div className="d-flex flex-column gap-2">
+        {btnGroups.buttons.map((btnGroup, index) => (
+          <div key={index} className="d-flex gap-1">
+            {btnGroup.map((button, btnIndex) => (
+              <button key={btnIndex} className="primary-button" type="button" onClick={() => addText(button)}>
+                {button}
+              </button>
+            ))}
+          </div>
+        ))}
+      </div>
+    );
   };
 
   const onSubmit: SubmitHandler<MeasurementSchema> = async (data) => {
@@ -215,39 +238,7 @@ const AddEditMeasurement = ({ handleClose, onMeasurementSuccess }: AddEditProduc
                   <br />
                   <div style={{ border: '1px solid black', marginTop: '20px' }} />
                 </div>
-                <div className="d-flex gap-1">
-                  <button className="primary-button" type="button" onClick={() => addText('SB')}>
-                    SB
-                  </button>
-                  <button className="primary-button" type="button" onClick={() => addText('DB')}>
-                    DB
-                  </button>
-                  <button className="primary-button" type="button" onClick={() => addText('Hinec')}>
-                    Hinec
-                  </button>
-                </div>
-                <div className="d-flex gap-1">
-                  <button className="primary-button" type="button" onClick={() => addText('1 BT')}>
-                    1 BT
-                  </button>
-                  <button className="primary-button" type="button" onClick={() => addText('2 BT')}>
-                    2 BT
-                  </button>
-                  <button className="primary-button" type="button" onClick={() => addText('3 BT')}>
-                    3 BT
-                  </button>
-                </div>
-                <div className="d-flex gap-1">
-                  <button className="primary-button" type="button" onClick={() => addText('Normal')}>
-                    Normal
-                  </button>
-                  <button className="primary-button" type="button" onClick={() => addText('Half Satting')}>
-                    Half Satting
-                  </button>
-                  <button className="primary-button" type="button" onClick={() => addText('Full Satting')}>
-                    Full Satting
-                  </button>
-                </div>
+                {productData?.itemType && getButtonGroups(productData?.itemType)}
               </div>
               <div className="inputGroup my-3 w-30 d-flex flex-direction-row">
                 <RHFTextField<MeasurementSchema> label="Style" name="style" />
