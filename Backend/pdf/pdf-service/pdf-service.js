@@ -11,10 +11,10 @@ const formatDescriptionForRent = (details) => {
 export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
   const { customer, orderDetails, totals, orderNo } = data;
 
-  const pageWidth = doc.page.width;
-  const pageHeight = doc.page.height;
-  const availableWidth =
-    pageWidth - doc.page.margins.left - doc.page.margins.right;
+//   const pageWidth = doc.page.width;
+//   const pageHeight = doc.page.height;
+//   const availableWidth =
+//     pageWidth - doc.page.margins.left - doc.page.margins.right;
 
   const doc = new PDFDocument({ margin: 30 });
 
@@ -366,20 +366,16 @@ export const buildMeasurementPdf = (dataCallBack, endCallBack, data) => {
 
   doc.end();
 };
-export const buildOrderBookPdf = (dataCallBack, endCallBack, data) => {
+export const buildOrderBookPdf = (dataCallBack, endCallBack, data, deliveryDate) => {
   const doc = new PDFDocument({ margin: 30 });
 
   doc.on("data", dataCallBack);
   doc.on("end", endCallBack);
 
-  data.map((item, index) => {
-    // Add customer name, mobile, and item type
-    const { customer, orderData, salesOrderId, deliverDate } = item;
-
-    doc
+  doc
       .fontSize(13)
       .font("Helvetica-Bold")
-      .text(`Order Book of the Date ${deliverDate}`, { align: "center" });
+      .text(`Order Book of the Date ${deliveryDate}`, { align: "center" });
 
     doc
       .moveTo(doc.page.margins.left, doc.y)
@@ -387,6 +383,9 @@ export const buildOrderBookPdf = (dataCallBack, endCallBack, data) => {
       .stroke();
     doc.moveDown(1);
 
+  data.map((item, index) => {
+    // Add customer name, mobile, and item type
+    const { customer, orderData, salesOrderId } = item;
     if (index > 0) {
       doc
         .moveTo(doc.page.margins.left, doc.y)
@@ -416,9 +415,8 @@ export const buildOrderBookPdf = (dataCallBack, endCallBack, data) => {
         .fontSize(13)
         .font("Helvetica")
         .text(`${item.productType}`, left, doc.y, { continued: true });
-      doc.moveDown(0.5);
       doc.text(`${item.description}`, middle2, doc.y);
-      doc.moveDown(0.5);
+      doc.moveDown(1);
     });
   });
 

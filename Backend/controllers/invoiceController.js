@@ -292,7 +292,7 @@ export const orderBookPrint = asyncHandler(async (req, res) => {
     return {
       customer: order.customer,
       orderData: items,
-      salesOrderId: order.salesOrderId
+      salesOrderId: order.salesOrderId,
     };
   });
 
@@ -302,6 +302,7 @@ export const orderBookPrint = asyncHandler(async (req, res) => {
   buildOrderBookPdf(
     (chunk) => stream.write(chunk),
     () => stream.end(),
-    {...formattedData, deliverDate: date}
+    formattedData,
+    date
   );
 });
