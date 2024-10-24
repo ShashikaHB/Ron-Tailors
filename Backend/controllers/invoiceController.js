@@ -302,6 +302,6 @@ export const orderBookPrint = asyncHandler(async (req, res) => {
   buildOrderBookPdf(
     (chunk) => stream.write(chunk),
     () => stream.end(),
-    formattedData
+    {...formattedData, deliverDate: date}
   );
 });

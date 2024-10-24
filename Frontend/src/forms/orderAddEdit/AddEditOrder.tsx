@@ -409,6 +409,22 @@ const AddEditOrder = () => {
           handleOrderFormReset();
           if (newWindow) {
             newWindow.location.href = invoiceUrl;
+
+            // Add print event listeners
+            newWindow.onbeforeprint = () => {
+              console.log('Before printing...');
+            };
+
+            newWindow.onafterprint = () => {
+              console.log('After printing...');
+              // Optionally, close the window after printing
+              newWindow.close();
+            };
+
+            // Trigger print once the PDF is loaded
+            newWindow.onload = () => {
+              newWindow.print();
+            };
           }
         }
       } else {

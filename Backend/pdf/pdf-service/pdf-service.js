@@ -11,7 +11,14 @@ const formatDescriptionForRent = (details) => {
 export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
   const { customer, orderDetails, totals, orderNo } = data;
 
-  const doc = new PDFDocument({ margin: 30, size: "A4" });
+  const pageWidth = doc.page.width;
+  const pageHeight = doc.page.height;
+  const availableWidth =
+    pageWidth - doc.page.margins.left - doc.page.margins.right;
+
+  const doc = new PDFDocument({ margin: 30 });
+
+  // Optionally scale the width of elements if needed, based on availableWidth
 
   doc.on("data", dataCallBack);
   doc.on("end", endCallBack);
@@ -98,7 +105,7 @@ export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
 export const buildRentPdf = (dataCallBack, endCallBack, data) => {
   const { customer, rentOrderDetails, totals, orderNo } = data;
 
-  const doc = new PDFDocument({ margin: 30, size: "A4" });
+  const doc = new PDFDocument({ margin: 30 });
 
   doc.on("data", dataCallBack);
   doc.on("end", endCallBack);
@@ -180,7 +187,7 @@ export const buildRentPdf = (dataCallBack, endCallBack, data) => {
 export const buildRentShopPdf = (dataCallBack, endCallBack, data) => {
   const { customer, rentOrderDetails, totals, orderNo } = data;
 
-  const doc = new PDFDocument({ margin: 30, size: "A4" });
+  const doc = new PDFDocument({ margin: 30 });
 
   doc.on("data", dataCallBack);
   doc.on("end", endCallBack);
@@ -231,7 +238,7 @@ export const buildRentShopPdf = (dataCallBack, endCallBack, data) => {
 export const buildReadyMadePdf = (dataCallBack, endCallBack, data) => {
   const { customer, orderDetails, totals, orderNo } = data;
 
-  const doc = new PDFDocument({ margin: 30, size: "A4" });
+  const doc = new PDFDocument({ margin: 30 });
 
   doc.on("data", dataCallBack);
   doc.on("end", endCallBack);
@@ -291,7 +298,7 @@ export const buildReadyMadePdf = (dataCallBack, endCallBack, data) => {
   doc.end();
 };
 export const buildMeasurementPdf = (dataCallBack, endCallBack, data) => {
-  const doc = new PDFDocument({ margin: 30, size: "A4" });
+  const doc = new PDFDocument({ margin: 30 });
 
   doc.on("data", dataCallBack);
   doc.on("end", endCallBack);
@@ -360,14 +367,25 @@ export const buildMeasurementPdf = (dataCallBack, endCallBack, data) => {
   doc.end();
 };
 export const buildOrderBookPdf = (dataCallBack, endCallBack, data) => {
-  const doc = new PDFDocument({ margin: 30, size: "A4" });
+  const doc = new PDFDocument({ margin: 30 });
 
   doc.on("data", dataCallBack);
   doc.on("end", endCallBack);
 
   data.map((item, index) => {
     // Add customer name, mobile, and item type
-    const { customer, orderData, salesOrderId } = item;
+    const { customer, orderData, salesOrderId, deliverDate } = item;
+
+    doc
+      .fontSize(13)
+      .font("Helvetica-Bold")
+      .text(`Order Book of the Date ${deliverDate}`, { align: "center" });
+
+    doc
+      .moveTo(doc.page.margins.left, doc.y)
+      .lineTo(doc.page.width - doc.page.margins.right, doc.y)
+      .stroke();
+    doc.moveDown(1);
 
     if (index > 0) {
       doc
@@ -385,9 +403,9 @@ export const buildOrderBookPdf = (dataCallBack, endCallBack, data) => {
     doc
       .fontSize(13)
       .font("Helvetica-Bold")
-      .text(`${salesOrderId}`, left, doc.y, { continued: true });
+      .text(`Order No: ${salesOrderId}`, left, doc.y, { continued: true });
     doc.text(`${customer.name}`, middle1, doc.y, { continued: true });
-    doc.text(`${customer.mobile}`, middle2, doc.y);
+    doc.text(`Mobile: ${customer.mobile}`, middle2, doc.y);
 
     doc.moveDown(1);
 
@@ -398,6 +416,7 @@ export const buildOrderBookPdf = (dataCallBack, endCallBack, data) => {
         .fontSize(13)
         .font("Helvetica")
         .text(`${item.productType}`, left, doc.y, { continued: true });
+      doc.moveDown(0.5);
       doc.text(`${item.description}`, middle2, doc.y);
       doc.moveDown(0.5);
     });
