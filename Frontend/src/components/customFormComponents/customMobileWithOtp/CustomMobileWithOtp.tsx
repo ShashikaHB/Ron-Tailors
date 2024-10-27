@@ -119,9 +119,15 @@ const CustomMobileWithOtp = <T extends FieldValues>({ name, label, onVerify }: C
               })}
             </div>
             <div className="d-flex align-item-center justify-content-center gap-3">
-              <button type="button" className="primary-button" onClick={handleOtpVerification}>
-                Verify OTP
-              </button>
+              {verifyingOtp ? (
+                <Box sx={{ display: 'flex', color: 'black' }}>
+                  <CircularProgress color="inherit" />
+                </Box>
+              ) : (
+                <button type="button" className="primary-button" onClick={handleOtpVerification}>
+                  Verify OTP
+                </button>
+              )}
               {sendingOtp ? (
                 <Box sx={{ display: 'flex', color: 'black' }}>
                   <CircularProgress color="inherit" />

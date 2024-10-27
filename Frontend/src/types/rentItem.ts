@@ -17,7 +17,7 @@ export type RentItemDetails = {
   notes: string;
   amount?: number;
   itemType: ProductType;
-  suitType: string;
+  status?: string;
 };
 
 export type RentItem = {

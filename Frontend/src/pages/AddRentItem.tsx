@@ -57,9 +57,9 @@ const AddRentItem = () => {
       field: 'status',
       cellStyle: (params) => {
         if (params.value === 'Available') {
-          return { color: 'green' }; // Completed orders in green
+          return { color: 'green', fontWeight: 'bold' }; // Completed orders in green
         }
-        return { color: 'red' }; // Other orders in black
+        return { color: 'red', fontWeight: 'bold' }; // Other orders in black
       },
     },
     {

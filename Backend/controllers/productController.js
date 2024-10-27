@@ -380,12 +380,13 @@ export const updateProductStatus = asyncHandler(async (req, res) => {
 
     // Create a new RentItem
     const rentItem = await RentItem.create({
+      rentItemId: `${salesOrder.salesOrderId}-${product.itemType}`,
       color: product.color,
       size: product.size,
       description: `New RentOut: ${product.itemType}`,
       itemCategory: product.itemCategory,
       itemType: product.itemType,
-      status: "Rented", // Set as rented
+      status: "Not Returned", // Set as rented
     });
 
     // Create a new RentOrder with customer details from the SalesOrder

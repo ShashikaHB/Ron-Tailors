@@ -11,93 +11,88 @@ const formatDescriptionForRent = (details) => {
 export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
   const { customer, orderDetails, totals, orderNo } = data;
 
-//   const pageWidth = doc.page.width;
-//   const pageHeight = doc.page.height;
-//   const availableWidth =
-//     pageWidth - doc.page.margins.left - doc.page.margins.right;
-
-  const doc = new PDFDocument({ margin: 30 });
-
-  // Optionally scale the width of elements if needed, based on availableWidth
+  // Set up the document for 80mm width
+  const doc = new PDFDocument({
+    size: [227, 500], // 80mm width, variable height
+    margins: { top: 10, bottom: 10, left: 5, right: 5 },
+  });
 
   doc.on("data", dataCallBack);
   doc.on("end", endCallBack);
 
-  // Add the header
-  doc.fontSize(18).text("Ron Tailors", { align: "center" });
-  doc.fontSize(14).text("No.176 A,First Floor,Kegalle.", { align: "center" });
-  doc.fontSize(13).text("077 887 677 8 / 035 20 5 1600.", { align: "center" });
-  doc.fontSize(12).text("kegalleron@gmail.com", { align: "center" });
-  doc.fontSize(11).text("www.rontailors.com", { align: "center" });
+  // Header Section
+  doc.fontSize(10).text("Ron Tailors", { align: "center" });
+  doc.fontSize(8).text("No.176 A,First Floor,Kegalle.", { align: "center" });
+  doc.fontSize(8).text("077 887 677 8 / 035 20 5 1600.", { align: "center" });
+  doc.fontSize(7).text("kegalleron@gmail.com", { align: "center" });
+  doc.fontSize(7).text("www.rontailors.com", { align: "center" });
 
-  doc.moveDown();
-  doc.fontSize(16).text("SALES ORDER", { align: "center" });
-  doc.fontSize(13).text(`Order No: ${orderNo}`, { align: "center" });
+  doc.moveDown(0.5);
+  doc.fontSize(10).text("SALES ORDER", { align: "center" });
+  doc.fontSize(8).text(`Order No: ${orderNo}`, { align: "center" });
 
-  // Section breaker
-  doc.moveDown();
+  // Section Divider
+  doc.moveDown(0.3);
   doc
     .moveTo(doc.page.margins.left, doc.y)
     .lineTo(doc.page.width - doc.page.margins.right, doc.y)
     .stroke();
 
-  // Add customer details
-  doc.moveDown().fontSize(12).text(`Customer Name: ${customer.name}`);
-  doc.moveDown(0.25).text(`Mobile: ${customer.mobile}`);
-  doc.moveDown(0.25).text(`Order Date: ${customer.orderDate}`);
-  doc.moveDown(0.25).text(`Delivery Date: ${customer.deliveryDate}`);
-  doc.moveDown(0.25).text(`Wedding Date: ${customer.weddingDate ?? ""}`);
+  // Customer Details
+  doc.moveDown(0.5).fontSize(8).text(`Customer Name: ${customer.name}`);
+  doc.moveDown(0.15).text(`Mobile: ${customer.mobile}`);
+  doc.moveDown(0.15).text(`Order Date: ${customer.orderDate}`);
+  doc.moveDown(0.15).text(`Delivery Date: ${customer.deliveryDate}`);
+  doc.moveDown(0.15).text(`Wedding Date: ${customer.weddingDate ?? ""}`);
 
-  doc.moveDown();
+  doc.moveDown(1);
 
-  // Create table for order details
+  // Table for Order Details
   const tableData = {
-    headers: ["Description and Items", "Amount"],
+    headers: ["Description", "Amount"],
     rows: orderDetails.map((detail) => [
       formatDescription(detail.description, detail.items),
       detail.amount,
     ]),
   };
 
-  doc.moveDown();
+  doc.moveDown(0.3);
   doc.table(tableData, {
-    prepareHeader: () => doc.font("Helvetica-Bold").fontSize(12),
-    prepareRow: (row, i) => doc.font("Helvetica").fontSize(10),
-    columnSpacing: 15,
-    padding: 5,
-    width: doc.page.width - doc.page.margins.left - doc.page.margins.right, // Full width of the page
-    x: doc.page.margins.left, // Position the table within the left margin
+    prepareHeader: () => doc.font("Helvetica-Bold").fontSize(8),
+    prepareRow: (row, i) => doc.font("Helvetica").fontSize(7),
+    columnSpacing: 8,
+    padding: 4,
+    width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
+    x: doc.page.margins.left,
   });
 
-  // Add totals
+  // Totals Section
   doc
-    .moveDown()
-    .fontSize(12)
+    .moveDown(0.5)
+    .fontSize(8)
     .text(`Subtotal: ${totals.subTotal}`, { align: "right" });
-  doc.moveDown(0.25).text(`Discount: ${totals.discount}`, { align: "right" });
-  doc.moveDown(0.25).text(`Total: ${totals.totalPrice}`, { align: "right" });
-  doc.moveDown(0.25).text(`Advance: ${totals.advPayment}`, { align: "right" });
-  // Section breaker
+  doc.moveDown(0.15).text(`Discount: ${totals.discount}`, { align: "right" });
+  doc.moveDown(0.15).text(`Total: ${totals.totalPrice}`, { align: "right" });
+  doc.moveDown(0.15).text(`Advance: ${totals.advPayment}`, { align: "right" });
+
+  // Balance Section
   doc.moveDown(0.3);
   doc
     .moveTo(doc.page.margins.left, doc.y)
     .lineTo(doc.page.width - doc.page.margins.right, doc.y)
     .stroke();
-  doc.moveDown(0.25);
-  doc.moveDown(0.25).text(`Balance: ${totals.balance}`, { align: "right" });
-  doc.moveDown(0.25);
+  doc.moveDown(0.15);
+  doc.moveDown(0.15).text(`Balance: ${totals.balance}`, { align: "right" });
 
+  // Final Message
+  doc.moveDown(0.2);
   doc
     .moveTo(doc.page.margins.left, doc.y)
     .lineTo(doc.page.width - doc.page.margins.right, doc.y)
     .stroke();
-
-  doc.moveDown();
-  doc.moveDown(0.35).text(`Thank you. Come again....`, { align: "center" });
-  doc
-    .moveDown(0.35)
-    .fontSize(10)
-    .text(`System Made by SharkDev.lk`, { align: "center" });
+  doc.moveDown(0.5);
+  doc.fontSize(7).text(`Thank you. Come again....`, { align: "center" });
+  doc.moveDown(0.15).text(`System Made by SharkDev.lk`, { align: "center" });
 
   doc.end();
 };
@@ -105,116 +100,127 @@ export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
 export const buildRentPdf = (dataCallBack, endCallBack, data) => {
   const { customer, rentOrderDetails, totals, orderNo } = data;
 
-  const doc = new PDFDocument({ margin: 30 });
+  // Set the page size to 80mm width and a reasonable height
+  const doc = new PDFDocument({
+    size: [227, 500], // Width: 80mm, Height: Dynamic
+    margins: { top: 10, bottom: 10, left: 5, right: 5 }, // Narrow margins
+  });
 
   doc.on("data", dataCallBack);
   doc.on("end", endCallBack);
 
-  // Add the header
-  doc.fontSize(18).text("Ron Tailors", { align: "center" });
-  doc.fontSize(14).text("No.176 A,First Floor,Kegalle.", { align: "center" });
-  doc.fontSize(13).text("077 887 677 8 / 035 20 5 1600.", { align: "center" });
-  doc.fontSize(12).text("kegalleron@gmail.com", { align: "center" });
-  doc.fontSize(11).text("www.rontailors.com", { align: "center" });
+  // Header section
+  doc.fontSize(10).text("Ron Tailors", { align: "center" });
+  doc.fontSize(8).text("No.176 A,First Floor,Kegalle.", { align: "center" });
+  doc.fontSize(8).text("077 887 677 8 / 035 20 5 1600.", { align: "center" });
+  doc.fontSize(7).text("kegalleron@gmail.com", { align: "center" });
+  doc.fontSize(7).text("www.rontailors.com", { align: "center" });
 
-  doc.moveDown();
-  doc.fontSize(16).text("RENT BILL", { align: "center" });
-  doc.fontSize(13).text(`Order No: ${orderNo}`, { align: "center" });
+  doc.moveDown(0.5);
+  doc.fontSize(8).text("RENT BILL", { align: "center" });
+  doc.fontSize(7).text(`Order No: ${orderNo}`, { align: "center" });
 
-  // Section breaker
-  doc.moveDown();
+  // Section divider
+  doc.moveDown(0.3);
   doc
     .moveTo(doc.page.margins.left, doc.y)
     .lineTo(doc.page.width - doc.page.margins.right, doc.y)
     .stroke();
 
-  // Add customer details
-  doc.moveDown().fontSize(12).text(`Customer Name: ${customer.name}`);
-  doc.moveDown(0.25).text(`Mobile: ${customer.mobile}`);
-  doc.moveDown(0.25).text(`Rent Date: ${customer.rentDate}`);
-  doc.moveDown(0.25).text(`Return Date: ${customer.returnDate}`);
+  // Customer Details
+  doc.moveDown(0.5).fontSize(8).text(`Customer Name: ${customer.name}`);
+  doc.moveDown(0.15).text(`Mobile: ${customer.mobile}`);
+  doc.moveDown(0.15).text(`Rent Date: ${customer.rentDate}`);
+  doc.moveDown(0.15).text(`Return Date: ${customer.returnDate}`);
 
-  doc.moveDown(2);
+  doc.moveDown(1);
 
-  // Create table for order details
+  // Order Details Table
   const tableData = {
-    headers: ["Description and Items", "Amount"],
+    headers: ["Description", "Amount"],
     rows: rentOrderDetails.map((detail) => [
       formatDescriptionForRent(detail),
       detail.amount,
     ]),
   };
 
-  doc.moveDown();
+  doc.moveDown(0.3);
   doc.table(tableData, {
-    prepareHeader: () => doc.font("Helvetica-Bold").fontSize(12),
-    prepareRow: (row, i) => doc.font("Helvetica").fontSize(10),
-    columnSpacing: 15,
-    padding: 5,
-    width: doc.page.width - doc.page.margins.left - doc.page.margins.right, // Full width of the page
-    x: doc.page.margins.left, // Position the table within the left margin
+    prepareHeader: () => doc.font("Helvetica-Bold").fontSize(8),
+    prepareRow: (row, i) => doc.font("Helvetica").fontSize(7),
+    columnSpacing: 8,
+    padding: 4,
+    width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
+    x: doc.page.margins.left,
   });
 
-  // Add totals
+  // Totals
   doc
-    .moveDown()
-    .fontSize(12)
+    .moveDown(0.5)
+    .fontSize(8)
     .text(`Subtotal: ${totals.subTotal}`, { align: "right" });
-  doc.moveDown(0.25).text(`Discount: ${totals.discount}`, { align: "right" });
-  doc.moveDown(0.25).text(`Total: ${totals.totalPrice}`, { align: "right" });
-  doc.moveDown(0.25).text(`Advance: ${totals.advPayment}`, { align: "right" });
-  // Section breaker
+  doc.moveDown(0.15).text(`Discount: ${totals.discount}`, { align: "right" });
+  doc.moveDown(0.15).text(`Total: ${totals.totalPrice}`, { align: "right" });
+  doc.moveDown(0.15).text(`Advance: ${totals.advPayment}`, { align: "right" });
+
+  // Balance
   doc.moveDown(0.3);
   doc
     .moveTo(doc.page.margins.left, doc.y)
     .lineTo(doc.page.width - doc.page.margins.right, doc.y)
     .stroke();
-  doc.moveDown(0.25);
-  doc.moveDown(0.25).text(`Balance: ${totals.balance}`, { align: "right" });
-  doc.moveDown(0.25);
+  doc.moveDown(0.15);
+  doc.moveDown(0.15).text(`Balance: ${totals.balance}`, { align: "right" });
 
+  // Final message
+  doc.moveDown(0.2);
   doc
     .moveTo(doc.page.margins.left, doc.y)
     .lineTo(doc.page.width - doc.page.margins.right, doc.y)
     .stroke();
-
-  doc.moveDown();
-  doc.moveDown(0.35).text(`Thank you. Come again....`, { align: "center" });
-  doc.moveDown(0.35).text(`System Made by SharkDev.lk`, { align: "center" });
+  doc.moveDown(0.5);
+  doc.fontSize(7).text(`Thank you. Come again....`, { align: "center" });
+  doc.moveDown(0.15).text(`System Made by SharkDev.lk`, { align: "center" });
 
   doc.end();
 };
+
 export const buildRentShopPdf = (dataCallBack, endCallBack, data) => {
   const { customer, rentOrderDetails, totals, orderNo } = data;
 
-  const doc = new PDFDocument({ margin: 30 });
+  // Define the document with 80mm width, and reduce margins for compact printing
+  const doc = new PDFDocument({
+    size: [227, 400], // 80mm width, height set to allow pagination
+    margins: { top: 10, bottom: 10, left: 5, right: 5 },
+  });
 
   doc.on("data", dataCallBack);
   doc.on("end", endCallBack);
 
-  // Add customer details
-  doc.moveDown().fontSize(12).text(`Customer Name: ${customer.name}`);
-  doc.moveDown(0.25).text(`Mobile: ${customer.mobile}`);
-  doc.moveDown(2);
-
-  doc.fontSize(12).font("Helvetica-Bold").text(`Rent No: ${orderNo}`);
+  // Add customer details with scaled-down font sizes
+  doc.moveDown(0.2).fontSize(9).text(`Customer Name: ${customer.name}`);
+  doc.moveDown(0.15).text(`Mobile: ${customer.mobile}`);
   doc.moveDown(0.5);
-  // Loop through rentOrderDetails and print each item on a new line
-  rentOrderDetails.forEach((detail) => {
-    doc.fontSize(11).font("Helvetica").text(`Bar Code: ${detail.rentItemId}`);
-    doc.moveDown(0.5);
 
-    doc.text(`${detail.description}`);
-    doc.moveDown(0.5);
+  doc.fontSize(10).font("Helvetica-Bold").text(`Rent No: ${orderNo}`);
+  doc.moveDown(0.2);
+
+  // Loop through rentOrderDetails with reduced spacing and smaller font size
+  rentOrderDetails.forEach((detail) => {
+    doc.fontSize(8).font("Helvetica").text(`Barcode: ${detail.rentItemId}`);
+    doc.moveDown(0.2);
+
+    doc.text(`Description: ${detail.description}`);
+    doc.moveDown(0.2);
 
     doc.text(`Color: ${detail.color}`);
-    doc.moveDown(0.5);
+    doc.moveDown(0.2);
 
     doc.text(`Size: ${detail.size}`);
-    doc.moveDown(0.5);
+    doc.moveDown(0.2);
 
-    doc.text(`Hand length: ${detail.handLength}`);
-    doc.moveDown(0.5);
+    doc.text(`Hand Length: ${detail.handLength}`);
+    doc.moveDown(0.2);
 
     doc.text(`Notes: ${detail.notes}`);
     doc.moveDown(0.5);
@@ -223,165 +229,171 @@ export const buildRentShopPdf = (dataCallBack, endCallBack, data) => {
       .moveTo(doc.page.margins.left, doc.y)
       .lineTo(doc.page.width - doc.page.margins.right, doc.y)
       .stroke();
-    doc.moveDown(1.25);
+    doc.moveDown(1);
   });
 
-  doc.text(`Suit Type: ${customer.suitType}`);
-  doc.moveDown(0.5);
+  doc.fontSize(8).text(`Suit Type: ${customer.suitType}`);
+  doc.moveDown(0.2);
   doc
-    .fontSize(12)
+    .fontSize(8)
     .font("Helvetica-Bold")
     .text(`Rent Date: ${customer.rentDate}`);
 
   doc.end();
 };
+
 export const buildReadyMadePdf = (dataCallBack, endCallBack, data) => {
   const { customer, orderDetails, totals, orderNo } = data;
 
-  const doc = new PDFDocument({ margin: 30 });
+  // Define the document with 80mm width, reduced margins, and smaller default font sizes
+  const doc = new PDFDocument({
+    size: [227, 400], // 80mm width, height is scalable to content
+    margins: { top: 10, bottom: 10, left: 5, right: 5 },
+  });
 
   doc.on("data", dataCallBack);
   doc.on("end", endCallBack);
 
-  // Add the header
-  doc.fontSize(18).text("Ron Tailors", { align: "center" });
-  doc.fontSize(14).text("No.176 A,First Floor,Kegalle.", { align: "center" });
-  doc.fontSize(13).text("077 887 677 8 / 035 20 5 1600.", { align: "center" });
-  doc.fontSize(12).text("kegalleron@gmail.com", { align: "center" });
-  doc.fontSize(11).text("www.rontailors.com", { align: "center" });
+  // Add the header with reduced font sizes
+  doc.fontSize(10).text("Ron Tailors", { align: "center" });
+  doc.fontSize(8).text("No.176 A, First Floor, Kegalle.", { align: "center" });
+  doc.fontSize(8).text("077 887 677 8 / 035 20 5 1600", { align: "center" });
+  doc.fontSize(7).text("kegalleron@gmail.com", { align: "center" });
+  doc.fontSize(7).text("www.rontailors.com", { align: "center" });
 
-  doc.moveDown();
-  doc.fontSize(16).text("Ready Made Item bill", { align: "center" });
-  doc.fontSize(13).text(`Order No: ${orderNo}`, { align: "center" });
+  doc.moveDown(0.3);
+  doc.fontSize(10).text("Ready Made Item Bill", { align: "center" });
+  doc.fontSize(8).text(`Order No: ${orderNo}`, { align: "center" });
 
   // Section breaker
-  doc.moveDown();
+  doc.moveDown(0.3);
   doc
     .moveTo(doc.page.margins.left, doc.y)
     .lineTo(doc.page.width - doc.page.margins.right, doc.y)
     .stroke();
 
-  // Add customer details
-  doc.moveDown().fontSize(12).text(`Customer Name: ${customer.name}`);
-  doc.moveDown(0.25).text(`Mobile: ${customer.mobile}`);
-  doc.moveDown(0.25).text(`Order Date: ${customer.orderDate}`);
+  // Add customer details with compact formatting
+  doc.moveDown(0.3).fontSize(8).text(`Customer Name: ${customer.name}`);
+  doc.moveDown(0.2).text(`Mobile: ${customer.mobile}`);
+  doc.moveDown(0.2).text(`Order Date: ${customer.orderDate}`);
 
-  doc.moveDown(2);
+  doc.moveDown(0.5);
 
-  // Create table for order details
+  // Create table for order details with scaled-down font and spacing
   const tableData = {
     headers: ["Description and Items", "Amount"],
     rows: orderDetails.map((detail) => [detail.description, detail.amount]),
   };
 
-  doc.moveDown();
+  doc.moveDown(0.2);
   doc.table(tableData, {
-    prepareHeader: () => doc.font("Helvetica-Bold").fontSize(12),
-    prepareRow: (row, i) => doc.font("Helvetica").fontSize(10),
-    columnSpacing: 15,
-    padding: 5,
+    prepareHeader: () => doc.font("Helvetica-Bold").fontSize(8),
+    prepareRow: (row, i) => doc.font("Helvetica").fontSize(7),
+    columnSpacing: 10,
+    padding: 3,
     width: doc.page.width - doc.page.margins.left - doc.page.margins.right, // Full width of the page
     x: doc.page.margins.left, // Position the table within the left margin
   });
 
-  doc.text(`Total: ${totals.totalPrice}`, { align: "right" });
+  doc.moveDown(0.5);
+  doc.fontSize(8).text(`Total: ${totals.totalPrice}`, { align: "right" });
 
+  // Section breaker
+  doc.moveDown(0.3);
   doc
     .moveTo(doc.page.margins.left, doc.y)
     .lineTo(doc.page.width - doc.page.margins.right, doc.y)
     .stroke();
 
-  doc.moveDown();
-  doc.moveDown(0.35).text(`Thank you. Come again....`, { align: "center" });
-  doc.moveDown(0.35).text(`System Made by SharkDev.lk`, { align: "center" });
+  doc.moveDown(0.3);
+  doc.fontSize(7).text(`Thank you. Come again....`, { align: "center" });
+  doc.fontSize(6).text(`System Made by SharkDev.lk`, { align: "center" });
 
   doc.end();
 };
-export const buildMeasurementPdf = (dataCallBack, endCallBack, data) => {
-  const doc = new PDFDocument({ margin: 30 });
+
+export const buildMeasurementPdf = (dataCallBack, endCallBack, measurement) => {
+  const doc = new PDFDocument({
+    size: [226, 500], // Width in points (80mm = 226.8 points, 500 for enough height)
+    margin: 10, // Smaller margin for narrow printing area
+  });
 
   doc.on("data", dataCallBack);
   doc.on("end", endCallBack);
 
-  // For each measurement in the data, we will add the details to the PDF
-  data.forEach((measurement, index) => {
-    const {
-      customer,
-      itemType,
-      measurements,
-      style,
-      remarks,
-      estimatedReleaseDate,
-      isNecessary,
-    } = measurement;
+  const {
+    customer,
+    itemType,
+    measurements,
+    style,
+    remarks,
+    estimatedReleaseDate,
+    isNecessary,
+    orderId,
+  } = measurement;
 
-    // Add a section breaker for each measurement
-    if (index > 0) {
-      doc
-        .moveTo(doc.page.margins.left, doc.y)
-        .lineTo(doc.page.width - doc.page.margins.right, doc.y)
-        .stroke();
-      doc.moveDown(1);
-    }
-
-    // Add customer name, mobile, and item type
-    doc
-      .fontSize(13)
-      .text(`${customer.name} |  ${customer.mobile} | ${itemType}`);
-
-    doc.moveDown(0.5);
-
-    // Add the measurements array with spacing
-    doc.fontSize(12).text(`${measurements.join(" | ")}`);
-    doc.moveDown(0.5);
-
-    // Add style information
-    doc.fontSize(12).text(`${style}`);
-    doc.moveDown(0.5);
-
-    // Add remarks
-    doc.fontSize(12).text(`Remarks: ${remarks}`);
-    doc.moveDown(0.5);
-
-    // Add estimated release date and necessary status side by side
-    const formattedReleaseDate = new Date(
-      estimatedReleaseDate
-    ).toLocaleDateString();
-    doc.fontSize(12).text(`Release Date: ${formattedReleaseDate}`, {
-      continued: true, // Keeps the text on the same line
+  // Adjusted font sizes for POS printer and concise layout
+  doc
+    .fontSize(11)
+    .text(`${orderId} | ${customer.name} | ${itemType}`, {
+      align: "left",
     });
+  doc.moveDown(0.3);
 
-    if (isNecessary) {
-      doc
-        .font("Helvetica-Bold") // Make the text bold
-        .text(`   Necessary`, {
-          align: "left", // Aligns the text to the right
-          continued: false, // Ensures the text ends here and doesn't continue
-        })
-        .font("Helvetica"); // Reset to default font
-    }
+  // Add measurements with filtered values and smaller font size
+  doc
+    .fontSize(10)
+    .text(measurements, { align: "left" });
+  doc.moveDown(0.3);
 
-    doc.moveDown(2);
+  // Add style information
+  doc.fontSize(10).text(`Style: ${style}`, { align: "left" });
+  doc.moveDown(0.3);
+
+  // Add remarks
+  doc.fontSize(10).text(`Remarks: ${remarks}`, { align: "left" });
+  doc.moveDown(0.3);
+
+  // Add release date and necessary status
+  const formattedReleaseDate = new Date(
+    estimatedReleaseDate
+  ).toLocaleDateString();
+  doc.fontSize(10).text(`Release Date: ${formattedReleaseDate}`, {
+    align: "left",
+    continued: true,
   });
 
+  if (isNecessary) {
+    doc
+      .font("Helvetica-Bold")
+      .text(" Necessary", { align: "left", continued: false });
+  }
+
+  // End document generation
   doc.end();
 };
-export const buildOrderBookPdf = (dataCallBack, endCallBack, data, deliveryDate) => {
+
+export const buildOrderBookPdf = (
+  dataCallBack,
+  endCallBack,
+  data,
+  deliveryDate
+) => {
   const doc = new PDFDocument({ margin: 30 });
 
   doc.on("data", dataCallBack);
   doc.on("end", endCallBack);
 
   doc
-      .fontSize(13)
-      .font("Helvetica-Bold")
-      .text(`Order Book of the Date ${deliveryDate}`, { align: "center" });
+    .fontSize(13)
+    .font("Helvetica-Bold")
+    .text(`Order Book of the Date ${deliveryDate}`, { align: "center" });
 
-    doc
-      .moveTo(doc.page.margins.left, doc.y)
-      .lineTo(doc.page.width - doc.page.margins.right, doc.y)
-      .stroke();
-    doc.moveDown(1);
+  doc
+    .moveTo(doc.page.margins.left, doc.y)
+    .lineTo(doc.page.width - doc.page.margins.right, doc.y)
+    .stroke();
+  doc.moveDown(1);
 
   data.map((item, index) => {
     // Add customer name, mobile, and item type

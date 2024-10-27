@@ -2,6 +2,7 @@ import { Customer } from "../models/customerModel.js";
 import { Measurement } from "../models/measurementModel.js";
 import asyncHandler from "express-async-handler";
 import { getDocId } from "../utils/docIds.js";
+import { SalesOrder } from "../models/salesOrderModel.js";
 
 export const createMeasurement = asyncHandler(async (req, res) => {
     const customerId = req.body.customer
@@ -161,3 +162,58 @@ export const getPreviousMeasurements = asyncHandler(async (req, res) => {
     data: updatedMeasurements,
   });
 });
+
+export const getMeasurementData = asyncHandler(async (req, res) => {
+    const { startDate, endDate, itemType } = req.query;
+  
+    if (!startDate || !endDate || !itemType) {
+      return res.status(400).json({
+        message: "startDate, endDate, and itemType are required.",
+        success: false,
+      });
+    }
+  
+    // Convert the start and end date into the correct format, including time.
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    end.setUTCHours(23, 59, 59, 999); // Ensure we capture all records for that day.
+  
+    // Step 1: Fetch all sales orders within the date range without filtering on itemType yet.
+    const orders = await SalesOrder.find({
+      orderDate: { $gte: start, $lte: end },
+    })
+      .populate({
+        path: "orderDetails.products",
+        populate: {
+          path: "measurement", // Populate measurement details
+          select: "-__v -createdAt -updatedAt", // Exclude unnecessary fields
+          populate: {
+            path: "customer", // Populate customer inside measurement
+            select: "name mobile", // Only select relevant fields from customer
+          },
+        },
+      })
+      .lean(); // Lean makes sure we get plain JavaScript objects instead of Mongoose documents
+  
+    // Debugging log to check if orders are fetched
+    console.log("Orders Fetched: ", orders);
+  
+    // Step 2: Manually filter the products to get measurements for the given itemType.
+    const measurements = [];
+  
+    orders.forEach((order) => {
+      order.orderDetails.forEach((detail) => {
+        detail.products.forEach((product) => {
+          if (product.itemType === itemType && product.measurement) {
+            measurements.push({...product.measurement, orderId: order.salesOrderId}); // Push the measurement to the result
+          }
+        });
+      });
+    });
+
+    res.json({
+      message: "Measurements fetched.",
+      success: true,
+      data: measurements,
+    });
+  });

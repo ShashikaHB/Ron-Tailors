@@ -13,20 +13,23 @@ const RentOrderDetailsRenderer = (props: ICellRendererParams) => {
   return (
     <div>
       {rentOrderDetails?.map((order: RentItemDetails, index: number) => {
-        const { rentItemId, description, itemType, color, notes } = order;
+        const { rentItemId, description, itemType, color, notes, status } = order;
+        const statusStyle = {
+          fontWeight: 'bold',
+          color: status === 'Available' ? 'green' : 'red',
+        };
         return (
           <div key={index}>
-            <div>{rentItemId}</div>
-            <div className="d-flex gap-2 font-weight-bold">
-              <p>{itemType}</p>
-              <p>{description}</p>
-              <p>
-                Color:
-                {color}
-              </p>
+            <div className="d-flex gap-2">
+              <p> {rentItemId}&nbsp; |</p>
+              <p style={statusStyle}>{status}</p>
             </div>
-            <p>
-              Notes:
+            <div className="d-flex gap-2 font-weight-bold">
+              <p className="rent-item-detail">{description}</p>
+              <p className="rent-item-detail">Color:&nbsp;{color}</p>
+            </div>
+            <p className="rent-item-detail pb-2">
+              Notes:&nbsp;
               {notes}
             </p>
             {index !== rentOrderDetails.length - 1 && <div style={{ borderTop: '1.25px solid black', margin: '10px 0' }} />}

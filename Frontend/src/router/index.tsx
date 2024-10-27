@@ -32,6 +32,7 @@ import SalesOrRentOrderUpdatePage from '../pages/SalesOrRentOrderUpdatePage';
 import RequireAdminAuth from '../components/adminAuthHandler/AdminAuthHandler';
 import MonthlySummary from '../pages/MonthlySummary';
 import SignLayout from '../pageLayouts/SignLayout';
+import MeasurementPrintPage from '../pages/MeasurementPrintPage';
 
 const router = createBrowserRouter([
   {
@@ -151,6 +152,10 @@ const router = createBrowserRouter([
           {
             path: 'Reports',
             element: <ViewUnderConstruction />,
+          },
+          {
+            path: 'printMeasurements',
+            element: <MeasurementPrintPage />,
           },
         ],
       },

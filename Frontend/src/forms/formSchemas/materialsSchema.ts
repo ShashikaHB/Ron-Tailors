@@ -9,11 +9,11 @@ import Stores from '../../enums/Stores';
 
 export const materialSchema = z.intersection(
   z.object({
-    name: z.string().min(1, 'Material name is required.'),
+    materialId: z.string().min(1, 'Material code is required.'),
     color: z.string().min(1, 'Material color is required.'),
-    unitPrice: z.coerce.number().min(1, 'Unit price is required.'),
+    unitPrice: z.coerce.number().optional(),
     noOfUnits: z.coerce.number().min(1, 'Number of units is required.'),
-    brand: z.string().min(1, 'Material color is required.'),
+    brand: z.string(),
     store: z.nativeEnum(Stores).default(Stores.Kegalle),
   }),
   z.discriminatedUnion('variant', [
@@ -29,7 +29,7 @@ export type MaterialSchema = z.infer<typeof materialSchema>;
 
 export const defaultMaterialValues: MaterialSchema = {
   variant: 'create',
-  name: '',
+  materialId: '',
   color: '',
   unitPrice: 0,
   noOfUnits: 0,

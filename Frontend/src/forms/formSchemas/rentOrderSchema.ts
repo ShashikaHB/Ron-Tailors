@@ -44,7 +44,7 @@ const baseRentOrderSchema = z.object({
   suitType: z.nativeEnum(SuitTypes).default(SuitTypes.Wedding),
   rentOrderDetails: z.array(
     z.object({
-      productId: z.union([z.coerce.number(), z.undefined()]),
+      //   productId: z.union([z.coerce.number(), z.undefined()]),
       color: z.string().optional(),
       size: z.union([z.coerce.number(), z.undefined()]),
       description: z.string().optional(),
@@ -52,7 +52,7 @@ const baseRentOrderSchema = z.object({
       notes: z.string().optional(),
       amount: z.coerce.number(),
       itemType: z.nativeEnum(ProductType),
-      rentItemId: z.number().min(1),
+      rentItemId: z.string().min(1),
     })
   ),
   totalPrice: z.coerce.number().min(0, 'Total price is required.'),
@@ -94,6 +94,7 @@ export const defaultRentOrderValues: RentOrderSchema = {
   store: Stores.Kegalle,
   rentDate: new Date(),
   returnDate: new Date(),
+  suitType: SuitTypes.Wedding,
   salesPerson: 0,
   rentOrderDetails: [],
   totalPrice: 0,

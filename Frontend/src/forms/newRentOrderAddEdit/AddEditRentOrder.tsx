@@ -4,7 +4,7 @@
  * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
-import { FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { Modal, TextField } from '@mui/material';
 import { FaSearch } from 'react-icons/fa';
 import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
 import { useEffect, useState } from 'react';
@@ -34,7 +34,8 @@ import StakeOptions from '../../enums/StakeOptions';
 import { setLoading } from '../../redux/features/common/commonSlice';
 import CustomMobileWithOtp from '../../components/customFormComponents/customMobileWithOtp/CustomMobileWithOtp';
 import { SuitTypes } from '../../enums/RentOrderTypes';
-import { suitSelectOptions } from '../../consts/rentOrder';
+import suitTypeOptions from '../../consts/suitTypes';
+import PrintShopBill from '../printshopbill/PrintShopBill';
 
 // const salesPeople = [
 //   {
@@ -60,7 +61,6 @@ const initialRentItemDetails: RentItemDetails = {
   notes: '',
   amount: 0,
   itemType: ProductType.Coat,
-  suitType: SuitTypes.Wedding,
 };
 
 const paymentOptions = [
@@ -121,7 +121,18 @@ const NewRentOut = () => {
 
   const [showOtherMobile, setShowOtherMobile] = useState(false);
 
+  const [open, setOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState(0);
   const [rowData, setRowData] = useState<RentItemDetails[]>([]);
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const openPrint = (id: any) => {
+    setOpen(true);
+    setSelectedId(id);
+  };
 
   const total = useWatch({ control, name: 'totalPrice' });
   const advance = useWatch({ control, name: 'advPayment' });
@@ -168,14 +179,27 @@ const NewRentOut = () => {
     resizable: true,
   };
 
-  const handleSearchCustomer = () => {
-    triggerCustomerSearch(customerSearchQuery);
+  const handleSearchCustomer = async () => {
+    const response = await triggerCustomerSearch(customerSearchQuery).unwrap();
+
+    if (response.data) {
+      toast.success('Rent Item fetched!');
+    }
   };
   const handleSearchProduct = () => {
     triggerProductSearch(productSearchQuery);
   };
 
   const handleRentItemAdd = () => {
+    const isDuplicate = rowData.some((item) => item.rentItemId === rentItemDetails.rentItemId);
+
+    if (isDuplicate) {
+      // Display error message if duplicate found
+      toast.error('Item with this Barcode already exists.');
+      // Optionally, you could use a toast or other UI feedback mechanism here
+      return;
+    }
+
     setRowData((prev) => [...prev, rentItemDetails]);
     setRentItemDetails(initialRentItemDetails);
     setProductSearchQuery('');
@@ -199,9 +223,6 @@ const NewRentOut = () => {
         break;
       case RentItemDetailTypes.amount:
         setRentItemDetails((prevDetails) => ({ ...prevDetails, amount: value as number }));
-        break;
-      case RentItemDetailTypes.suitType:
-        setRentItemDetails((prevDetails) => ({ ...prevDetails, suitType: value as string }));
         break;
       default:
         toast.error(`No key found for ${key} in Rent item details`);
@@ -298,7 +319,7 @@ const NewRentOut = () => {
       }));
       clearErrors();
     }
-  }, [rentItem, productSearchQuery]);
+  }, [rentItem]);
 
   const handleValidateData = () => {
     const formData = getValues();
@@ -310,7 +331,6 @@ const NewRentOut = () => {
 
   const onSubmit: SubmitHandler<RentOrderSchema> = async (data) => {
     try {
-      const newWindow = window.open('', '_blank');
       if (variant === 'edit') {
         const response = await updateRentOrder(data);
         if (response.error) {
@@ -319,14 +339,9 @@ const NewRentOut = () => {
           toast.success('Order Updated!');
           handleResetRentOrder();
           const newOrderId = response.data.data.rentOrderId;
-          const baseUrl = import.meta.env.VITE_BASE_URL;
-          const invoiceUrl = `${baseUrl}/api/v1/invoice/rentOrder/customer/${newOrderId}`;
-          if (newWindow) {
-            newWindow.location.href = invoiceUrl;
-          }
+          openPrint(newOrderId);
         }
       } else {
-        console.log(data);
         const response = await addRentOrder(data);
         if (response.error) {
           console.log(response.error);
@@ -334,11 +349,7 @@ const NewRentOut = () => {
           const newOrderId = response.data.rentOrderId;
           toast.success('New Rent Order Added successfully');
           handleResetRentOrder();
-          const baseUrl = import.meta.env.VITE_BASE_URL;
-          const invoiceUrl = `${baseUrl}/api/v1/invoice/rentOrder/customer/${newOrderId}`;
-          if (newWindow) {
-            newWindow.location.href = invoiceUrl;
-          }
+          openPrint(newOrderId);
         }
       }
     } catch (error) {
@@ -393,25 +404,7 @@ const NewRentOut = () => {
                       <RHFDatePicker<RentOrderSchema> name="returnDate" label="Return Date" />
                     </div>
                     <div className="col-6 mb-3">
-                      <FormControl sx={{ minWidth: 120 }} size="small">
-                        <InputLabel id="demo-simple-select-label">Suit Type</InputLabel>
-
-                        <Select
-                          value={rentItemDetails.suitType}
-                          onChange={(e) => handleRentItemDetailsChange(RentItemDetailTypes.suitType, e.target.value)}
-                          displayEmpty
-                          sx={{
-                            backgroundColor: 'white',
-                            color: 'black',
-                          }}
-                        >
-                          {suitSelectOptions.map((option) => (
-                            <MenuItem key={option.value} value={option.value} disabled={!option.value}>
-                              {option.label}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
+                      <RHFDropDown<RentOrderSchema> options={suitTypeOptions} name="suitType" label="SuitType" />
                     </div>
                   </div>
                 </div>
@@ -465,7 +458,7 @@ const NewRentOut = () => {
                     {/* <button className="secondary-button" type="submit" onClick={handleValidateData}>
                       validate Order
                     </button> */}
-                    <button className="primary-button" type="submit">
+                    <button className="primary-button" type="submit" disabled={total === 0}>
                       {variant === 'create' ? 'Create Order ' : 'Edit Order '}
                     </button>
                   </div>
@@ -565,6 +558,11 @@ const NewRentOut = () => {
           </div>
         </div>
       </div>
+      <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+        <div>
+          <PrintShopBill id={selectedId} handleClose={handleClose} />
+        </div>
+      </Modal>
     </div>
   );
 };

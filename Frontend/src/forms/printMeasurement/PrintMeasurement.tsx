@@ -7,12 +7,22 @@
 
 import { RiCloseLargeLine } from '@remixicon/react';
 import { FormControl, Select, MenuItem } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { format } from 'date-fns'; // For formatting dates
+import { useNavigate } from 'react-router-dom';
 import SimpleDatePicker from '../../components/customFormComponents/simpleDatePicker/SimpleDatePicker';
 import ProductType from '../../enums/ProductType';
+import { useLazyGetPrintMeasurementQuery } from '../../redux/features/measurement/measurementApiSlice';
+import { useAppDispatch } from '../../redux/reduxHooks/reduxHooks';
+import { setLoading } from '../../redux/features/common/commonSlice';
 
 const PrintMeasurement = ({ handleClose }) => {
+  const [printMeasurement, { data: measurementData, isLoading: isMeasurementLoading }] = useLazyGetPrintMeasurementQuery();
+
+  const navigate = useNavigate();
+
+  const dispatch = useAppDispatch();
+
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
   const [itemType, setItemType] = useState<ProductType>(ProductType.Coat); // Track selected item type
@@ -32,14 +42,21 @@ const PrintMeasurement = ({ handleClose }) => {
     setItemType(event.target.value as ProductType);
   };
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
     const formattedStartDate = format(startDate, 'yyyy-MM-dd');
     const formattedEndDate = format(endDate, 'yyyy-MM-dd');
-    const baseUrl = import.meta.env.VITE_BASE_URL;
-    const invoiceUrl = `${baseUrl}/api/v1/invoice/measurements?startDate=${formattedStartDate}&endDate=${formattedEndDate}&itemType=${encodeURIComponent(itemType)}`;
-    window.open(invoiceUrl, '_blank');
+    const response = await printMeasurement({ startDate: formattedStartDate, endDate: formattedEndDate, itemType }).unwrap();
+    if (response) {
+      navigate('/secured/printMeasurements', { state: response });
+    }
+    dispatch(setLoading(false));
     handleClose();
   };
+
+  useEffect(() => {
+    dispatch(setLoading(isMeasurementLoading));
+  }, [isMeasurementLoading]);
+
   return (
     <div className="modal-dialog modal-dialog-centered">
       <div className="modal-content">

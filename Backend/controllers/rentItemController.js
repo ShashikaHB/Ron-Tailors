@@ -6,16 +6,14 @@ export const createRentItem = asyncHandler(async (req, res) => {
   const size = req.body.size;
   const description = req.body.description;
   const itemType = req.body.itemType;
+  const rentItemId = req.body.rentItemId
 
-  if (!description || !itemType) {
+  if (!description || !itemType || !rentItemId) {
     throw new Error("Missing values in body create rent item");
   }
 
   const rentItemExists = await RentItem.findOne({
-    color,
-    size,
-    description,
-    itemType,
+    rentItemId
   })
     .lean()
     .exec();
@@ -129,7 +127,7 @@ export const searchRentItem = asyncHandler(async (req, res) => {
 
   try {
     // Construct the query to find customers by mobile or name
-    const rentItem = await RentItem.findOne({ rentItemId: Number(searchQuery) })
+    const rentItem = await RentItem.findOne({ rentItemId: searchQuery })
       .lean()
       .select("-_id -__v")
       .exec();
@@ -148,6 +146,7 @@ export const searchRentItem = asyncHandler(async (req, res) => {
       success: true,
       data: rentItem,
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,

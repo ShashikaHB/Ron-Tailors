@@ -11,7 +11,7 @@ const getAvailableMaterialOptions = (materials: GetMaterial[]): Option[] => {
   if (!materials || materials.length === 0) return [];
   const options = materials.map((material) => ({
     value: material.materialId,
-    label: `${material.materialId} - ${material.brand}`,
+    label: `${material.materialId}`,
   }));
   return [
     {

@@ -3,9 +3,13 @@ import mongooseSequence from "mongoose-sequence";
 
 const AutoIncrement = mongooseSequence(mongoose);
 
-
 // Declare the Schema of the Mongo model
 const rentItemSchema = new mongoose.Schema({
+    
+  rentItemId: {
+    type: String,
+    unique: true,
+  },
   color: {
     type: String,
   },
@@ -15,11 +19,6 @@ const rentItemSchema = new mongoose.Schema({
   description: {
     type: String,
     required: [true, "Total price is required."],
-  },
-  itemCategory: {
-    type: String,
-    enum: ["General", "Full Suit", "National Suit", "Rent Full Suit"],
-    default: "Rent Full Suit",
   },
   itemType: {
     type: String,
@@ -45,16 +44,16 @@ const rentItemSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Rented', 'Available'],
-    default: 'Available'
-  }
+    enum: ["Rented", "Available"],
+    default: "Available",
+  },
 });
 
-rentItemSchema.plugin(AutoIncrement, {
-    inc_field: "rentItemId",
-    id: "rentItems",
-    start_seq: 100,
-  });
+// rentItemSchema.plugin(AutoIncrement, {
+//     inc_field: "rentItemId",
+//     id: "rentItems",
+//     start_seq: 100,
+//   });
 
 //Export the model
 export const RentItem = mongoose.model("RentItem", rentItemSchema);

@@ -63,7 +63,7 @@ export const rentItemApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: (result, error, args) => {
         if (args.variant === 'edit') {
-          return [{ type: 'RentItem', id: args.rentItemId.toString() }];
+          return [{ type: 'RentItem', id: args.rentItemId.toString() }, 'RentItem'];
         }
         return [];
       },

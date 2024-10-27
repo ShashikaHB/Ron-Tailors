@@ -26,6 +26,14 @@ const productTypes = [
     label: 'Rent Coat',
   },
   {
+    value: ProductType.RentWestCoat,
+    label: 'Rent West Coat',
+  },
+  {
+    value: ProductType.Trouser,
+    label: 'Trouser',
+  },
+  {
     value: ProductType.Shirt,
     label: 'Shirt',
   },
@@ -34,20 +42,12 @@ const productTypes = [
     label: 'Bow',
   },
   {
-    value: ProductType.RentWestCoat,
-    label: 'Rent West Coat',
-  },
-  {
     value: ProductType.Cravat,
     label: 'Cravat',
   },
   {
     value: ProductType.Tie,
     label: 'Tie',
-  },
-  {
-    value: ProductType.Trouser,
-    label: 'Trouser',
   },
 ];
 
@@ -138,6 +138,7 @@ const AddEditRentItemForm = ({ handleClose, rentItemId }: AddMaterialFormProps) 
         <div className="modal-body">
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="inputGroup">
+              <RHFTextField<RentItemSchema> label="Rent Item Id" name="rentItemId" disabled={variant === 'edit'} />
               <RHFTextField<RentItemSchema> label="Color" name="color" />
               <RHFTextField<RentItemSchema> label="Size" name="size" type="number" />
               <RHFTextField<RentItemSchema> label="Description" name="description" />

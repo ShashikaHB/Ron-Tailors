@@ -18,20 +18,14 @@ const NewRentReturn = () => {
   const [triggerSearchRentOrder, { data, isLoading: searchRentOrder }] = useLazySearchRentOrderByItemQuery({});
   const [returnRent, { data: rentReturnData, isLoading: rentReturnLoading }] = useRentReturnMutation();
   const [rentItemSearchQuery, setRentItemSearchQuery] = useState('');
-  const [rentOrderDetails, setRentOrderDetails] = useState(null);
+  const [rentOrderData, setRentOrderData] = useState(null);
 
   const dispatch = useAppDispatch();
 
   const handleReset = () => {
-    setRentOrderDetails(null);
+    setRentOrderData(null);
     setRentItemSearchQuery('');
   };
-  useEffect(() => {
-    dispatch(setLoading(searchRentOrder));
-  }, [searchRentOrder]);
-  useEffect(() => {
-    dispatch(setLoading(rentReturnLoading));
-  }, [rentReturnLoading]);
 
   const handleRentItemSearch = () => {
     if (rentItemSearchQuery.trim()) {
@@ -41,7 +35,7 @@ const NewRentReturn = () => {
 
   const handleRentReturn = async () => {
     try {
-      const result = await returnRent(data.rentOrder?.rentOrderId as string);
+      const result = await returnRent(rentItemSearchQuery);
       if (result?.data?.success) {
         toast.success('Rent return successful!');
         handleReset();
@@ -52,8 +46,15 @@ const NewRentReturn = () => {
   };
 
   useEffect(() => {
-    if (data?.rentOrder) {
-      setRentOrderDetails(data?.rentOrder);
+    dispatch(setLoading(searchRentOrder));
+  }, [searchRentOrder]);
+  useEffect(() => {
+    dispatch(setLoading(rentReturnLoading));
+  }, [rentReturnLoading]);
+
+  useEffect(() => {
+    if (data) {
+      setRentOrderData(data);
     } else {
       handleReset();
     }
@@ -61,7 +62,7 @@ const NewRentReturn = () => {
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
-      e.preventDefault(); // Prevent the form submission
+      e.preventDefault();
       handleRentItemSearch();
     }
   };
@@ -85,89 +86,90 @@ const NewRentReturn = () => {
             </button>
           </div>
         </div>
-        <div className="row">
-          <div className="col-6">
-            <div className="card">
-              <div className="card-header">
-                <h5>Product Details</h5>
-              </div>
-              {rentOrderDetails ? (
-                rentOrderDetails?.rentOrderDetails?.map((item, index) => (
-                  <div key={index} className="card-body">
-                    <p>Item Id:&nbsp;{item.rentItemId}</p>
-                    <p>Description:&nbsp;{item.description}</p>
-                    <p>Color: &nbsp;{item.color}</p>
-                    <p>Size: &nbsp;{item.size}</p>
-                    <p>
-                      {rentOrderDetails.stakeOption === StakeOptions.NIC
-                        ? `${rentOrderDetails.stakeOption} Available`
-                        : `${rentOrderDetails.stakeOption} - ${rentOrderDetails.stakeAmount}`}
-                    </p>
-                    {rentOrderDetails?.rentOrderDetails?.length > 1 && rentOrderDetails?.rentOrderDetails?.length - 1 !== index && (
-                      <div style={{ borderTop: '1px solid black' }} />
-                    )}
-                  </div>
-                ))
-              ) : (
-                <div className="card-body">No data Available</div>
-              )}
-            </div>
-            <div className="row mt-3">
-              <div className="col-12 d-flex justify-content-end gap-2">
-                <button type="button" className="secondary-button">
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="primary-button"
-                  disabled={!rentOrderDetails || rentOrderDetails.orderStatus === 'Completed'}
-                  onClick={handleRentReturn}
-                >
-                  Rent Return
-                </button>
-              </div>
-            </div>
-          </div>
-          <div className="col-6">
-            <div className="card">
-              <div className="card-header">
-                <h5>Customer Details</h5>
-              </div>
-              {rentOrderDetails ? (
-                <div className="card-body">
-                  <p>Customer :&nbsp;{rentOrderDetails?.customer?.name}</p>
-                  <p>Rent Date :&nbsp;{format(rentOrderDetails?.rentDate as Date, 'MM/dd/yyyy')}</p>
-                  <p>Return Date :&nbsp;{format(rentOrderDetails?.returnDate as Date, 'MM/dd/yyyy')}</p>
-                  <br />
-                </div>
-              ) : (
-                <div className="card-body">No data available</div>
-              )}
-            </div>
-          </div>
-        </div>
-        {data?.relatedItems?.length > 0 && (
+
+        {rentOrderData ? (
           <div className="row">
-            <div className="col-10">
+            <div className="col-6">
               <div className="card">
-                <div className="card-header">
-                  <h5>Other Rented Items</h5>
-                </div>
-                <div className="card-body">
-                  {data.relatedItems.map((relatedItem, index) => (
-                    <div key={index}>
-                      <p>Item Id:&nbsp;{relatedItem.rentItemId}</p>
-                      <p>Description:&nbsp;{relatedItem.description}</p>
-                      <p>Color: &nbsp;{relatedItem.color}</p>
-                      <p>Size: &nbsp;{relatedItem.size}</p>
-                      {relatedItem !== data.relatedItems[data.relatedItems.length - 1] && (
-                        <div style={{ borderTop: '1px solid black', marginBottom: '10px' }} />
-                      )}
+                {(rentOrderData?.rentOrderDetails || [])
+                  .filter((item) => item.rentItemId === rentItemSearchQuery)
+                  .map((item, index) => (
+                    <div key={index} className="card-body">
+                      <p className="font-weight-bold">Barcode:&nbsp;{item.rentItemId}</p>
+                      <p>Description:&nbsp;{item.description}</p>
+                      <p>Color: &nbsp;{item.color}</p>
+                      <p>Size: &nbsp;{item.size}</p>
+                      <p className="font-weight-bold">
+                        {rentOrderData?.stakeOption === StakeOptions.NIC
+                          ? `${rentOrderData?.stakeOption} Available - ${rentOrderData?.nicNumber}`
+                          : `${rentOrderData?.stakeOption} - ${rentOrderData?.stakeAmount}`}
+                      </p>
                     </div>
                   ))}
+              </div>
+              <h5 className="mt-3 d-flex justify-content-center font-weight-bold">Order Balance - {rentOrderData?.balance}</h5>
+              <div className="row mt-3">
+                <div className="col-12 d-flex justify-content-end gap-2">
+                  <button type="button" className="secondary-button">
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="primary-button"
+                    disabled={!rentOrderData || rentOrderData.orderStatus === 'Completed'}
+                    onClick={handleRentReturn}
+                  >
+                    Rent Return
+                  </button>
                 </div>
               </div>
             </div>
+
+            <div className="col-6">
+              <div className="card mb-4">
+                {rentOrderData && (
+                  <div className="card-body">
+                    <p>Rent Order :&nbsp;{rentOrderData?.rentOrderId}</p>
+                    <p>Customer :&nbsp;{rentOrderData?.customer?.name}</p>
+                    <p>Rent Date :&nbsp;{format(rentOrderData?.rentDate, 'MM/dd/yyyy')}</p>
+                    <p>Return Date :&nbsp;{format(rentOrderData?.returnDate, 'MM/dd/yyyy')}</p>
+                  </div>
+                )}
+              </div>
+              <div className="card">
+                {rentOrderData?.rentOrderDetails?.map((item, index) => {
+                  const statusStyle = {
+                    fontWeight: 'bold',
+                    color: item.status === 'Available' ? 'green' : 'red',
+                  };
+                  return (
+                    <div key={index} className="card-body">
+                      <div className="d-flex">
+                        <p>{item.rentItemId}&nbsp;|&nbsp;</p>
+                        <p style={statusStyle}>{item.status}</p>
+                      </div>
+                      <p className="rent-item-detail">{item.description}</p>
+                      <div className="d-flex gap-2 font-weight-bold">
+                        <p className="rent-item-detail">Color:&nbsp;{item.color}&nbsp;|</p>
+                        <p className="rent-item-detail">Size:&nbsp;{item.size}&nbsp;|</p>
+                        <p className="rent-item-detail">Hand Length:&nbsp;{item.handLength}</p>
+                      </div>
+                      <p className="rent-item-detail pb-2">
+                        Notes:&nbsp;
+                        {item.notes}
+                      </p>
+                      {rentOrderData?.rentOrderDetails?.length > 1 && rentOrderData?.rentOrderDetails?.length - 1 !== index && (
+                        <div style={{ borderTop: '1px solid black' }} />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="d-flex justify-content-center align-items-center card" style={{ height: '50vh' }}>
+            <h5>No data available</h5>
           </div>
         )}
       </div>

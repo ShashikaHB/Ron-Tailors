@@ -19,7 +19,6 @@ const PrintShopBill = ({ handleClose, id }) => {
       invoiceUrl = `${baseUrl}/api/v1/invoice/rentOrder/shop/${id}`;
     }
     window.open(invoiceUrl, '_blank');
-    handleClose();
   };
   return (
     <div className="modal-dialog modal-dialog-centered">

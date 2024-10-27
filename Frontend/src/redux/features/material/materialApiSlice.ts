@@ -66,5 +66,10 @@ export const materialApiSlice = apiSlice.injectEndpoints({
   }),
 });
 
-export const { useGetAllMaterialsQuery, useAddNewMaterialMutation, useGetSingleMaterialQuery, useUpdateSingleMaterialMutation, useDeleteNewMaterialMutation } =
-  materialApiSlice;
+export const {
+  useGetAllMaterialsQuery,
+  useAddNewMaterialMutation,
+  useLazyGetSingleMaterialQuery,
+  useUpdateSingleMaterialMutation,
+  useDeleteNewMaterialMutation,
+} = materialApiSlice;

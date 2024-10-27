@@ -124,9 +124,9 @@ const SalesOrderBook = () => {
       const lowercasedFilter = orderSearchQuery.toLowerCase();
       const filteredRowData = salesOrders.filter(
         (item: any) =>
-          item.salesOrderId.toString().toLowerCase().includes(lowercasedFilter) ||
-          item.customer.name.toLowerCase().includes(lowercasedFilter) ||
-          item.customer.mobile.toLowerCase().includes(lowercasedFilter)
+          item?.salesOrderId.toString().toLowerCase().includes(lowercasedFilter) ||
+          item?.customer?.name.toLowerCase().includes(lowercasedFilter) ||
+          item?.customer?.mobile.toLowerCase().includes(lowercasedFilter)
       );
       setRowData(filteredRowData);
     } else {

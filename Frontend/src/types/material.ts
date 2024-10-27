@@ -4,15 +4,18 @@
  * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
+
+import Stores from '../enums/Stores';
+
 export type Material = {
-  name: string;
+  materialId: string;
   color: string;
   unitPrice: number;
   noOfUnits: number;
   marginPercentage: number;
   brand: string;
   type?: string;
-  store: string;
+  store: Stores;
 };
 
 export type CreateMaterial = {
@@ -21,7 +24,6 @@ export type CreateMaterial = {
 
 export type EditMaterial = {
   variant: 'edit';
-  materialId: number;
 };
 
 export type GetMaterial = Material & EditMaterial;

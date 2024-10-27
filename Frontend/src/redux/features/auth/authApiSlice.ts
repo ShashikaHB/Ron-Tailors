@@ -23,6 +23,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body: { ...registerData },
       }),
+      invalidatesTags: ['Users'],
     }),
     logout: builder.query({
       query: () => ({

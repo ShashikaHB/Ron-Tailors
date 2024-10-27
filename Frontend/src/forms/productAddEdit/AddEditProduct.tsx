@@ -17,7 +17,7 @@ import { useGetAllUsersQuery } from '../../redux/features/user/userApiSlice';
 import { Roles } from '../../enums/Roles';
 import RHFSwitch from '../../components/customFormComponents/customSwitch/RHFSwitch';
 import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
-import { removeMaterials, resetMaterials } from '../../redux/features/product/productSlice';
+import { resetMaterials } from '../../redux/features/product/productSlice';
 import { GetMaterial, MaterialNeededforProduct } from '../../types/material';
 import Table from '../../components/agGridTable/Table';
 import { useLazyGetSingleProductQuery, useUpdateSingleProductMutation } from '../../redux/features/product/productApiSlice';
@@ -72,7 +72,8 @@ const AddEditProduct = ({ handleClose }: AddEditProductProps) => {
   const measurerOptions = getUserRoleBasedOptions(users, Roles.SalesPerson);
 
   const handleRemove = (id: number) => {
-    dispatch(removeMaterials(id));
+    const filteredMaterial = selectedMaterialRowData.filter((item) => item.material !== id);
+    setSelectedMaterialRowData(filteredMaterial);
   };
 
   const colDefs: ColDef<MaterialNeededforProduct>[] = [

@@ -39,7 +39,17 @@ export const measurementApiSlice = apiSlice.injectEndpoints({
         return res.data;
       },
     }),
+    getPrintMeasurement: builder.query({
+      query: ({ startDate, endDate, itemType }) => ({
+        url: `/measurement/printMeasurement?startDate=${startDate}&endDate=${endDate}&itemType=${encodeURIComponent(itemType)}`, // This is where you define the dynamic URL
+        method: 'GET',
+      }),
+      transformResponse: (res: ApiResponse<any>) => {
+        return res.data;
+      },
+    }),
   }),
 });
 
-export const { useCreateMeasurementMutation, useUpdateMeasurementMutation, useLazyGetPreviousMeasurementsQuery } = measurementApiSlice;
+export const { useCreateMeasurementMutation, useUpdateMeasurementMutation, useLazyGetPreviousMeasurementsQuery, useLazyGetPrintMeasurementQuery } =
+  measurementApiSlice;

@@ -10,6 +10,7 @@ import { RentItemStatus } from '../../enums/RentItemDetails';
 
 export const rentItemSchema = z.intersection(
   z.object({
+    rentItemId: z.string().min(1, 'Rent Item Id is required!'),
     color: z.string().optional(),
     size: z.union([z.coerce.number(), z.null()]),
     description: z.string().optional(),
@@ -19,7 +20,7 @@ export const rentItemSchema = z.intersection(
     z.object({ variant: z.literal('create') }),
     z.object({
       variant: z.literal('edit'),
-      rentItemId: z.number().min(1),
+      rentItemId: z.string().min(1, 'Rent Item Id is required!'),
       status: z.nativeEnum(RentItemStatus),
     }),
   ])
@@ -29,6 +30,7 @@ export type RentItemSchema = z.infer<typeof rentItemSchema>;
 
 export const defaultRentItemValues: RentItemSchema = {
   variant: 'create',
+  rentItemId: '',
   color: '',
   size: null,
   itemType: ProductType.Coat,

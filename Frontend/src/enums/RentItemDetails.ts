@@ -11,7 +11,6 @@ export enum RentItemDetailTypes {
   handLength = 'handLength',
   notes = 'notes',
   amount = 'amount',
-  suitType = 'suitType',
 }
 
 export enum RentItemStatus {

@@ -74,9 +74,9 @@ const RentBook = () => {
       field: 'orderStatus',
       cellStyle: (params) => {
         if (params.value === 'Completed') {
-          return { color: 'green' }; // Completed orders in green
+          return { color: 'green', fontWeight: 'bold' }; // Completed orders in green
         }
-        return { color: 'red' }; // Other orders in black
+        return { color: 'red', fontWeight: 'bold' }; // Other orders in black
       },
     },
     {
@@ -111,9 +111,9 @@ const RentBook = () => {
       const lowercasedFilter = orderSearchQuery.toLowerCase();
       const filteredRowData = rentOrders?.filter(
         (item) =>
-          item.rentOrderId.toString().toLowerCase().includes(lowercasedFilter) ||
-          item.customer.name.toLowerCase().includes(lowercasedFilter) ||
-          item.customer.mobile.toLowerCase().includes(lowercasedFilter)
+          item?.rentOrderId.toString().toLowerCase().includes(lowercasedFilter) ||
+          item?.customer?.name.toLowerCase().includes(lowercasedFilter) ||
+          item?.customer?.mobile.toLowerCase().includes(lowercasedFilter)
       );
       setRowData(filteredRowData);
     } else {

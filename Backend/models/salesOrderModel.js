@@ -58,7 +58,7 @@ const salesOrderSchema = new mongoose.Schema(
               color: { type: String },
               size: { type: Number },
               rentItemId: {
-                type: Number,
+                type: String,
                 required: [true, "Rent Item Id is required"],
               },
               itemCategory: {

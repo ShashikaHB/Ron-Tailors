@@ -38,7 +38,7 @@ import { Roles } from '../../enums/Roles';
 import paymentOptions from '../../consts/paymentOptions';
 import { productCategoryItemMap } from '../../consts/products';
 import { CheckBoxWithInput } from '../../components/customFormComponents/checkboxGroup/CheckBoxGroup';
-import { ProductCategory } from '../../enums/ProductType';
+import ProductType, { ProductCategory } from '../../enums/ProductType';
 import { setLoading } from '../../redux/features/common/commonSlice';
 import SelectRentItem from '../selectRentItem/SelectRentItem';
 import CustomMobileWithOtp from '../../components/customFormComponents/customMobileWithOtp/CustomMobileWithOtp';
@@ -160,23 +160,47 @@ const AddEditOrder = () => {
       }));
 
     if (selectedProducts.length > 0 && selectedCategory) {
-      let newItem = {} as OrderItems;
+      let newItem: OrderItems = {
+        category: selectedCategory,
+        description,
+        products: [],
+        amount: itemTotal,
+        isMeasurementSet: false,
+      };
 
       if (selectedCategory === ProductCategory.RentFullSuit) {
         let tempId = tempProductId; // Get the current tempProductId
-        const rentItems = selectedProducts.map((product) => {
-          // eslint-disable-next-line no-plusplus
-          return { rentItemId: tempId++, productType: product.productType }; // Assuming productId is returned from the API
-        });
 
+        // Separate rent items and API fetched items
+        const rentItems = selectedProducts
+          .filter((product) => product.productType === ProductType.RentCoat || product.productType === ProductType.RentWestCoat)
+          .map((product) => ({
+            rentItemId: tempId++,
+            productType: product.productType,
+          }));
+
+        const apiItems = selectedProducts.filter((product) => product.productType !== ProductType.RentCoat && product.productType !== ProductType.RentWestCoat);
+
+        const productDetails = await Promise.all(
+          apiItems.map(async (productData) => {
+            const response = await addProduct({
+              itemType: productData.productType,
+              itemCategory: selectedCategory,
+            }).unwrap(); // Get the API response and unwrap if necessary
+            return {
+              productId: response.productId as number,
+              productType: response.productType,
+            };
+          })
+        );
+
+        // Update newItem properties
         newItem = {
-          category: selectedCategory,
-          description,
+          ...newItem,
           rentItems,
-          amount: itemTotal,
-          isMeasurementSet: false,
+          products: productDetails,
         };
-        setTempProductId(tempId);
+        setTempProductId(tempId); // Update tempProductId
       } else {
         const productDetails = await Promise.all(
           selectedProducts.map(async (product) => {
@@ -184,19 +208,18 @@ const AddEditOrder = () => {
               itemType: product.productType,
               itemCategory: selectedCategory,
             }).unwrap(); // Get the API response and unwrap if necessary
-            return { productId: response.productId as number, productType: response.productType }; // Assuming productId is returned from the API
+            return {
+              productId: response.productId as number,
+              productType: response.productType,
+            };
           })
         );
 
-        newItem = {
-          category: selectedCategory,
-          description,
-          products: productDetails,
-          amount: itemTotal,
-          isMeasurementSet: false,
-        };
+        // Update newItem products for non-rental categories
+        newItem.products = productDetails;
       }
 
+      // Update selected items and clear errors and fields
       setSelectedItems([...selectedItems, newItem]);
       clearErrors();
       clearOrderItems();
@@ -534,9 +557,9 @@ const AddEditOrder = () => {
                     <button className="primary-button" type="submit">
                       {variant === 'create' ? 'Create Order ' : 'Edit Order '}
                     </button>
-                    {/* <button className="primary-button" type="button" onClick={() => handleValidateData()}>
+                    <button className="primary-button" type="button" onClick={() => handleValidateData()}>
                       validate
-                    </button> */}
+                    </button>
                   </div>
                 </div>
               </div>

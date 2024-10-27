@@ -60,7 +60,7 @@ const baseOrderSchema = z.object({
           handLength: z.string().optional(),
           notes: z.string().optional(),
           itemType: z.nativeEnum(ProductType),
-          rentItemId: z.number().min(1),
+          rentItemId: z.string().min(1),
           amount: z.number().optional(),
         })
       ),

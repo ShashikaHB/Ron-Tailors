@@ -10,7 +10,7 @@ import { RiCloseLargeLine } from '@remixicon/react';
 import { useEffect } from 'react';
 import { MaterialSchema, defaultMaterialValues, materialSchema } from '../formSchemas/materialsSchema';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
-import { useAddNewMaterialMutation, useGetSingleMaterialQuery, useUpdateSingleMaterialMutation } from '../../redux/features/material/materialApiSlice';
+import { useAddNewMaterialMutation, useLazyGetSingleMaterialQuery, useUpdateSingleMaterialMutation } from '../../redux/features/material/materialApiSlice';
 import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
 import stores from '../../consts/stores';
 import { useAppDispatch } from '../../redux/reduxHooks/reduxHooks';
@@ -18,7 +18,7 @@ import { setLoading } from '../../redux/features/common/commonSlice';
 
 type AddMaterialFormProps = {
   handleClose: () => void;
-  materialId?: number | null;
+  materialId?: string;
 };
 
 const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
@@ -26,7 +26,7 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
 
   const [addNewMaterial, { isLoading: addingMaterial }] = useAddNewMaterialMutation();
   const [updateMaterial, { isLoading: updatingMaterial }] = useUpdateSingleMaterialMutation();
-  const { data: singleMaterial, isLoading: materialLoading } = useGetSingleMaterialQuery(materialId as number);
+  const [getSingleMaterial, { data: singleMaterial, isLoading: materialLoading }] = useLazyGetSingleMaterialQuery();
 
   const variant = useWatch({ control, name: 'variant' });
 
@@ -37,13 +37,13 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
     reset(defaultMaterialValues);
   };
 
-  //   useEffect(() => {
-  //     dispatch(setLoading(addingMaterial));
-  //   }, [addingMaterial]);
+  useEffect(() => {
+    dispatch(setLoading(addingMaterial));
+  }, [addingMaterial]);
 
-  //   useEffect(() => {
-  //     dispatch(setLoading(updatingMaterial));
-  //   }, [updatingMaterial]);
+  useEffect(() => {
+    dispatch(setLoading(updatingMaterial));
+  }, [updatingMaterial]);
 
   useEffect(() => {
     dispatch(setLoading(materialLoading));
@@ -60,20 +60,18 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
   };
 
   useEffect(() => {
-    if (singleMaterial) {
-      reset(singleMaterial);
-    }
-  }, [singleMaterial, reset]);
-
-  useEffect(() => {
-    const sub = watch((value) => {
-      console.log(value);
-    });
-
-    return () => {
-      sub.unsubscribe();
+    const fetchMaterialData = async () => {
+      if (materialId) {
+        try {
+          const response = await getSingleMaterial(materialId).unwrap();
+          reset(response); // Reset form with received data
+        } catch (error) {
+          console.error('Failed to fetch material data:', error);
+        }
+      }
     };
-  }, [watch]);
+    fetchMaterialData();
+  }, [materialId, getSingleMaterial, reset]);
 
   const onSubmit: SubmitHandler<MaterialSchema> = async (data) => {
     try {
@@ -84,6 +82,7 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
         } else {
           toast.success('Material Updated.');
           reset();
+          dispatch(setLoading(false));
           handleFormClose();
         }
       } else {
@@ -93,6 +92,7 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
         } else {
           toast.success('New material Added.');
           reset();
+          dispatch(setLoading(false));
           handleFormClose();
         }
       }
@@ -113,7 +113,7 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
         <div className="modal-body">
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="inputGroup">
-              <RHFTextField<MaterialSchema> label="Name" name="name" />
+              <RHFTextField<MaterialSchema> label="Material Code" name="materialId" disabled={variant === 'edit'} />
               <RHFTextField<MaterialSchema> label="Color" name="color" />
               <RHFDropDown<MaterialSchema> options={stores} name="store" label="Store" />
               <RHFTextField<MaterialSchema> label="Unit Price" name="unitPrice" type="number" />

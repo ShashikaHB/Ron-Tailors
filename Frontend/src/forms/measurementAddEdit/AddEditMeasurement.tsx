@@ -32,7 +32,7 @@ type AddEditProductProps = {
 };
 
 const AddEditMeasurement = ({ handleClose, onMeasurementSuccess }: AddEditProductProps) => {
-  const { control, unregister, watch, reset, setValue, handleSubmit, getValues, clearErrors } = useFormContext<MeasurementSchema>();
+  const { control, unregister, watch, reset, setValue, handleSubmit, getValues, clearErrors, trigger } = useFormContext<MeasurementSchema>();
 
   const measurements = useWatch({ control, name: 'measurements' }) as string[];
   const variant = useWatch({ control, name: 'variant' });
@@ -85,18 +85,23 @@ const AddEditMeasurement = ({ handleClose, onMeasurementSuccess }: AddEditProduc
 
   const addText = (text: string) => {
     const currentStyle = getValues('style');
-    const newStyle = currentStyle ? `${currentStyle}/ ${text}` : text;
-    setValue('style', newStyle);
+    const newStyle = currentStyle ? `${currentStyle} / ${text}` : text;
+    setValue('style', newStyle, { shouldDirty: true });
   };
 
   const addMeasurements = (index: number, measurement: string) => {
-    const currentMeasurements = getValues('measurements');
-    const updatedMeasurements = [...currentMeasurements];
-    updatedMeasurements[index] = measurement;
-    setValue('measurements', updatedMeasurements);
+    // Retrieve the current measurements array as a shallow copy
+    const currentMeasurements = [...(getValues('measurements') || [])];
+
+    // Update the specific index with the new measurement
+    currentMeasurements[index] = measurement;
+
+    // Set the modified array as the new value for measurements
+    setValue('measurements', currentMeasurements, { shouldDirty: true, shouldValidate: true });
   };
 
   const handleMeasurementClose = () => {
+    handleClear();
     handleClose();
   };
 
@@ -165,7 +170,6 @@ const AddEditMeasurement = ({ handleClose, onMeasurementSuccess }: AddEditProduc
             onMeasurementSuccess(selectedProductId);
             toast.success('New measurement Added.');
           }
-          reset();
           handleMeasurementClose();
         }
       }
@@ -272,9 +276,9 @@ const AddEditMeasurement = ({ handleClose, onMeasurementSuccess }: AddEditProduc
               <button className="secondary-button" type="button" onClick={() => handleClear()}>
                 Clear
               </button>
-              {/* <button className="secondary-button" type="button" onClick={() => handleValidateData()}>
+              <button className="secondary-button" type="button" onClick={() => handleValidateData()}>
                 validate
-              </button> */}
+              </button>
               <button className="primary-button" type="submit">
                 Save
               </button>

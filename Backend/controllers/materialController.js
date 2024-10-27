@@ -3,11 +3,14 @@ import asyncHandler from "express-async-handler";
 import { getDocId } from "../utils/docIds.js";
 
 export const createMaterial = asyncHandler(async (req, res) => {
-  const brand = req.body.brand;
-  const name = req.body.name;
-  const store = req.body.store;
 
-  const materialExists = await Material.findOne({ brand, name, store }).lean().exec();
+    const {materialId} = req.body
+
+    if (!materialId) {
+        throw new Error ("Material Id not found!")
+    }
+
+  const materialExists = await Material.findOne({ materialId }).lean().exec();
 
   if (!materialExists) {
     const newMaterial = await Material.create(req.body);
@@ -70,12 +73,10 @@ export const updateMaterial = asyncHandler(async (req, res) => {
   const updatedMaterial = await Material.findByIdAndUpdate(
     material._id,
     {
-      name: req?.body?.name,
       color: req?.body?.color,
       brand: req?.body?.brand,
       unitPrice: req?.body?.unitPrice,
       noOfUnits: req?.body?.noOfUnits,
-      marginPercentage: req?.body?.marginPercentage,
       type: req?.body?.type,
     },
     {
