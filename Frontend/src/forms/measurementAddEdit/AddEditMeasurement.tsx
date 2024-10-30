@@ -4,7 +4,7 @@
  * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
 import { TextField } from '@mui/material';
 import { RiCloseLargeLine, RiClipboardLine } from '@remixicon/react';
@@ -62,6 +62,19 @@ const AddEditMeasurement = ({ handleClose, onMeasurementSuccess }: AddEditProduc
   //     }
   //   }, [productData]);
 
+  // Use the current form state for measurements to initialize measurementsState
+  const initialMeasurements = getValues('measurements') || Array(10).fill('');
+  const [measurementsState, setMeasurementsState] = useState<string[]>(initialMeasurements);
+
+  const initialStyle = getValues('style') || '';
+  const [styleState, setStyleState] = useState<string>(initialStyle);
+
+  // Synchronize measurementsState with react-hook-form on mount
+  useEffect(() => {
+    setMeasurementsState(getValues('measurements') || Array(10).fill(''));
+    setStyleState(getValues('style') || '');
+  }, []);
+
   useEffect(() => {
     triggerGetProduct(productId);
   }, [productId]);
@@ -83,23 +96,24 @@ const AddEditMeasurement = ({ handleClose, onMeasurementSuccess }: AddEditProduc
     dispatch(setLoading(updateMeasurementLoading));
   }, [updateMeasurementLoading]);
 
+  useEffect(() => {
+    setValue('measurements', measurementsState, { shouldDirty: true });
+  }, [measurementsState, setValue]);
+  useEffect(() => {
+    setValue('style', styleState, { shouldDirty: true });
+  }, [styleState, setValue]);
+
   const addText = (text: string) => {
-    const currentStyle = getValues('style');
-    const newStyle = currentStyle ? `${currentStyle} / ${text}` : text;
-    setValue('style', newStyle, { shouldDirty: true });
+    setStyleState((currentStyle) => (currentStyle ? `${currentStyle} / ${text}` : text));
   };
 
   const addMeasurements = (index: number, measurement: string) => {
-    // Retrieve the current measurements array as a shallow copy
-    const currentMeasurements = [...(getValues('measurements') || [])];
-
-    // Update the specific index with the new measurement
-    currentMeasurements[index] = measurement;
-
-    // Set the modified array as the new value for measurements
-    setValue('measurements', currentMeasurements, { shouldDirty: true, shouldValidate: true });
+    setMeasurementsState((prev) => {
+      const newMeasurements = [...prev];
+      newMeasurements[index] = measurement;
+      return newMeasurements;
+    });
   };
-
   const handleMeasurementClose = () => {
     handleClear();
     handleClose();
@@ -124,6 +138,8 @@ const AddEditMeasurement = ({ handleClose, onMeasurementSuccess }: AddEditProduc
       customer: prevMeasurement?.customer?.customerId,
       variant: 'create', // Set variant to 'edit'
     });
+    setMeasurementsState(prevMeasurement.measurements);
+    setStyleState(prevMeasurement.style);
   };
 
   const getButtonGroups = (productType: ProductType) => {
@@ -196,10 +212,15 @@ const AddEditMeasurement = ({ handleClose, onMeasurementSuccess }: AddEditProduc
         estimatedReleaseDate: new Date(productData.measurement.estimatedReleaseDate), // Convert date
         customer: productData?.measurement?.customer?.customerId,
         variant: 'edit', // Set variant to 'edit'
+        measurements: productData.measurement.measurements || [], // Ensure measurements is initialized
       });
+      setMeasurementsState(productData.measurement.measurements);
+      setStyleState(productData.measurement.style);
     }
     if (updatedMeasurement) {
-      reset(updatedMeasurement);
+      reset({ ...updatedMeasurement, measurements: updatedMeasurement.measurements || [] });
+      setMeasurementsState(updatedMeasurement.measurements);
+      setStyleState(updatedMeasurement.style);
     }
 
     if (!customerId || customerId === 0) {
@@ -228,7 +249,7 @@ const AddEditMeasurement = ({ handleClose, onMeasurementSuccess }: AddEditProduc
             <div className="d-flex gap-3">
               {prevMeasurements?.length > 0 &&
                 prevMeasurements.map((item) => (
-                  <button key={item} className="primary-button" type="button" onClick={() => handleAddPrevMeasurement(item)}>
+                  <button key={item.measurementId} className="primary-button" type="button" onClick={() => handleAddPrevMeasurement(item)}>
                     {`${item.measurementId}-${item.itemType}`}
                   </button>
                 ))}
@@ -245,18 +266,24 @@ const AddEditMeasurement = ({ handleClose, onMeasurementSuccess }: AddEditProduc
                 {productData?.itemType && getButtonGroups(productData?.itemType)}
               </div>
               <div className="inputGroup my-3 w-30 d-flex flex-direction-row">
-                <RHFTextField<MeasurementSchema> label="Style" name="style" />
+                <TextField
+                  label="Style"
+                  value={styleState}
+                  onChange={(e) => setStyleState(e.target.value)} // Directly update styleState on change
+                  fullWidth
+                  margin="normal"
+                />
               </div>
               <h6>Add Measurements</h6>
               <div className="my-3">
                 <div className="d-flex gap-1 mb-1">
                   {[0, 1, 2, 3, 4].map((index) => (
-                    <TextField key={index} value={measurements[index]} onChange={(e) => addMeasurements(index, e.target.value)} />
+                    <TextField key={`measurement-${index}`} value={measurementsState[index]} onChange={(e) => addMeasurements(index, e.target.value)} />
                   ))}
                 </div>
                 <div className="d-flex gap-1 mb-1">
                   {[5, 6, 7, 8, 9].map((index) => (
-                    <TextField key={index} value={measurements[index]} onChange={(e) => addMeasurements(index, e.target.value)} />
+                    <TextField key={`measurement-${index}`} value={measurementsState[index]} onChange={(e) => addMeasurements(index, e.target.value)} />
                   ))}
                 </div>
               </div>

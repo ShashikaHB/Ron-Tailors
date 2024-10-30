@@ -14,22 +14,26 @@ export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
   // Set up the document for 80mm width
   const doc = new PDFDocument({
     size: [227, 500], // 80mm width, variable height
-    margins: { top: 10, bottom: 10, left: 5, right: 5 },
+    margins: { top: 10, bottom: 10, left: 20, right: 20 },
   });
 
   doc.on("data", dataCallBack);
   doc.on("end", endCallBack);
 
   // Header Section
-  doc.fontSize(10).text("Ron Tailors", { align: "center" });
-  doc.fontSize(8).text("No.176 A,First Floor,Kegalle.", { align: "center" });
-  doc.fontSize(8).text("077 887 677 8 / 035 20 5 1600.", { align: "center" });
-  doc.fontSize(7).text("kegalleron@gmail.com", { align: "center" });
-  doc.fontSize(7).text("www.rontailors.com", { align: "center" });
+  doc.fontSize(10 * 1.2).text("Ron Tailors", { align: "center" });
+  doc
+    .fontSize(8 * 1.2)
+    .text("No.176 A,First Floor,Kegalle.", { align: "center" });
+  doc
+    .fontSize(8 * 1.2)
+    .text("077 887 677 8 / 035 20 5 1600.", { align: "center" });
+  doc.fontSize(7 * 1.2).text("kegalleron@gmail.com", { align: "center" });
+  doc.fontSize(7 * 1.2).text("www.rontailors.com", { align: "center" });
 
   doc.moveDown(0.5);
-  doc.fontSize(10).text("SALES ORDER", { align: "center" });
-  doc.fontSize(8).text(`Order No: ${orderNo}`, { align: "center" });
+  doc.fontSize(10 * 1.2).text("SALES ORDER", { align: "center" });
+  doc.fontSize(8 * 1.2).text(`Order No: ${orderNo}`, { align: "center" });
 
   // Section Divider
   doc.moveDown(0.3);
@@ -39,7 +43,10 @@ export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
     .stroke();
 
   // Customer Details
-  doc.moveDown(0.5).fontSize(8).text(`Customer Name: ${customer.name}`);
+  doc
+    .moveDown(0.5)
+    .fontSize(8 * 1.2)
+    .text(`Customer Name: ${customer.name}`);
   doc.moveDown(0.15).text(`Mobile: ${customer.mobile}`);
   doc.moveDown(0.15).text(`Order Date: ${customer.orderDate}`);
   doc.moveDown(0.15).text(`Delivery Date: ${customer.deliveryDate}`);
@@ -58,22 +65,24 @@ export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
 
   doc.moveDown(0.3);
   doc.table(tableData, {
-    prepareHeader: () => doc.font("Helvetica-Bold").fontSize(8),
-    prepareRow: (row, i) => doc.font("Helvetica").fontSize(7),
+    prepareHeader: () => doc.font("Helvetica-Bold").fontSize(8 * 1.2),
+    prepareRow: (row, i) => doc.font("Helvetica").fontSize(7 * 1.2),
     columnSpacing: 8,
     padding: 4,
     width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
     x: doc.page.margins.left,
   });
 
+  let rightCenterX = doc.page.width * 0.4;
+
   // Totals Section
   doc
     .moveDown(0.5)
-    .fontSize(8)
-    .text(`Subtotal: ${totals.subTotal}`, { align: "right" });
-  doc.moveDown(0.15).text(`Discount: ${totals.discount}`, { align: "right" });
-  doc.moveDown(0.15).text(`Total: ${totals.totalPrice}`, { align: "right" });
-  doc.moveDown(0.15).text(`Advance: ${totals.advPayment}`, { align: "right" });
+    .fontSize(8 * 1.2)
+    .text(`Subtotal: ${totals.subTotal}`, rightCenterX, doc.y);
+  doc.moveDown(0.15).text(`Discount: ${totals.discount}`, rightCenterX, doc.y);
+  doc.moveDown(0.15).text(`Total: ${totals.totalPrice}`, rightCenterX, doc.y);
+  doc.moveDown(0.15).text(`Advance: ${totals.advPayment}`, rightCenterX, doc.y);
 
   // Balance Section
   doc.moveDown(0.3);
@@ -81,8 +90,7 @@ export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
     .moveTo(doc.page.margins.left, doc.y)
     .lineTo(doc.page.width - doc.page.margins.right, doc.y)
     .stroke();
-  doc.moveDown(0.15);
-  doc.moveDown(0.15).text(`Balance: ${totals.balance}`, { align: "right" });
+  doc.moveDown(0.3).text(`Balance: ${totals.balance}`, rightCenterX, doc.y);
 
   // Final Message
   doc.moveDown(0.2);
@@ -90,9 +98,15 @@ export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
     .moveTo(doc.page.margins.left, doc.y)
     .lineTo(doc.page.width - doc.page.margins.right, doc.y)
     .stroke();
+
+  // Move Down and Position the Final Message
   doc.moveDown(0.5);
-  doc.fontSize(7).text(`Thank you. Come again....`, { align: "center" });
-  doc.moveDown(0.15).text(`System Made by SharkDev.lk`, { align: "center" });
+  doc
+    .fontSize(7 * 1.2)
+    .text("Thank you. Come Again....", doc.page.margins.left*3, doc.y);
+  doc
+    .moveDown(0.15)
+    .text("System Made by SharkDev.lk", doc.page.margins.left*3, doc.y);
 
   doc.end();
 };
@@ -333,17 +347,13 @@ export const buildMeasurementPdf = (dataCallBack, endCallBack, measurement) => {
   } = measurement;
 
   // Adjusted font sizes for POS printer and concise layout
-  doc
-    .fontSize(11)
-    .text(`${orderId} | ${customer.name} | ${itemType}`, {
-      align: "left",
-    });
+  doc.fontSize(11).text(`${orderId} | ${customer.name} | ${itemType}`, {
+    align: "left",
+  });
   doc.moveDown(0.3);
 
   // Add measurements with filtered values and smaller font size
-  doc
-    .fontSize(10)
-    .text(measurements, { align: "left" });
+  doc.fontSize(10).text(measurements, { align: "left" });
   doc.moveDown(0.3);
 
   // Add style information
