@@ -68,7 +68,7 @@ const MeasurementPrintPage = () => {
     <div>
       {data.map((measurement, index) => {
         const { customer, itemType, measurements, style, remarks, estimatedReleaseDate, isNecessary, orderId } = measurement;
-        const filteredMeasurements = measurements.filter((value) => value !== '').join('  ');
+        const filteredMeasurements = measurements.filter((value) => value !== '').join('    ');
 
         return (
           <div key={index} id={`measurement-${index}`} style={styles.measurementContainer}>

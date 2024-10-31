@@ -125,7 +125,7 @@ export const getAllOrders = asyncHandler(async (req, res) => {
   }
 
   const sortedOrders = orders.sort(
-    (a, b) => new Date(b.rentDate) - new Date(a.rentDate)
+    (a, b) =>  (b.rentOrderId) -  (a.rentOrderId)
   );
   res.json({
     message: "All Orders Fetched Successfully.",

@@ -187,7 +187,7 @@ export const getAllOrders = asyncHandler(async (req, res) => {
   );
 
   const sortedOrders = ordersWithProductFields.sort(
-    (a, b) => new Date(b.orderDate) - new Date(a.orderDate)
+    (a, b) => (b.salesOrderId) - (a.salesOrderId)
   );
 
   res.json({

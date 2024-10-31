@@ -88,16 +88,6 @@ export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
 
   // Render each line with the description and amount on the same line
   doc
-    .text(`Subtotal:`, rightCenterX, doc.y, { width: 200, continued: true })
-    .text(`${totals.subTotal}`, amountX, doc.y);
-
-  doc.moveDown(0.15);
-  doc
-    .text(`Discount:`, rightCenterX, doc.y, { width: 200, continued: true })
-    .text(`${totals.discount}`, amountX, doc.y);
-
-  doc.moveDown(0.15);
-  doc
     .text(`Total:`.padEnd(12), rightCenterX, doc.y, {
       width: 200,
       continued: true,
@@ -105,6 +95,17 @@ export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
     .text(`${totals.totalPrice}`, amountX, doc.y);
 
   doc.moveDown(0.15);
+  doc
+    .text(`Discount:`, rightCenterX, doc.y, { width: 200, continued: true })
+    .text(`${totals.discount}`, amountX, doc.y);
+
+  doc.moveDown(0.15);
+  //   doc
+  //     .text(`Subtotal:`, rightCenterX, doc.y, { width: 200, continued: true })
+  //     .text(`${totals.subTotal}`, amountX, doc.y);
+
+  //   doc.moveDown(0.15);
+
   doc
     .text(`Advance:`, rightCenterX, doc.y, { width: 200, continued: true })
     .text(`${totals.advPayment}`, amountX, doc.y);
@@ -207,16 +208,7 @@ export const buildRentPdf = (dataCallBack, endCallBack, data) => {
   doc.moveDown(0.5).fontSize(8 * 1.2);
 
   // Render each line with the description and amount on the same line
-  doc
-    .text(`Subtotal:`, rightCenterX, doc.y, { width: 200, continued: true })
-    .text(`${totals.subTotal}`, amountX, doc.y);
 
-  doc.moveDown(0.15);
-  doc
-    .text(`Discount:`, rightCenterX, doc.y, { width: 200, continued: true })
-    .text(`${totals.discount}`, amountX, doc.y);
-
-  doc.moveDown(0.15);
   doc
     .text(`Total:`.padEnd(12), rightCenterX, doc.y, {
       width: 200,
@@ -225,6 +217,16 @@ export const buildRentPdf = (dataCallBack, endCallBack, data) => {
     .text(`${totals.totalPrice}`, amountX, doc.y);
 
   doc.moveDown(0.15);
+  doc
+    .text(`Discount:`, rightCenterX, doc.y, { width: 200, continued: true })
+    .text(`${totals.discount}`, amountX, doc.y);
+
+  doc.moveDown(0.15);
+  //   doc
+  //     .text(`Subtotal:`, rightCenterX, doc.y, { width: 200, continued: true })
+  //     .text(`${totals.subTotal}`, amountX, doc.y);
+
+  //   doc.moveDown(0.15);
   doc
     .text(`Advance:`, rightCenterX, doc.y, { width: 200, continued: true })
     .text(`${totals.advPayment}`, amountX, doc.y);
@@ -279,6 +281,13 @@ export const buildRentShopPdf = (dataCallBack, endCallBack, data) => {
 
   // Loop through rentOrderDetails with reduced spacing and smaller font size
   rentOrderDetails.forEach((detail) => {
+    // Add customer details with scaled-down font sizes
+    doc.moveDown(0.2).fontSize(9).text(`Customer Name: ${customer.name}`);
+    doc.moveDown(0.15).text(`Mobile: ${customer.mobile}`);
+    doc.moveDown(0.5);
+
+    doc.fontSize(10).font("Helvetica-Bold").text(`Rent No: ${orderNo}`);
+    doc.moveDown(0.2);
     doc.fontSize(8).font("Helvetica").text(`Barcode: ${detail.rentItemId}`);
     doc.moveDown(0.2);
 
@@ -302,6 +311,12 @@ export const buildRentShopPdf = (dataCallBack, endCallBack, data) => {
       .lineTo(doc.page.width - doc.page.margins.right, doc.y)
       .stroke();
     doc.moveDown(1);
+    doc.fontSize(8).text(`Suit Type: ${customer.suitType}`);
+    doc.moveDown(0.2);
+    doc
+      .fontSize(8)
+      .font("Helvetica-Bold")
+      .text(`Rent Date: ${customer.rentDate}`);
   });
 
   doc.fontSize(8).text(`Suit Type: ${customer.suitType}`);
@@ -377,7 +392,7 @@ export const buildReadyMadePdf = (dataCallBack, endCallBack, data) => {
   let rightCenterX = doc.page.width * 0.4;
   const amountX = rightCenterX + 10; // Adjust amountX as needed for proper alignment
 
-//   doc.moveDown(0.3);
+  //   doc.moveDown(0.3);
   doc
     .text(`Total:`.padEnd(12), rightCenterX, doc.y, {
       continued: true,
@@ -419,13 +434,16 @@ export const buildMeasurementPdf = (dataCallBack, endCallBack, measurement) => {
   } = measurement;
 
   // Adjusted font sizes for POS printer and concise layout
-  doc.fontSize(11).text(`${orderId} | ${customer.name} | ${itemType}`, {
-    align: "left",
-  });
+  doc
+    .fontSize(11)
+    .font("Helvetica-Bold")
+    .text(`${orderId}  |  ${customer.name} |   ${itemType}`, {
+      align: "left",
+    });
   doc.moveDown(0.5);
 
   // Add measurements with filtered values and smaller font size
-  doc.fontSize(12).text(measurements, { align: "left" });
+  doc.font("Helvetica").fontSize(12).text(measurements, { align: "left" });
   doc.moveDown(0.5);
 
   // Add style information
@@ -439,8 +457,12 @@ export const buildMeasurementPdf = (dataCallBack, endCallBack, measurement) => {
   // Add release date and necessary status
   const formattedReleaseDate = new Date(
     estimatedReleaseDate
-  ).toLocaleDateString();
-  doc.fontSize(12).text(`Release Date: ${formattedReleaseDate}`, {
+  ).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+  });
+  doc.fontSize(12).text(`Release Date:    ${formattedReleaseDate}    `, {
     align: "left",
     continued: true,
   });

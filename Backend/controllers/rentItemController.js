@@ -37,10 +37,13 @@ export const createRentItem = asyncHandler(async (req, res) => {
 export const getAllRentItems = asyncHandler(async (req, res) => {
   try {
     const allRentItems = await RentItem.find().lean().select("-_id -__v");
+    const sortedRentItems = allRentItems.sort(
+        (a, b) =>  (b.rentItemId) -  (a.rentItemId)
+      );
     res.json({
       message: "All materials fetched.",
       success: true,
-      data: allRentItems,
+      data: sortedRentItems,
     });
   } catch (error) {
     throw new Error(error);

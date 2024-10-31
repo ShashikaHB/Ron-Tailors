@@ -55,7 +55,7 @@ export const getSalesInvoice = asyncHandler(async (req, res) => {
         : "Rs 0.00",
       balance: orderData.balance
         ? `Rs ${orderData.balance.toFixed(2)}`
-        : `Rs ${(orderData.totalPrice - orderData.advPayment).toFixed(2)}`,
+        : `Rs 0.00`,
     },
   };
   const stream = res.writeHead(200, {
@@ -96,7 +96,7 @@ export const getRentInvoice = asyncHandler(async (req, res) => {
         : "Rs 0.00",
       balance: orderData.balance
         ? `Rs ${orderData.balance.toFixed(2)}`
-        : `Rs ${(orderData.totalPrice - orderData.advPayment).toFixed(2)}`,
+        :  `Rs 0.00`,
     },
   };
   const stream = res.writeHead(200, {

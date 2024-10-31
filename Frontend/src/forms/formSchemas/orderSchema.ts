@@ -52,18 +52,20 @@ const baseOrderSchema = z.object({
       description: z.string().optional(),
       category: z.string().optional(),
       products: z.array(z.number()),
-      rentItems: z.array(
-        z.object({
-          color: z.string().optional(),
-          size: z.union([z.coerce.number(), z.undefined()]),
-          description: z.string().optional(),
-          handLength: z.string().optional(),
-          notes: z.string().optional(),
-          itemType: z.nativeEnum(ProductType),
-          rentItemId: z.string().min(1),
-          amount: z.number().optional(),
-        })
-      ),
+      rentItems: z
+        .array(
+          z.object({
+            color: z.string().optional(),
+            size: z.union([z.coerce.number(), z.undefined()]),
+            description: z.string().optional(),
+            handLength: z.string().optional(),
+            notes: z.string().optional(),
+            itemType: z.nativeEnum(ProductType),
+            rentItemId: z.string().min(1),
+            amount: z.number().optional(),
+          })
+        )
+        .optional(),
       amount: z.number().min(1),
     })
   ),
