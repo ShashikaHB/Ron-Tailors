@@ -54,7 +54,18 @@ export const userApiSlice = apiSlice.injectEndpoints({
       },
       providesTags: ['MonthlySummary'],
     }),
+    createCustomer: builder.mutation({
+      query: (data) => ({
+        url: `/customer`,
+        method: 'POST',
+        body: data,
+      }),
+      transformResponse: (res) => {
+        return res.data; // Return the array of users directly
+      },
+    }),
   }),
 });
 
-export const { useGetAllUsersQuery, useUpdateUserSalaryGradeMutation, useGetAllMonthlySummaryQuery, useMarkAttendanceMutation } = userApiSlice;
+export const { useGetAllUsersQuery, useUpdateUserSalaryGradeMutation, useGetAllMonthlySummaryQuery, useMarkAttendanceMutation, useCreateCustomerMutation } =
+  userApiSlice;

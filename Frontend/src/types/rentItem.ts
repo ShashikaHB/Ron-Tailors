@@ -9,7 +9,7 @@ import ProductType from '../enums/ProductType';
 import { RentItemStatus } from '../enums/RentItemDetails';
 
 export type RentItemDetails = {
-  rentItemId: number;
+  rentItemId: string;
   color: string;
   size: number | undefined;
   description: string;
@@ -18,6 +18,7 @@ export type RentItemDetails = {
   amount?: number;
   itemType: ProductType;
   status?: string;
+  isNewRentOut?: boolean;
 };
 
 export type RentItem = {
@@ -33,8 +34,9 @@ export type CreateRentItem = {
 
 export type EditRentItem = {
   variant: 'edit';
-  rentItemId: number;
+  rentItemId: string;
   status: RentItemStatus;
+  isNewRentOut?: boolean;
 };
 
 export type ApiCreateEditRentItem = RentItem & (CreateRentItem | EditRentItem);

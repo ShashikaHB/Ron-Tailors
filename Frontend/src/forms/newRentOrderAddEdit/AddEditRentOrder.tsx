@@ -53,7 +53,7 @@ import PrintShopBill from '../printshopbill/PrintShopBill';
 // ];
 
 const initialRentItemDetails: RentItemDetails = {
-  rentItemId: 0,
+  rentItemId: '0',
   color: '',
   size: undefined,
   description: '',
@@ -75,6 +75,10 @@ const paymentOptions = [
 ];
 
 const stakeOptions = [
+  {
+    value: StakeOptions.No,
+    label: 'Select a stake option',
+  },
   {
     value: StakeOptions.NIC,
     label: 'NIC',
@@ -144,7 +148,7 @@ const NewRentOut = () => {
 
   const salesPeople = getUserRoleBasedOptions(users, Roles.SalesPerson);
 
-  const handleRemove = (id: number) => {
+  const handleRemove = (id: string) => {
     const filteredRowData = rowData.filter((row) => row.rentItemId !== id);
     setRowData(filteredRowData);
   };
@@ -442,9 +446,9 @@ const NewRentOut = () => {
                     <div className="col-6 mb-3">
                       {stakeOption === StakeOptions.NIC ? (
                         <RHFTextField<RentOrderSchema> label="NIC Number" name="nicNumber" />
-                      ) : (
+                      ) : stakeOption === StakeOptions.Deposit ? (
                         <RHFTextField<RentOrderSchema> label="Deposit Amount" name="stakeAmount" />
-                      )}
+                      ) : null}
                     </div>
                   </div>
                   <div className="d-flex justify-content-end gap-2">

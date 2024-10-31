@@ -1,19 +1,20 @@
 import { RentItem } from "../models/rentItemModel.js";
 import asyncHandler from "express-async-handler";
+import { RentOrder } from "../models/rentOrderModel.js";
 
 export const createRentItem = asyncHandler(async (req, res) => {
   const color = req.body.color;
   const size = req.body.size;
   const description = req.body.description;
   const itemType = req.body.itemType;
-  const rentItemId = req.body.rentItemId
+  const rentItemId = req.body.rentItemId;
 
   if (!description || !itemType || !rentItemId) {
     throw new Error("Missing values in body create rent item");
   }
 
   const rentItemExists = await RentItem.findOne({
-    rentItemId
+    rentItemId,
   })
     .lean()
     .exec();
@@ -73,7 +74,13 @@ export const getSingleRentItem = asyncHandler(async (req, res) => {
 export const updateRentItem = asyncHandler(async (req, res) => {
   const { rentItemId } = req.params;
 
-  const rentItem = await RentItem.findOne({ rentItemId }).lean().exec();
+  const rentItemIdSearch = req?.body?.newRentOutId
+    ? req?.body?.newRentOutId
+    : rentItemId;
+
+  const rentItem = await RentItem.findOne({ rentItemId: rentItemIdSearch })
+    .lean()
+    .exec();
 
   if (!rentItem) {
     res.status(404);
@@ -83,21 +90,46 @@ export const updateRentItem = asyncHandler(async (req, res) => {
   const updatedRentItem = await RentItem.findByIdAndUpdate(
     rentItem._id,
     {
+      rentItemId: rentItemId,
       description: req?.body?.description,
       color: req?.body?.color,
       size: req?.body?.size,
       status: req?.body?.status,
       itemType: req?.body?.itemType,
+      isNewRentOut: false,
     },
     {
       new: true,
     }
   );
-  res.json({
-    message: "RentItem updated.",
-    success: true,
-    data: updatedRentItem,
-  });
+
+  if (newRentOrderId) {
+    // Step 2: Find the rent order that contains the newRentOrderId in its details
+    const rentOrder = await RentOrder.findOne({
+      "rentOrderDetails.rentItemId": newRentOrderId,
+    });
+
+    if (!rentOrder) {
+      res.status(404);
+      throw new Error(`No rent order found with ID ${newRentOrderId}.`);
+    }
+
+    // Step 3: Update the rent order details with the new rentItemId
+    for (let detail of rentOrder.rentOrderDetails) {
+      if (detail.rentItemId === newRentOrderId) {
+        detail.rentItemId = rentItemId; // Update the rent item ID
+      }
+    }
+
+    // Save the updated rent order
+    await rentOrder.save();
+
+    res.json({
+      message: "RentItem updated.",
+      success: true,
+      data: updatedRentItem,
+    });
+  }
 });
 
 export const deleteRentItem = asyncHandler(async (req, res) => {
@@ -137,8 +169,8 @@ export const searchRentItem = asyncHandler(async (req, res) => {
       throw new Error("Rent Item not found.");
     }
 
-    if (rentItem.status !== 'Available') {
-        throw new Error ("Item already Rented")
+    if (rentItem.status !== "Available") {
+      throw new Error("Item already Rented");
     }
 
     res.json({
@@ -146,7 +178,6 @@ export const searchRentItem = asyncHandler(async (req, res) => {
       success: true,
       data: rentItem,
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,

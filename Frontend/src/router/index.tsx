@@ -33,6 +33,7 @@ import RequireAdminAuth from '../components/adminAuthHandler/AdminAuthHandler';
 import MonthlySummary from '../pages/MonthlySummary';
 import SignLayout from '../pageLayouts/SignLayout';
 import MeasurementPrintPage from '../pages/MeasurementPrintPage';
+import StoreSelector from '../pages/StoreSelector';
 
 const router = createBrowserRouter([
   {
@@ -53,6 +54,10 @@ const router = createBrowserRouter([
       {
         element: <RequireAuth />,
         children: [
+          {
+            path: 'storeSelector',
+            element: <StoreSelector />,
+          },
           {
             path: 'dashboard',
             element: <LandingPage />,
@@ -161,7 +166,7 @@ const router = createBrowserRouter([
       },
     ],
   },
-  { path: '*', element: <Navigate to="/secured/dashboard" replace /> },
+  { path: '*', element: <Navigate to="/secured/storeSelector" replace /> },
 ]);
 
 export default router;

@@ -27,7 +27,7 @@ const LoginPage = () => {
     try {
       const userData = await login({ mobile, password }).unwrap();
       dispatch(setCredentials({ ...userData }));
-      navigate('/secured/dashboard');
+      navigate('/secured/storeSelector');
       toast.success('Login Success!');
     } catch (error) {
       console.log(error);

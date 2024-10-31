@@ -6,7 +6,7 @@
  */
 
 import { ColDef } from 'ag-grid-community';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Modal, TextField } from '@mui/material';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -19,6 +19,7 @@ import ActionButtonNew from '../components/agGridTable/customComponents/ActionBu
 import { setLoading } from '../redux/features/common/commonSlice';
 import { useAppDispatch } from '../redux/reduxHooks/reduxHooks';
 import PrintShopBill from '../forms/printshopbill/PrintShopBill';
+import PrintRentBook from '../forms/printRentBook/PrintRentBook';
 
 const RentBook = () => {
   const { data: rentOrders, isError: rentOrderError, isLoading: allRentOrdersLoading } = useGetAllRentOrdersQuery();
@@ -31,6 +32,7 @@ const RentBook = () => {
   const dispatch = useAppDispatch();
 
   const defaultColDef: ColDef = { resizable: true };
+  const [openOrderBookPrint, setOpenOrderBookPrint] = useState(false);
 
   const handleOpen = (id: string) => {
     navigate(`/secured/addRentOrder/${id}`);
@@ -125,6 +127,12 @@ const RentBook = () => {
     navigate('/secured/addRentOrder');
   };
 
+  const handleOpenOrderBookPrint = useCallback(() => {
+    setOpenOrderBookPrint(true);
+  }, []);
+
+  const handleOrderBookPrintClose = useCallback(() => setOpenOrderBookPrint(false), []);
+
   return (
     <div className="h-100 d-flex flex-column gap-3">
       <div className="d-flex justify-content-between align-items-end">
@@ -136,15 +144,23 @@ const RentBook = () => {
             onChange={(e) => setOrderSearchQuery(e.target.value)}
           />
         </div>
-        <div>
+        <div className="d-flex gap-3">
+          <button type="button" className="primary-button" onClick={() => handleOpenOrderBookPrint()}>
+            Print Rent Book
+          </button>
           <button type="button" className="primary-button" onClick={() => handleNavigateToRentOrder()}>
-            Add new Rent Order
+            + Add new Rent Order
           </button>
         </div>
       </div>
       <div className="flex-grow-1 overflow-hidden">
         <MemoizedTable rowData={rowData} colDefs={colDefs} defaultColDef={defaultColDef} />
       </div>
+      <Modal open={openOrderBookPrint} onClose={handleOrderBookPrintClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+        <div>
+          <PrintRentBook handleClose={handleOrderBookPrintClose} />
+        </div>
+      </Modal>
       <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
         <div>
           <PrintShopBill id={selectedId} handleClose={handleClose} />

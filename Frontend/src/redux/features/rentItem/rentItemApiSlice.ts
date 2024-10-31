@@ -8,7 +8,6 @@ import apiSlice from '../../api/apiSlice';
 import { ApiResponse } from '../../../types/common';
 import { RentItemSchema } from '../../../forms/formSchemas/rentItemSchema';
 import { ApiGetRentItem } from '../../../types/rentItem';
-import { GetMaterial } from '../../../types/material';
 import handleApiResponse from '../../../utils/handleApiResponse';
 
 export const rentItemApiSlice = apiSlice.injectEndpoints({
@@ -33,7 +32,7 @@ export const rentItemApiSlice = apiSlice.injectEndpoints({
         method: 'GET',
       }),
       providesTags: (result, error, args) => (result ? [{ type: 'RentItem', id: args?.toString() }] : []),
-      transformResponse: (res: ApiResponse<GetMaterial>): any => {
+      transformResponse: (res: ApiResponse<any>): any => {
         const data = handleApiResponse(res);
         if (data) {
           return { ...data, variant: 'edit' };

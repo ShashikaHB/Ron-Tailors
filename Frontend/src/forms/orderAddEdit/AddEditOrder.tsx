@@ -45,6 +45,7 @@ import CustomMobileWithOtp from '../../components/customFormComponents/customMob
 import { ProductOptions } from '../../types/products';
 import { OrderItems } from '../../types/order';
 import SimpleActionButton from '../../components/agGridTable/customComponents/SimpleActionButton';
+import { useCreateCustomerMutation } from '../../redux/features/user/userApiSlice';
 
 const tempProductIdStart = 1;
 
@@ -55,6 +56,9 @@ const AddEditOrder = () => {
 
   const users = useAppSelector(allUsers);
   const salesPeople = getUserRoleBasedOptions(users, Roles.SalesPerson);
+
+  const name = useWatch({ control, name: 'customer.name' });
+  const mobile = useWatch({ control, name: 'customer.mobile' });
 
   const measurementMethods = useForm<MeasurementSchema>({
     mode: 'all',
@@ -94,6 +98,7 @@ const AddEditOrder = () => {
   const [getSalesOrderData, { data: salesOrderData, isLoading: isSalesOrderLoading }] = useLazyGetSingleSalesOrderQuery();
   const [addProduct, { data: addProductData, isLoading: isAddingProduct }] = useAddNewProductMutation();
   const [addOrder, { data: newOrder, isLoading: salesOrderLoading }] = useAddNewOrderMutation();
+  const [createCustomer, { data: customerData, isLoading: isCustomerLoading }] = useCreateCustomerMutation();
 
   const [customerSearchQuery, setCustomerSearchQuery] = useState('');
   const selectedCustomer = useAppSelector(selectCustomerId);
@@ -110,6 +115,9 @@ const AddEditOrder = () => {
   useEffect(() => {
     dispatch(setLoading(isCustomerSearching));
   }, [isCustomerSearching]);
+  useEffect(() => {
+    dispatch(setLoading(isCustomerLoading));
+  }, [isCustomerLoading]);
 
   // Handle category selection
   const handleCategoryChange = (event: any) => {
@@ -355,6 +363,17 @@ const AddEditOrder = () => {
     );
   };
 
+  const handleCreateCustomer = async () => {
+    if (selectedCustomer) {
+      toast.error('Customer is already selected!');
+    } else if (name && mobile) {
+      const response = await createCustomer({ name, mobile }).unwrap();
+      dispatch(setSelectedCustomerId(response.customerId));
+    } else {
+      toast.error('Name or Mobile not filled!');
+    }
+  };
+
   useEffect(() => {
     dispatch(setLoading(salesOrderLoading));
   }, [salesOrderLoading]);
@@ -520,6 +539,11 @@ const AddEditOrder = () => {
                     <div className="col-6 mb-3">
                       <RHFDatePicker<OrderSchema> name="weddingDate" label="Wedding Date" />
                     </div>
+                    <div className="d-flex justify-content-end gap-2">
+                      <button className="primary-button" type="button" onClick={() => handleCreateCustomer()}>
+                        Save Customer details
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -557,9 +581,9 @@ const AddEditOrder = () => {
                     <button className="primary-button" type="submit">
                       {variant === 'create' ? 'Create Order ' : 'Edit Order '}
                     </button>
-                    <button className="primary-button" type="button" onClick={() => handleValidateData()}>
+                    {/* <button className="primary-button" type="button" onClick={() => handleValidateData()}>
                       validate
-                    </button>
+                    </button> */}
                   </div>
                 </div>
               </div>

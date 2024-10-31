@@ -14,6 +14,6 @@ export enum RentItemDetailTypes {
 }
 
 export enum RentItemStatus {
-  Rented = 'Not Returned',
+  Rented = 'Rented',
   Available = 'Available',
 }

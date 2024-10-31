@@ -72,7 +72,7 @@ export const productApiSlice = apiSlice.injectEndpoints({
         toast.success('Product Status updated..');
         return res.data;
       },
-      invalidatesTags: ['SalesOrder', 'MonthlySummary'],
+      invalidatesTags: ['SalesOrder', 'MonthlySummary', 'RentOrder'],
     }),
     searchRentItem: builder.query<ApiGetRentItem, string>({
       query: (rentItemId: string) => ({

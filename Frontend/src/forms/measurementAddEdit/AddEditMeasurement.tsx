@@ -4,7 +4,7 @@
  * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
 import { TextField } from '@mui/material';
 import { RiCloseLargeLine, RiClipboardLine } from '@remixicon/react';
@@ -47,6 +47,9 @@ const AddEditMeasurement = ({ handleClose, onMeasurementSuccess }: AddEditProduc
   const dispatch = useAppDispatch();
 
   const productId = useAppSelector(selectProductId);
+
+  // Create an array of refs for the measurement fields
+  const measurementRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const [addMeasurement, { data: newMeasurement, isLoading: addMeasurementLoading }] = useCreateMeasurementMutation();
 
@@ -102,6 +105,17 @@ const AddEditMeasurement = ({ handleClose, onMeasurementSuccess }: AddEditProduc
   useEffect(() => {
     setValue('style', styleState, { shouldDirty: true });
   }, [styleState, setValue]);
+
+  // Function to handle the Enter key press
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Prevent default form submission
+      const nextField = measurementRefs.current[index + 1]; // Get the next field
+      if (nextField) {
+        nextField.focus(); // Focus the next field if it exists
+      }
+    }
+  };
 
   const addText = (text: string) => {
     setStyleState((currentStyle) => (currentStyle ? `${currentStyle} / ${text}` : text));
@@ -278,12 +292,24 @@ const AddEditMeasurement = ({ handleClose, onMeasurementSuccess }: AddEditProduc
               <div className="my-3">
                 <div className="d-flex gap-1 mb-1">
                   {[0, 1, 2, 3, 4].map((index) => (
-                    <TextField key={`measurement-${index}`} value={measurementsState[index]} onChange={(e) => addMeasurements(index, e.target.value)} />
+                    <TextField
+                      key={`measurement-${index}`}
+                      value={measurementsState[index]}
+                      inputRef={(el) => (measurementRefs.current[index] = el)} // Assign ref
+                      onKeyDown={(e) => handleKeyDown(e, index)} // Add the key down handler
+                      onChange={(e) => addMeasurements(index, e.target.value)}
+                    />
                   ))}
                 </div>
                 <div className="d-flex gap-1 mb-1">
                   {[5, 6, 7, 8, 9].map((index) => (
-                    <TextField key={`measurement-${index}`} value={measurementsState[index]} onChange={(e) => addMeasurements(index, e.target.value)} />
+                    <TextField
+                      key={`measurement-${index}`}
+                      value={measurementsState[index]}
+                      inputRef={(el) => (measurementRefs.current[index] = el)} // Assign ref
+                      onKeyDown={(e) => handleKeyDown(e, index)} // Add the key down handler
+                      onChange={(e) => addMeasurements(index, e.target.value)}
+                    />
                   ))}
                 </div>
               </div>
@@ -303,9 +329,9 @@ const AddEditMeasurement = ({ handleClose, onMeasurementSuccess }: AddEditProduc
               <button className="secondary-button" type="button" onClick={() => handleClear()}>
                 Clear
               </button>
-              <button className="secondary-button" type="button" onClick={() => handleValidateData()}>
+              {/* <button className="secondary-button" type="button" onClick={() => handleValidateData()}>
                 validate
-              </button>
+              </button> */}
               <button className="primary-button" type="submit">
                 Save
               </button>

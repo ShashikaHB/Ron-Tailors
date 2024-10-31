@@ -102,7 +102,7 @@ export const createOrder = asyncHandler(async (req, res) => {
       discount: 0,
       advPayment: 0,
       balance: 0,
-      stakeOption: "NIC",
+      stakeOption: "No",
       rentOrderDetails,
       linkedSalesOrderId: newOrder.salesOrderId,
       suitType: "Wedding",

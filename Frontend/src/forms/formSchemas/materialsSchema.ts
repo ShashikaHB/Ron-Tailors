@@ -11,7 +11,7 @@ export const materialSchema = z.intersection(
   z.object({
     materialId: z.string().min(1, 'Material code is required.'),
     color: z.string().min(1, 'Material color is required.'),
-    unitPrice: z.coerce.number().optional(),
+    unitPrice: z.coerce.number().min(1, 'Unit Price is required!'),
     noOfUnits: z.coerce.number().min(1, 'Number of units is required.'),
     brand: z.string(),
     store: z.nativeEnum(Stores).default(Stores.Kegalle),

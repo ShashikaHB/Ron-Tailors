@@ -103,7 +103,7 @@ export const defaultRentOrderValues: RentOrderSchema = {
   advPayment: 0,
   balance: 0,
   paymentType: PaymentType.Cash,
-  stakeOption: StakeOptions.NIC,
+  stakeOption: StakeOptions.No,
   stakeAmount: 0,
   nicNumber: '',
   // orderId is required only for 'edit' variant

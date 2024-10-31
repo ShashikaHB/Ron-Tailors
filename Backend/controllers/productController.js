@@ -387,6 +387,7 @@ export const updateProductStatus = asyncHandler(async (req, res) => {
       itemCategory: product.itemCategory,
       itemType: product.itemType,
       status: "Rented", // Set as rented
+      isNewRentOut: true
     });
 
     // Create a new RentOrder with customer details from the SalesOrder

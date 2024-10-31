@@ -5,6 +5,7 @@
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
 enum StakeOptions {
+  No = 'No',
   NIC = 'NIC',
   Deposit = 'Deposit',
 }

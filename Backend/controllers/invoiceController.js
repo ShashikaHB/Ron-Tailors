@@ -4,6 +4,7 @@ import {
   buildMeasurementPdf,
   buildOrderBookPdf,
   buildReadyMadePdf,
+  buildRentOrderBookPdf,
   buildRentPdf,
   buildRentShopPdf,
   buildSalesPdf,
@@ -166,7 +167,7 @@ export const getReadyMadeInvoice = asyncHandler(async (req, res) => {
     orderDetails: [
       { description: orderData.itemType, amount: `Rs ${orderData.price}` },
     ],
-    orderNo: orderData.readyMadeItemId,
+    orderNo: orderData.readyMadeOrderId,
     totals: {
       totalPrice: `Rs ${orderData.price.toFixed(2)}`,
       balance: "Rs 0.00",
@@ -283,6 +284,43 @@ export const orderBookPrint = asyncHandler(async (req, res) => {
     (chunk) => stream.write(chunk),
     () => stream.end(),
     formattedData,
+    date
+  );
+});
+export const rentOrderBookPrint = asyncHandler(async (req, res) => {
+  const { date } = req.query;
+
+  if (!date) {
+    return res.status(400).json({
+      message: "Rent date is required!",
+      success: false,
+    });
+  }
+
+  // Convert the start and end date into the correct format, including time.
+  const startOfDay = new Date(date);
+  startOfDay.setUTCHours(0, 0, 0, 0); // Set time to 00:00:00.000
+
+  const endOfDay = new Date(date);
+  endOfDay.setUTCHours(23, 59, 59, 999); // Set time to 23:59:59.999
+
+  // Query orders that fall within the start and end of the day
+  const rentOrders = await RentOrder.find({
+    rentDate: {
+      $gte: startOfDay, // Greater than or equal to the start of the day
+      $lt: endOfDay, // Less than the end of the day
+    },
+  })
+    .populate({ path: "customer" })
+    .lean();
+
+  const stream = res.writeHead(200, {
+    "Content-Type": "application/pdf",
+  });
+  buildRentOrderBookPdf(
+    (chunk) => stream.write(chunk),
+    () => stream.end(),
+    rentOrders,
     date
   );
 });

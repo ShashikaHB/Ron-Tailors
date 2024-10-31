@@ -16,6 +16,7 @@ const initialState: any = {
   createdProducts: [],
   selectedRentItemId: null,
   selectedCustomerId: null,
+  selectedStore: null,
 };
 
 const orderSlice = createSlice({

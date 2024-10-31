@@ -97,7 +97,7 @@ const UserRegistrationForm = () => {
             otpMode: false,
           })
         );
-        navigate('/secured/dashboard');
+        navigate('/secured/storeSelector');
         reset();
         toast.success(userData.message);
       }

@@ -49,6 +49,7 @@ const Table = <T,>({ rowData, colDefs, defaultColDef, pagination }: TableProps<T
         columnDefs={colDefs as ColDef<T>[]}
         defaultColDef={defaultColDef}
         pagination={pagination ?? true}
+        paginationAutoPageSize
         components={components}
         onGridReady={onGridReady}
       />

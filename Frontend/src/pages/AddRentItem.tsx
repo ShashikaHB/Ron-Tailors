@@ -103,9 +103,9 @@ const AddRentItem = () => {
       const lowercasedFilter = orderSearchQuery.toLowerCase();
       const filteredRowData = rentItems?.filter(
         (item: any) =>
-          item.rentItemId.toString().toLowerCase().includes(lowercasedFilter) ||
-          item.color.toLowerCase().includes(lowercasedFilter) ||
-          item.size.toLowerCase().includes(lowercasedFilter)
+          item?.rentItemId?.toString().toLowerCase().includes(lowercasedFilter) ||
+          item?.color?.toLowerCase().includes(lowercasedFilter) ||
+          item?.size === Number(lowercasedFilter)
       );
       setRowData(filteredRowData);
     } else {

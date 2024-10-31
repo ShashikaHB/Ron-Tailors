@@ -8,10 +8,11 @@ import { Outlet } from 'react-router-dom';
 import Header from '../components/header/Header';
 import SideNav from '../components/sideNav/SideNav';
 import { useAppSelector } from '../redux/reduxHooks/reduxHooks';
-import { loadingState } from '../redux/features/common/commonSlice';
+import { loadingState, selectStore } from '../redux/features/common/commonSlice';
 
 const RootLayout = () => {
   const isLoading = useAppSelector(loadingState);
+  const store = useAppSelector(selectStore);
 
   return (
     <div className="d-flex flex-grow-1">
@@ -20,9 +21,7 @@ const RootLayout = () => {
         <div className="row flex-grow-1 overflow-hidden mx-0">
           <div className="col-12 col-12 flex-grow-1 overflow-hidden d-flex flex-column h-100">
             <div className="row h-100 flex-grow-1 overflow-hidden d-flex flex-column h-100">
-              <div className="col-2 flex-grow-1 overflow-hidden d-flex flex-column h-100 py-3">
-                <SideNav />
-              </div>
+              <div className="col-2 flex-grow-1 overflow-hidden d-flex flex-column h-100 py-3">{store && <SideNav />}</div>
               <div className="col-10 flex-grow-1 overflow-hidden d-flex flex-column h-100 main-body-container py-3">
                 <div className="container-fluid h-100 overflow-y-auto ">
                   <Outlet />

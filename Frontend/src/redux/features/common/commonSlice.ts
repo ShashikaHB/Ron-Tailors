@@ -16,6 +16,7 @@ const initialState: any = {
   customerId: null,
   productId: null,
   measurementId: null,
+  store: null,
 };
 
 const commonSlice = createSlice({
@@ -37,6 +38,9 @@ const commonSlice = createSlice({
     removeProductId: (state) => {
       state.productId = null;
     },
+    setStore: (state, action: PayloadAction<number>) => {
+      state.store = action.payload;
+    },
     // setRentItemId: (state, action: PayloadAction<number>) => {
     //   state.rentItemId = action.payload;
     // },
@@ -49,8 +53,8 @@ const commonSlice = createSlice({
 export const loadingState = (state: RootState) => state.common.isLoading;
 export const selectCustomerId = (state: RootState) => state.common.customerId;
 export const selectProductId = (state: RootState) => state.common.productId;
-// export const selectRentItemId = (state: RootState) => state.common.rentItemId;
+export const selectStore = (state: RootState) => state.common.store;
 
-export const { setLoading, setCustomerId, removeCustomerId, setProductId, removeProductId } = commonSlice.actions;
+export const { setLoading, setCustomerId, removeCustomerId, setProductId, removeProductId, setStore } = commonSlice.actions;
 
 export default commonSlice.reducer;

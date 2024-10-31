@@ -21,6 +21,7 @@ export interface CardConfig {
   subtitle: string;
   image: string;
   link?: string;
+  store?: string;
 }
 
 const cardConfig: CardConfig[] = [

@@ -8,7 +8,7 @@ import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
 import { useEffect } from 'react';
 import { RiCloseLargeLine } from '@remixicon/react';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
-import { defaultRentItemValues, RentItemSchema } from '../formSchemas/rentItemSchema';
+import { defaultRentItemValues, rentItemSchema, RentItemSchema } from '../formSchemas/rentItemSchema';
 import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
 import ProductType from '../../enums/ProductType';
 import { useAddNewRentItemMutation, useLazyGetSingleRentItemQuery, useUpdateSingleRentItemMutation } from '../../redux/features/rentItem/rentItemApiSlice';
@@ -79,9 +79,18 @@ const AddEditRentItemForm = ({ handleClose, rentItemId }: AddMaterialFormProps) 
     reset(defaultRentItemValues);
   };
 
+  const handleValidateData = () => {
+    const formData = getValues();
+
+    const result = rentItemSchema.safeParse(formData);
+
+    console.log(result);
+  };
+
   useEffect(() => {
     if (singleRentItem) {
       reset(singleRentItem);
+      setValue('newRentOutId', singleRentItem.rentItemId);
     }
   }, [singleRentItem, reset]);
 
@@ -138,7 +147,7 @@ const AddEditRentItemForm = ({ handleClose, rentItemId }: AddMaterialFormProps) 
         <div className="modal-body">
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="inputGroup">
-              <RHFTextField<RentItemSchema> label="Rent Item Id" name="rentItemId" disabled={variant === 'edit'} />
+              <RHFTextField<RentItemSchema> label="Rent Item Id" name="rentItemId" disabled={variant === 'edit' && !singleRentItem?.isNewRentOut} />
               <RHFTextField<RentItemSchema> label="Color" name="color" />
               <RHFTextField<RentItemSchema> label="Size" name="size" type="number" />
               <RHFTextField<RentItemSchema> label="Description" name="description" />
@@ -150,6 +159,9 @@ const AddEditRentItemForm = ({ handleClose, rentItemId }: AddMaterialFormProps) 
                   Clear
                 </button>
               )}
+              <button className="secondary-button" onClick={handleValidateData} type="button">
+                validate
+              </button>
               <button className="primary-button" type="submit" onClick={() => console.log('btn clicked')}>
                 {variant === 'create' ? 'Add ' : 'Edit '}
               </button>

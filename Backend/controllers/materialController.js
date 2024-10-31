@@ -1,26 +1,29 @@
 import { Material } from "../models/materialModel.js";
 import asyncHandler from "express-async-handler";
 import { getDocId } from "../utils/docIds.js";
+import { Transaction } from "../models/transactionModel.js";
 
 export const createMaterial = asyncHandler(async (req, res) => {
+  const { materialId } = req.body;
 
-    const {materialId} = req.body
-
-    if (!materialId) {
-        throw new Error ("Material Id not found!")
-    }
+  if (!materialId) {
+    throw new Error("Material Id not found!");
+  }
 
   const materialExists = await Material.findOne({ materialId }).lean().exec();
 
-  if (!materialExists) {
-    const newMaterial = await Material.create(req.body);
-    res.json({
-      message: "New material created",
-      success: true,
-    });
-  } else {
+  if (materialExists) {
     throw new Error("Material already exists.");
   }
+
+  const newMaterial = await Material.create(req.body);
+  res.json({
+    message: "New material added!",
+    success: true,
+  });
+
+
+
 });
 
 export const getAllMaterials = asyncHandler(async (req, res) => {
@@ -94,15 +97,15 @@ export const deleteMaterial = asyncHandler(async (req, res) => {
   const { materialId } = req.params;
 
   if (!materialId) {
-    throw new Error("No material Id found")
+    throw new Error("No material Id found");
   }
 
-  const materialDocId = await getDocId(Material, "materialId", materialId)
+  const materialDocId = await getDocId(Material, "materialId", materialId);
 
   try {
     const deleteMaterial = await Material.findByIdAndDelete(materialDocId);
     if (!deleteMaterial) {
-        throw new Error('Material deletion failed.')
+      throw new Error("Material deletion failed.");
     }
     res.json({
       message: "Material Deleted Successfully.",
@@ -114,24 +117,26 @@ export const deleteMaterial = asyncHandler(async (req, res) => {
 });
 
 export const deductMaterialUnits = async (materials) => {
-    await Promise.all(
-      materials.map(async ({ material: materialId, unitsNeeded }) => {
-        const material = await Material.findOne({ materialId }).exec();
-        
-        if (!material) {
-          throw new Error(`Material with ID ${materialId} not found.`);
-        }
-  
-        // Check if there are enough units
-        if (material.noOfUnits < unitsNeeded) {
-          throw new Error(`Insufficient units for material ID ${materialId}. Available: ${material.noOfUnits}, Needed: ${unitsNeeded}`);
-        }
-  
-        // Deduct units
-        material.noOfUnits -= unitsNeeded;
-  
-        // Save the updated material
-        await material.save();
-      })
-    );
-  };
+  await Promise.all(
+    materials.map(async ({ material: materialId, unitsNeeded }) => {
+      const material = await Material.findOne({ materialId }).exec();
+
+      if (!material) {
+        throw new Error(`Material with ID ${materialId} not found.`);
+      }
+
+      // Check if there are enough units
+      if (material.noOfUnits < unitsNeeded) {
+        throw new Error(
+          `Insufficient units for material ID ${materialId}. Available: ${material.noOfUnits}, Needed: ${unitsNeeded}`
+        );
+      }
+
+      // Deduct units
+      material.noOfUnits -= unitsNeeded;
+
+      // Save the updated material
+      await material.save();
+    })
+  );
+};

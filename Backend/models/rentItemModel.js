@@ -47,6 +47,10 @@ const rentItemSchema = new mongoose.Schema({
     enum: ["Rented", "Available"],
     default: "Available",
   },
+  isNewRentOut: {
+    type: Boolean,
+    default: false
+  }
 });
 
 // rentItemSchema.plugin(AutoIncrement, {

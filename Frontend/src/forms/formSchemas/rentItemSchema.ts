@@ -15,6 +15,7 @@ export const rentItemSchema = z.intersection(
     size: z.union([z.coerce.number(), z.null()]),
     description: z.string().optional(),
     itemType: z.nativeEnum(ProductType),
+    newRentOutId: z.string().optional(),
   }),
   z.discriminatedUnion('variant', [
     z.object({ variant: z.literal('create') }),
