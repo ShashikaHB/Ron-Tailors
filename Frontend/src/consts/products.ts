@@ -139,6 +139,26 @@ export const readyMadeItems = [
     value: ProductType.Shirt,
     label: 'Shirt',
   },
+  {
+    value: ProductType.Shirt,
+    label: 'Shirt',
+  },
+  {
+    value: ProductType.FullSuit,
+    label: 'FullSuit',
+  },
+  {
+    value: ProductType.CuffLinkWithTie,
+    label: 'CuffLink With Tie Pin',
+  },
+  {
+    value: ProductType.ReadyMadeCoat,
+    label: 'Ready Made Coat',
+  },
+  {
+    value: ProductType.Shoes,
+    label: 'Shoes',
+  },
 ];
 
 export const statusOptions = ['Not Started', 'Cutting Done', 'Tailoring Started', 'Tailoring Done'];

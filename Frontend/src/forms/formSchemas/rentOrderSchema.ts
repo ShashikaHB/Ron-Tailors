@@ -8,7 +8,6 @@ import z from 'zod';
 import PaymentType from '../../enums/PaymentType';
 import ProductType from '../../enums/ProductType';
 import StakeOptions from '../../enums/StakeOptions';
-import Stores from '../../enums/Stores';
 import { SuitTypes } from '../../enums/RentOrderTypes';
 
 // Create a base schema without the conditional fields
@@ -33,7 +32,6 @@ const baseRentOrderSchema = z.object({
       .optional()
       .default(''), // Default to empty string if not provided
   }),
-  store: z.nativeEnum(Stores).default(Stores.Kegalle),
   salesPerson: z.number().min(1, 'Sales person is required.'),
   rentDate: z.date().refine((date) => date instanceof Date && !Number.isNaN(date.getTime()), {
     message: 'Rent Date is required and must be a valid Date',
@@ -91,7 +89,6 @@ export const defaultRentOrderValues: RentOrderSchema = {
     secondaryMobile: '',
     otherMobile: '',
   },
-  store: Stores.Kegalle,
   rentDate: new Date(),
   returnDate: new Date(),
   suitType: SuitTypes.Wedding,

@@ -11,8 +11,6 @@ import { useEffect } from 'react';
 import { MaterialSchema, defaultMaterialValues, materialSchema } from '../formSchemas/materialsSchema';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
 import { useAddNewMaterialMutation, useLazyGetSingleMaterialQuery, useUpdateSingleMaterialMutation } from '../../redux/features/material/materialApiSlice';
-import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
-import stores from '../../consts/stores';
 import { useAppDispatch } from '../../redux/reduxHooks/reduxHooks';
 import { setLoading } from '../../redux/features/common/commonSlice';
 
@@ -115,7 +113,6 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
             <div className="inputGroup">
               <RHFTextField<MaterialSchema> label="Material Code" name="materialId" disabled={variant === 'edit'} />
               <RHFTextField<MaterialSchema> label="Color" name="color" />
-              <RHFDropDown<MaterialSchema> options={stores} name="store" label="Store" />
               <RHFTextField<MaterialSchema> label="Unit Price" name="unitPrice" type="number" />
               <RHFTextField<MaterialSchema> label="Available Units" name="noOfUnits" type="number" />
               <RHFTextField<MaterialSchema> label="Brand" name="brand" />

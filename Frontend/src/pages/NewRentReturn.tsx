@@ -102,7 +102,9 @@ const NewRentReturn = () => {
                       <p className="font-weight-bold">
                         {rentOrderData?.stakeOption === StakeOptions.NIC
                           ? `${rentOrderData?.stakeOption} Available - ${rentOrderData?.nicNumber}`
-                          : `${rentOrderData?.stakeOption} - ${rentOrderData?.stakeAmount}`}
+                          : rentOrderData?.stakeOption === StakeOptions.Deposit
+                            ? `${rentOrderData?.stakeOption} - ${rentOrderData?.stakeAmount}`
+                            : null}
                       </p>
                     </div>
                   ))}

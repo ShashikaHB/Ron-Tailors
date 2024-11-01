@@ -29,7 +29,6 @@ import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHook
 import { allUsers } from '../../redux/features/auth/authSlice';
 import getUserRoleBasedOptions from '../../utils/userUtils';
 import { Roles } from '../../enums/Roles';
-import stores from '../../consts/stores';
 import StakeOptions from '../../enums/StakeOptions';
 import { setLoading } from '../../redux/features/common/commonSlice';
 import CustomMobileWithOtp from '../../components/customFormComponents/customMobileWithOtp/CustomMobileWithOtp';
@@ -373,7 +372,7 @@ const NewRentOut = () => {
                 </div>
                 <div className="card-body">
                   <div className="row">
-                    <div className="col-6 d-flex gap-2 mb-3 align-items-end">
+                    <div className="col-7 d-flex gap-2 mb-3 align-items-end">
                       <TextField
                         label="Search Customer"
                         placeholder="Search the customer by mobile or name"
@@ -387,9 +386,9 @@ const NewRentOut = () => {
                         </span>
                       </button>
                     </div>
-                    <div className="col-6 d-flex gap-2 mb-3 align-items-end">
+                    {/* <div className="col-6 d-flex gap-2 mb-3 align-items-end">
                       <RHFDropDown<RentOrderSchema> options={stores} name="store" label="Store" />
-                    </div>
+                    </div> */}
                   </div>
                   <div className="row">
                     <div className="col-6 mb-3">

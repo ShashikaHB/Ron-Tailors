@@ -5,6 +5,7 @@ import { Transaction } from "../models/transactionModel.js";
 
 export const createMaterial = asyncHandler(async (req, res) => {
   const { materialId } = req.body;
+  const {store} = req.query
 
   if (!materialId) {
     throw new Error("Material Id not found!");
@@ -16,7 +17,7 @@ export const createMaterial = asyncHandler(async (req, res) => {
     throw new Error("Material already exists.");
   }
 
-  const newMaterial = await Material.create(req.body);
+  const newMaterial = await Material.create({...req.body, store});
   res.json({
     message: "New material added!",
     success: true,
@@ -27,8 +28,10 @@ export const createMaterial = asyncHandler(async (req, res) => {
 });
 
 export const getAllMaterials = asyncHandler(async (req, res) => {
+    const {store} = req.query
+
   try {
-    const allMaterials = await Material.find().lean();
+    const allMaterials = await Material.find({store}).lean();
     res.json({
       message: "All materials fetched.",
       success: true,

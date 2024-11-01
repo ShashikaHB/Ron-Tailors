@@ -31,7 +31,6 @@ import { removeSelectedCustomerId, selectCustomerId, setSelectedCustomerId } fro
 import { useAddNewProductMutation } from '../../redux/features/product/productApiSlice';
 import ProductRenderer from '../../components/agGridTable/customComponents/ProductRenderer';
 import AddEditMeasurement from '../measurementAddEdit/AddEditMeasurement';
-import stores from '../../consts/stores';
 import { allUsers } from '../../redux/features/auth/authSlice';
 import getUserRoleBasedOptions from '../../utils/userUtils';
 import { Roles } from '../../enums/Roles';
@@ -501,7 +500,7 @@ const AddEditOrder = () => {
                 </div>
                 <div className="card-body">
                   <div className="row">
-                    <div className="col-6 d-flex gap-2 mb-3 align-items-end">
+                    <div className="col-7 d-flex gap-2 mb-3 align-items-end">
                       <TextField
                         label="Search Customer"
                         size="small"
@@ -516,9 +515,9 @@ const AddEditOrder = () => {
                         </span>
                       </button>
                     </div>
-                    <div className="col-6 d-flex gap-2 mb-3 align-items-end">
+                    {/* <div className="col-6 d-flex gap-2 mb-3 align-items-end">
                       <RHFDropDown<OrderSchema> options={stores} name="store" label="Store" />
-                    </div>
+                    </div> */}
                   </div>
                   <div className="row">
                     <div className="col-6 mb-3">

@@ -16,7 +16,7 @@ const formatRentOrderDataForBook = (rentOrders) => {
 };
 
 export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
-  const { customer, orderDetails, totals, orderNo } = data;
+  const { customer, orderDetails, totals, orderNo, store } = data;
 
   // Set up the document for 80mm width
   const doc = new PDFDocument({
@@ -27,15 +27,22 @@ export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
   doc.on("data", dataCallBack);
   doc.on("end", endCallBack);
 
+  const address =
+    store === "KE"
+      ? "No.176 A, First Floor, Kegalle."
+      : "607, Colombo Road, Ranwala, Kegalle.";
+  const email =
+    store === "KE" ? "kegalleron@gmail.com" : "rontailorsranwala@gmail.com";
+  const phone =
+    store === "KE"
+      ? "077 887 6778 / 035 205 1600"
+      : "071 405 1601 / 035 205 1601";
+
   // Header Section
   doc.fontSize(10 * 1.2).text("Ron Tailors", { align: "center" });
-  doc
-    .fontSize(8 * 1.2)
-    .text("No.176 A,First Floor,Kegalle.", { align: "center" });
-  doc
-    .fontSize(8 * 1.2)
-    .text("077 887 677 8 / 035 20 5 1600.", { align: "center" });
-  doc.fontSize(7 * 1.2).text("kegalleron@gmail.com", { align: "center" });
+  doc.fontSize(8 * 1.2).text(address, { align: "center" });
+  doc.fontSize(8 * 1.2).text(phone, { align: "center" });
+  doc.fontSize(7 * 1.2).text(email, { align: "center" });
   doc.fontSize(7 * 1.2).text("www.rontailors.com", { align: "center" });
 
   doc.moveDown(0.5);
@@ -138,7 +145,7 @@ export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
 };
 
 export const buildRentPdf = (dataCallBack, endCallBack, data) => {
-  const { customer, rentOrderDetails, totals, orderNo } = data;
+  const { customer, rentOrderDetails, totals, orderNo, store } = data;
 
   // Set the page size to 80mm width and a reasonable height
   const doc = new PDFDocument({
@@ -149,15 +156,22 @@ export const buildRentPdf = (dataCallBack, endCallBack, data) => {
   doc.on("data", dataCallBack);
   doc.on("end", endCallBack);
 
+  const address =
+    store === "KE"
+      ? "No.176 A, First Floor, Kegalle."
+      : "607, Colombo Road, Ranwala, Kegalle.";
+  const email =
+    store === "KE" ? "kegalleron@gmail.com" : "rontailorsranwala@gmail.com";
+  const phone =
+    store === "KE"
+      ? "077 887 6778 / 035 205 1600"
+      : "071 405 1601 / 035 205 1601";
+
   // Header Section with scaling
   doc.fontSize(10 * 1.2).text("Ron Tailors", { align: "center" });
-  doc
-    .fontSize(8 * 1.2)
-    .text("No.176 A, First Floor, Kegalle.", { align: "center" });
-  doc
-    .fontSize(8 * 1.2)
-    .text("077 887 677 8 / 035 20 5 1600.", { align: "center" });
-  doc.fontSize(7 * 1.2).text("kegalleron@gmail.com", { align: "center" });
+  doc.fontSize(8 * 1.2).text(address, { align: "center" });
+  doc.fontSize(8 * 1.2).text(phone, { align: "center" });
+  doc.fontSize(7 * 1.2).text(email, { align: "center" });
   doc.fontSize(7 * 1.2).text("www.rontailors.com", { align: "center" });
 
   doc.moveDown(0.5);
@@ -271,14 +285,6 @@ export const buildRentShopPdf = (dataCallBack, endCallBack, data) => {
   doc.on("data", dataCallBack);
   doc.on("end", endCallBack);
 
-  // Add customer details with scaled-down font sizes
-  doc.moveDown(0.2).fontSize(9).text(`Customer Name: ${customer.name}`);
-  doc.moveDown(0.15).text(`Mobile: ${customer.mobile}`);
-  doc.moveDown(0.5);
-
-  doc.fontSize(10).font("Helvetica-Bold").text(`Rent No: ${orderNo}`);
-  doc.moveDown(0.2);
-
   // Loop through rentOrderDetails with reduced spacing and smaller font size
   rentOrderDetails.forEach((detail) => {
     // Add customer details with scaled-down font sizes
@@ -306,10 +312,6 @@ export const buildRentShopPdf = (dataCallBack, endCallBack, data) => {
     doc.text(`Notes: ${detail.notes}`);
     doc.moveDown(0.5);
 
-    doc
-      .moveTo(doc.page.margins.left, doc.y)
-      .lineTo(doc.page.width - doc.page.margins.right, doc.y)
-      .stroke();
     doc.moveDown(1);
     doc.fontSize(8).text(`Suit Type: ${customer.suitType}`);
     doc.moveDown(0.2);
@@ -317,20 +319,16 @@ export const buildRentShopPdf = (dataCallBack, endCallBack, data) => {
       .fontSize(8)
       .font("Helvetica-Bold")
       .text(`Rent Date: ${customer.rentDate}`);
+    doc
+      .moveTo(doc.page.margins.left, doc.y)
+      .lineTo(doc.page.width - doc.page.margins.right, doc.y)
+      .stroke();
   });
-
-  doc.fontSize(8).text(`Suit Type: ${customer.suitType}`);
-  doc.moveDown(0.2);
-  doc
-    .fontSize(8)
-    .font("Helvetica-Bold")
-    .text(`Rent Date: ${customer.rentDate}`);
-
   doc.end();
 };
 
 export const buildReadyMadePdf = (dataCallBack, endCallBack, data) => {
-  const { customer, orderDetails, totals, orderNo } = data;
+  const { customer, orderDetails, totals, orderNo, store } = data;
 
   // Define the document with 80mm width, reduced margins, and scalable height
   const doc = new PDFDocument({
@@ -341,15 +339,23 @@ export const buildReadyMadePdf = (dataCallBack, endCallBack, data) => {
   doc.on("data", dataCallBack);
   doc.on("end", endCallBack);
 
+
+    const address =
+    store === "KE"
+      ? "No.176 A, First Floor, Kegalle."
+      : "607, Colombo Road, Ranwala, Kegalle.";
+  const email =
+    store === "KE" ? "kegalleron@gmail.com" : "rontailorsranwala@gmail.com";
+  const phone =
+    store === "KE"
+      ? "077 887 6778 / 035 205 1600"
+      : "071 405 1601 / 035 205 1601";
+
   // Header Section with scaling
   doc.fontSize(10 * 1.2).text("Ron Tailors", { align: "center" });
-  doc
-    .fontSize(8 * 1.2)
-    .text("No.176 A, First Floor, Kegalle.", { align: "center" });
-  doc
-    .fontSize(8 * 1.2)
-    .text("077 887 677 8 / 035 20 5 1600", { align: "center" });
-  doc.fontSize(7 * 1.2).text("kegalleron@gmail.com", { align: "center" });
+  doc.fontSize(8 * 1.2).text(address, { align: "center" });
+  doc.fontSize(8 * 1.2).text(phone, { align: "center" });
+  doc.fontSize(7 * 1.2).text(email, { align: "center" });
   doc.fontSize(7 * 1.2).text("www.rontailors.com", { align: "center" });
 
   doc.moveDown(0.3);
@@ -362,14 +368,6 @@ export const buildReadyMadePdf = (dataCallBack, endCallBack, data) => {
     .moveTo(doc.page.margins.left, doc.y)
     .lineTo(doc.page.width - doc.page.margins.right, doc.y)
     .stroke();
-
-  // Add customer details with compact formatting
-  doc
-    .moveDown(0.4)
-    .fontSize(8 * 1.2)
-    .text(`Customer Name: ${customer.name}`);
-  doc.moveDown(0.2).text(`Mobile: ${customer.mobile}`);
-  doc.moveDown(0.2).text(`Order Date: ${customer.orderDate}`);
 
   doc.moveDown(1);
 

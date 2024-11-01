@@ -16,6 +16,8 @@ import { sendSMS } from "../notificationSMS/smsNotification.js";
 import { RentItem } from "../models/rentItemModel.js";
 
 export const createOrder = asyncHandler(async (req, res) => {
+  const { store } = req.query;
+
   const {
     customer: { name, mobile },
     orderDate,
@@ -87,6 +89,7 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   const orderData = {
     ...req.body,
+    store,
     customer: customer._id,
     salesPerson: salesPersonDoc._id,
     orderDetails: orderDetailsData,
@@ -103,6 +106,7 @@ export const createOrder = asyncHandler(async (req, res) => {
       advPayment: 0,
       balance: 0,
       stakeOption: "No",
+      store,
       rentOrderDetails,
       linkedSalesOrderId: newOrder.salesOrderId,
       suitType: "Wedding",
@@ -120,7 +124,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     for (const detail of rentOrderDetails) {
       await RentItem.findOneAndUpdate(
         { rentItemId: detail.rentItemId },
-        { status: "Not Returned" }
+        { status: "Rented" }
       );
     }
   }
@@ -131,7 +135,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     transactionCategory: "Sales Order",
     paymentType: paymentType,
     salesPerson: salesPersonDoc.name,
-    store: req.body?.store,
+    store,
     amount: newOrder.advPayment,
     description: `Sales Order: ${newOrder.salesOrderId}`,
   });
@@ -151,7 +155,9 @@ export const createOrder = asyncHandler(async (req, res) => {
 // @route   GET /api/orders
 // @access  Public
 export const getAllOrders = asyncHandler(async (req, res) => {
-  const orders = await SalesOrder.find()
+  const { store } = req.query;
+
+  const orders = await SalesOrder.find({ store })
     .populate({
       path: "customer",
       select: "-_id -createdAt -updatedAt -__v",
@@ -186,9 +192,12 @@ export const getAllOrders = asyncHandler(async (req, res) => {
     })
   );
 
-  const sortedOrders = ordersWithProductFields.sort(
-    (a, b) => (b.salesOrderId) - (a.salesOrderId)
-  );
+   // Sort orders by extracting the numeric part of salesOrderId
+   const sortedOrders = ordersWithProductFields.sort((a, b) => {
+    const aId = parseInt(a.salesOrderId.replace(/\D/g, ""), 10);
+    const bId = parseInt(b.salesOrderId.replace(/\D/g, ""), 10);
+    return bId - aId;
+  });
 
   res.json({
     message: "All Orders Fetched Successfully.",
@@ -263,7 +272,6 @@ export const updateSalesOrder = asyncHandler(async (req, res) => {
   }
   const salesPersonDoc = await getDocId(User, "userId", salesPerson);
 
-
   let rentOrderDetails = [];
 
   // Loop through the orderDetails array and replace productId with the corresponding _id
@@ -277,8 +285,8 @@ export const updateSalesOrder = asyncHandler(async (req, res) => {
           }
           return product._id; // Return only the _id of the product
         })
-    );
-    if (detail.category === "Rent Full Suit") {
+      );
+      if (detail.category === "Rent Full Suit") {
         rentOrderDetails = [...rentOrderDetails, ...detail?.rentItems];
       }
 
@@ -351,10 +359,9 @@ export const getSalesOrderOrRentOrderForPayment = asyncHandler(
       .lean()
       .exec();
 
-      const sortedTransactions = transactions.sort(
-        (a, b) => new Date(b.date) - new Date(a.date)
-      );
-    
+    const sortedTransactions = transactions.sort(
+      (a, b) => new Date(b.date) - new Date(a.date)
+    );
 
     // Return the order details and transactions
     res.json({
@@ -362,7 +369,7 @@ export const getSalesOrderOrRentOrderForPayment = asyncHandler(
       success: true,
       data: {
         order,
-        transactions:sortedTransactions,
+        transactions: sortedTransactions,
       },
     });
   }
@@ -385,13 +392,19 @@ export const updateSalesOrRentOrder = asyncHandler(async (req, res) => {
   // Check if it's a Sales Order or Rent Order based on the orderId prefix
   if (orderId.startsWith("RW") || orderId.startsWith("KE")) {
     // Check in SalesOrder
-    order = await SalesOrder.findOne({ salesOrderId: orderId }).exec();
+    order = await SalesOrder.findOne({ salesOrderId: orderId }).populate({
+        path: "customer",
+        select: "-_id -createdAt -updatedAt -__v",
+      }).exec();
     orderType = "Sales Order";
   }
 
   if (!order) {
     // If no SalesOrder is found, check in RentOrder
-    order = await RentOrder.findOne({ rentOrderId: orderId }).exec();
+    order = await RentOrder.findOne({ rentOrderId: orderId }).populate({
+        path: "customer",
+        select: "-_id -createdAt -updatedAt -__v",
+      }).exec();
     orderType = "Rent Order";
   }
 
@@ -423,7 +436,7 @@ export const updateSalesOrRentOrder = asyncHandler(async (req, res) => {
     description: `${orderType}: ${orderId}`, // Include orderId in the transaction description
   });
 
-  const messageBody = `Hi ${order.customer.name}. Your order balance is ${newOrder?.balance}. Thank you come again.`;
+  const messageBody = `Hi ${order.customer.name}. Your order balance is ${order?.balance}. Thank you come again.`;
   await sendSMS(messageBody, order.customer.mobile);
 
   // Return the updated order and new transaction

@@ -6,7 +6,6 @@
  */
 import z from 'zod';
 import PaymentType from '../../enums/PaymentType';
-import Stores from '../../enums/Stores';
 import ProductType from '../../enums/ProductType';
 
 // Create a base schema without the conditional fields
@@ -31,7 +30,6 @@ const baseOrderSchema = z.object({
       .optional()
       .default(''), // Default to empty string if not provided
   }),
-  store: z.nativeEnum(Stores).default(Stores.Kegalle),
   salesPerson: z.number().min(1, 'Sales person is required.'),
   orderDate: z.date().refine((date) => date instanceof Date && !Number.isNaN(date.getTime()), {
     message: 'Order date is required and must be a valid date.',
@@ -107,7 +105,6 @@ export const defaultOrderValues: OrderSchema = {
     secondaryMobile: '',
     otherMobile: '',
   },
-  store: Stores.Kegalle,
   orderDate: new Date(),
   deliveryDate: new Date(),
   weddingDate: null,

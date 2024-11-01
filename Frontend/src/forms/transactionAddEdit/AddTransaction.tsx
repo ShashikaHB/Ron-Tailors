@@ -18,7 +18,6 @@ import transactionType from '../../consts/transactionTypes';
 import { allUsers } from '../../redux/features/auth/authSlice';
 import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
 import getUserRoleBasedOptions from '../../utils/userUtils';
-import stores from '../../consts/stores';
 import { setLoading } from '../../redux/features/common/commonSlice';
 import { Roles } from '../../enums/Roles';
 
@@ -111,7 +110,6 @@ const AddTransaction = ({ handleClose, materialId }: AddMaterialFormProps) => {
               <RHFDropDown<TransactionSchema> options={transactionType} name="transactionType" label="Transaction Type" />
               <RHFDropDown<TransactionSchema> options={categories} name="transactionCategory" label="Transaction Category" />
               {showUserField && <RHFDropDown<TransactionSchema> options={employees} name="user" label="Employee" />}
-              <RHFDropDown<TransactionSchema> options={stores} name="store" label="Store" />
               <RHFTextField<TransactionSchema> label="Description" name="description" type="Transaction Description" />
               <RHFDatePicker<TransactionSchema> name="date" label="Transaction Date" />
               <RHFDropDown<TransactionSchema> options={paymentOptions} name="paymentType" label="Payment Type" />

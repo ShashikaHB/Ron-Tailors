@@ -44,6 +44,7 @@ export const getSalesInvoice = asyncHandler(async (req, res) => {
       amount: `Rs ${detail.amount.toFixed(2)}`,
     })),
     orderNo: orderData.salesOrderId,
+    store: orderData.store,
     totals: {
       subTotal: `Rs ${orderData.subTotal.toFixed(2)}`,
       discount: orderData.discount
@@ -85,6 +86,7 @@ export const getRentInvoice = asyncHandler(async (req, res) => {
     },
     rentOrderDetails: orderData.rentOrderDetails,
     orderNo: orderData.rentOrderId,
+    store: orderData.store,
     totals: {
       subTotal: `Rs ${orderData.subTotal.toFixed(2)}`,
       discount: orderData.discount
@@ -96,7 +98,7 @@ export const getRentInvoice = asyncHandler(async (req, res) => {
         : "Rs 0.00",
       balance: orderData.balance
         ? `Rs ${orderData.balance.toFixed(2)}`
-        :  `Rs 0.00`,
+        : `Rs 0.00`,
     },
   };
   const stream = res.writeHead(200, {
@@ -159,15 +161,11 @@ export const getReadyMadeInvoice = asyncHandler(async (req, res) => {
     .exec();
 
   const data = {
-    customer: {
-      name: orderData.customer.name,
-      mobile: orderData.customer.mobile,
-      orderDate: new Date().toISOString().split("T")[0],
-    },
     orderDetails: [
       { description: orderData.itemType, amount: `Rs ${orderData.price}` },
     ],
     orderNo: orderData.readyMadeOrderId,
+    store: orderData.store,
     totals: {
       totalPrice: `Rs ${orderData.price.toFixed(2)}`,
       balance: "Rs 0.00",
@@ -184,19 +182,19 @@ export const getReadyMadeInvoice = asyncHandler(async (req, res) => {
 });
 
 export const measurementPrint = asyncHandler(async (req, res) => {
-    const {
-        customerName,
-        customerMobile,
-        itemType,
-        measurements,
-        style,
-        remarks,
-        estimatedReleaseDate,
-        isNecessary,
-        orderId,
-      } = req.query;
-    
-      // Reconstruct the measurement object
+  const {
+    customerName,
+    customerMobile,
+    itemType,
+    measurements,
+    style,
+    remarks,
+    estimatedReleaseDate,
+    isNecessary,
+    orderId,
+  } = req.query;
+
+  // Reconstruct the measurement object
   const measurement = {
     customer: {
       name: customerName,
@@ -221,7 +219,7 @@ export const measurementPrint = asyncHandler(async (req, res) => {
   );
 });
 export const orderBookPrint = asyncHandler(async (req, res) => {
-  const { date } = req.query;
+  const { date, store } = req.query;
 
   if (!date) {
     return res.status(400).json({
@@ -230,12 +228,10 @@ export const orderBookPrint = asyncHandler(async (req, res) => {
     });
   }
 
-  // Convert the start and end date into the correct format, including time.
-  const startOfDay = new Date(date);
-  startOfDay.setUTCHours(0, 0, 0, 0); // Set time to 00:00:00.000
-
-  const endOfDay = new Date(date);
-  endOfDay.setUTCHours(23, 59, 59, 999); // Set time to 23:59:59.999
+  // Convert `date` to a proper UTC date string (YYYY-MM-DD format)
+  const dateOnly = new Date(date).toISOString().split("T")[0];
+  const startOfDay = new Date(`${dateOnly}T00:00:00.000Z`); // Start of day in UTC
+  const endOfDay = new Date(`${dateOnly}T23:59:59.999Z`); // End of day in UTC
 
   // Query orders that fall within the start and end of the day
   const orders = await SalesOrder.find({
@@ -243,6 +239,7 @@ export const orderBookPrint = asyncHandler(async (req, res) => {
       $gte: startOfDay, // Greater than or equal to the start of the day
       $lt: endOfDay, // Less than the end of the day
     },
+    store,
   })
     .populate({
       path: "orderDetails.products",
@@ -288,7 +285,7 @@ export const orderBookPrint = asyncHandler(async (req, res) => {
   );
 });
 export const rentOrderBookPrint = asyncHandler(async (req, res) => {
-  const { date } = req.query;
+  const { date, store } = req.query;
 
   if (!date) {
     return res.status(400).json({
@@ -297,19 +294,17 @@ export const rentOrderBookPrint = asyncHandler(async (req, res) => {
     });
   }
 
-  // Convert the start and end date into the correct format, including time.
-  const startOfDay = new Date(date);
-  startOfDay.setUTCHours(0, 0, 0, 0); // Set time to 00:00:00.000
-
-  const endOfDay = new Date(date);
-  endOfDay.setUTCHours(23, 59, 59, 999); // Set time to 23:59:59.999
-
+  // Convert `date` to a proper UTC date string (YYYY-MM-DD format)
+  const dateOnly = new Date(date).toISOString().split("T")[0];
+  const startOfDay = new Date(`${dateOnly}T00:00:00.000Z`); // Start of day in UTC
+  const endOfDay = new Date(`${dateOnly}T23:59:59.999Z`); // End of day in UTC
   // Query orders that fall within the start and end of the day
   const rentOrders = await RentOrder.find({
     rentDate: {
       $gte: startOfDay, // Greater than or equal to the start of the day
       $lt: endOfDay, // Less than the end of the day
     },
+    store,
   })
     .populate({ path: "customer" })
     .lean();

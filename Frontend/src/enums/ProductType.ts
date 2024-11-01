@@ -22,6 +22,10 @@ enum ProductType {
   Hanky = 'Hanky',
   Chain = 'Chain',
   Belt = 'Belt',
+  FullSuit = 'Full Suit',
+  ReadyMadeCoat = 'Ready Made Coat',
+  CuffLinkWithTie = 'CuffLink with Tie Pin',
+  Shoes = 'Shoes',
 }
 
 export enum ProductCategory {

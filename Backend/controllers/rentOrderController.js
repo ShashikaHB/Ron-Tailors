@@ -12,6 +12,8 @@ import { Transaction } from "../models/transactionModel.js";
 import { sendSMS } from "../notificationSMS/smsNotification.js";
 
 export const createOrder = asyncHandler(async (req, res) => {
+  const { store } = req.query;
+
   const {
     customer: { name, mobile },
     rentDate,
@@ -56,6 +58,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     ...req.body,
     customer: customer._id,
     salesPerson: salesPersonDoc._id,
+    store,
   };
 
   const newOrder = await RentOrder.create(orderData);
@@ -66,7 +69,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     transactionCategory: "Rent Order",
     paymentType: paymentType,
     salesPerson: salesPersonDoc.name,
-    store: req.body?.store,
+    store,
     amount: newOrder.advPayment,
     description: `Rent Order: ${newOrder.rentOrderId}`,
   });
@@ -93,7 +96,9 @@ export const createOrder = asyncHandler(async (req, res) => {
 // @route   GET /api/orders
 // @access  Public
 export const getAllOrders = asyncHandler(async (req, res) => {
-  const orders = await RentOrder.find()
+  const { store } = req.query;
+
+  const orders = await RentOrder.find({ store })
     .select("-_id -__v")
     .populate({
       path: "customer",
@@ -124,9 +129,13 @@ export const getAllOrders = asyncHandler(async (req, res) => {
     }
   }
 
-  const sortedOrders = orders.sort(
-    (a, b) =>  (b.rentOrderId) -  (a.rentOrderId)
-  );
+  // Sort orders by extracting the numeric part of salesOrderId
+  const sortedOrders = orders.sort((a, b) => {
+    const aId = parseInt(a.rentOrderId.replace(/\D/g, ""), 10);
+    const bId = parseInt(b.rentOrderId.replace(/\D/g, ""), 10);
+    return bId - aId;
+  });
+
   res.json({
     message: "All Orders Fetched Successfully.",
     success: true,

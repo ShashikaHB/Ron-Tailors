@@ -9,9 +9,13 @@ import { RiCloseLargeLine } from '@remixicon/react';
 import { useState } from 'react';
 import { format } from 'date-fns'; // For formatting dates
 import SimpleDatePicker from '../../components/customFormComponents/simpleDatePicker/SimpleDatePicker';
+import { useAppSelector } from '../../redux/reduxHooks/reduxHooks';
+import { selectStore } from '../../redux/features/common/commonSlice';
 
 const PrintOrderBook = ({ handleClose }) => {
   const [date, setDate] = useState<Date>(new Date());
+
+  const store = useAppSelector(selectStore);
 
   // Handle date change for the start date
   const handleDateSelection = (deliveryDate: Date) => {
@@ -21,7 +25,7 @@ const PrintOrderBook = ({ handleClose }) => {
   const handlePrint = () => {
     const formattedDeliveryDate = format(date, 'yyyy-MM-dd');
     const baseUrl = import.meta.env.VITE_BASE_URL;
-    const invoiceUrl = `${baseUrl}/api/v1/invoice/orderBook?date=${formattedDeliveryDate}`;
+    const invoiceUrl = `${baseUrl}/api/v1/invoice/orderBook?date=${formattedDeliveryDate}&store=${store}`;
     window.open(invoiceUrl, '_blank');
     handleClose();
   };

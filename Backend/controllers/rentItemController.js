@@ -3,8 +3,8 @@ import asyncHandler from "express-async-handler";
 import { RentOrder } from "../models/rentOrderModel.js";
 
 export const createRentItem = asyncHandler(async (req, res) => {
-  const color = req.body.color;
-  const size = req.body.size;
+  const { store } = req.query;
+
   const description = req.body.description;
   const itemType = req.body.itemType;
   const rentItemId = req.body.rentItemId;
@@ -20,7 +20,7 @@ export const createRentItem = asyncHandler(async (req, res) => {
     .exec();
 
   if (!rentItemExists) {
-    const newRentItem = await RentItem.create(req.body);
+    const newRentItem = await RentItem.create({ ...req.body, store });
     if (newRentItem) {
       res.json({
         message: "New rentItem created",
@@ -35,11 +35,18 @@ export const createRentItem = asyncHandler(async (req, res) => {
 });
 
 export const getAllRentItems = asyncHandler(async (req, res) => {
+  const { store } = req.query;
+
   try {
-    const allRentItems = await RentItem.find().lean().select("-_id -__v");
-    const sortedRentItems = allRentItems.sort(
-        (a, b) =>  (b.rentItemId) -  (a.rentItemId)
-      );
+    const allRentItems = await RentItem.find({ store })
+      .lean()
+      .select("-_id -__v");
+    // Sort orders by extracting the numeric part of salesOrderId
+    const sortedRentItems = allRentItems.sort((a, b) => {
+      const aId = parseInt(a.rentItemId.replace(/\D/g, ""), 10);
+      const bId = parseInt(b.rentItemId.replace(/\D/g, ""), 10);
+      return bId - aId;
+    });
     res.json({
       message: "All materials fetched.",
       success: true,
@@ -76,6 +83,7 @@ export const getSingleRentItem = asyncHandler(async (req, res) => {
 
 export const updateRentItem = asyncHandler(async (req, res) => {
   const { rentItemId } = req.params;
+  const newRentOutId = req.body.newRentOutId;
 
   const rentItemIdSearch = req?.body?.newRentOutId
     ? req?.body?.newRentOutId
@@ -106,33 +114,32 @@ export const updateRentItem = asyncHandler(async (req, res) => {
     }
   );
 
-  if (newRentOrderId) {
-    // Step 2: Find the rent order that contains the newRentOrderId in its details
+  if (newRentOutId) {
+    // Step 2: Find the rent order that contains the newRentOutId in its details
     const rentOrder = await RentOrder.findOne({
-      "rentOrderDetails.rentItemId": newRentOrderId,
+      "rentOrderDetails.rentItemId": newRentOutId,
     });
 
     if (!rentOrder) {
       res.status(404);
-      throw new Error(`No rent order found with ID ${newRentOrderId}.`);
+      throw new Error(`No rent order found with ID ${newRentOutId}.`);
     }
 
     // Step 3: Update the rent order details with the new rentItemId
     for (let detail of rentOrder.rentOrderDetails) {
-      if (detail.rentItemId === newRentOrderId) {
+      if (detail.rentItemId === newRentOutId) {
         detail.rentItemId = rentItemId; // Update the rent item ID
       }
     }
 
     // Save the updated rent order
     await rentOrder.save();
-
-    res.json({
-      message: "RentItem updated.",
-      success: true,
-      data: updatedRentItem,
-    });
   }
+  res.json({
+    message: "RentItem updated.",
+    success: true,
+    data: updatedRentItem,
+  });
 });
 
 export const deleteRentItem = asyncHandler(async (req, res) => {
@@ -153,7 +160,7 @@ export const deleteRentItem = asyncHandler(async (req, res) => {
 });
 
 export const searchRentItem = asyncHandler(async (req, res) => {
-  const searchQuery = req.query.searchQuery;
+  const { searchQuery, store } = req.query;
 
   if (!searchQuery) {
     res.status(400);
@@ -162,7 +169,7 @@ export const searchRentItem = asyncHandler(async (req, res) => {
 
   try {
     // Construct the query to find customers by mobile or name
-    const rentItem = await RentItem.findOne({ rentItemId: searchQuery })
+    const rentItem = await RentItem.findOne({ rentItemId: searchQuery, store })
       .lean()
       .select("-_id -__v")
       .exec();

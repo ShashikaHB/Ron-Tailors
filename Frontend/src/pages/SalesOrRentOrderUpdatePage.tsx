@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from 'react';
 import { ColDef } from 'ag-grid-community';
-import { FormControl, MenuItem, Select, TextField } from '@mui/material';
+import { FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { FaSearch } from 'react-icons/fa';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -16,6 +16,7 @@ import MemoizedTable from '../components/agGridTable/Table';
 import paymentOptions from '../consts/paymentOptions';
 import { useAppDispatch } from '../redux/reduxHooks/reduxHooks';
 import { setLoading } from '../redux/features/common/commonSlice';
+import StakeOptions from '../enums/StakeOptions';
 
 const SalesOrRentOrderUpdatePage = () => {
   const [triggerSearch, { data: orderData, isLoading: loadingOrder }] = useLazyGetSalesOrRentOrderForPaymentQuery();
@@ -72,15 +73,14 @@ const SalesOrRentOrderUpdatePage = () => {
 
   const handlePayNow = async () => {
     const response = await updateSalesOrRent({ orderId: customerSearchQuery, orderData: { paymentType, paymentAmount: payment } });
-    const newWindow = window.open('', '_blank');
 
     if (response) {
       toast.success('Payment SuccessFull');
       const baseUrl = import.meta.env.VITE_BASE_URL;
-      const invoiceUrl = `${baseUrl}/api/v1/invoice/salesOrder/${customerSearchQuery}`;
-      if (newWindow) {
-        newWindow.location.href = invoiceUrl;
-      }
+      //   const invoiceUrl = `${baseUrl}/api/v1/invoice/salesOrder/${customerSearchQuery}`;
+      //   if (newWindow) {
+      //     newWindow.location.href = invoiceUrl;
+      //   }
     }
   };
 
@@ -116,11 +116,18 @@ const SalesOrRentOrderUpdatePage = () => {
             <p>Total:&nbsp;{orderData?.order?.totalPrice}</p>
             <p>Advance:&nbsp;{orderData?.order?.advPayment}</p>
             <p>Balance:&nbsp;{orderData?.order?.balance}</p>
+            {orderData?.order?.stakeOption && orderData?.order?.stakeOption !== StakeOptions.No && (
+              <p style={{ fontWeight: 'bolder', marginTop: '10px' }}>
+                {orderData?.order?.stakeOption} Available:&nbsp;
+                {orderData?.order?.stakeOption === StakeOptions.NIC ? orderData?.order?.nicNumber : orderData?.order?.stakeAmount}
+              </p>
+            )}
             <div className="row align-items-end">
               {orderData?.order?.balance !== 0 && (
                 <>
-                  <div className="col-4">
+                  <div className="col-4 mt-4">
                     <FormControl sx={{ m: 1, maxWidth: 165 }} size="small">
+                      <InputLabel id="demo-simple-select-label">Select Payment Type</InputLabel>
                       <Select value={paymentType} onChange={(e) => setPaymentType(e.target.value)}>
                         {paymentOptions.map((option) => (
                           <MenuItem key={option.value} value={option.value} disabled={!option.value}>

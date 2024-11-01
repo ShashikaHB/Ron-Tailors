@@ -29,12 +29,13 @@ export const getAllTransactions = asyncHandler(async (req, res) => {
 });
 
 export const getFilteredTransactions = asyncHandler(async (req, res) => {
-  const { fromDate, toDate, store } = req.body;
+  const { store } = req.query;
+  const { fromDate, toDate } = req.body;
 
   // Validate that fromDate and toDate are provided
   if (!fromDate || !toDate || !store) {
     return res.status(400).json({
-      message: 'Both fromDate and toDate are required.',
+      message: "Both fromDate and toDate are required.",
       success: false,
     });
   }
@@ -43,20 +44,20 @@ export const getFilteredTransactions = asyncHandler(async (req, res) => {
   const from = new Date(fromDate);
   const to = new Date(toDate);
 
-  let query = { store }; 
+  let query = { store };
 
   // If fromDate and toDate are the same (ignoring the time part)
   if (from.toDateString() === to.toDateString()) {
     // Query for transactions that occurred on that specific day (between 00:00:00 and 23:59:59)
     query.date = {
-      $gte: new Date(from.setHours(0, 0, 0, 0)),  // Start of the day (00:00:00)
-      $lte: new Date(from.setHours(23, 59, 59, 999))  // End of the day (23:59:59)
+      $gte: new Date(from.setHours(0, 0, 0, 0)), // Start of the day (00:00:00)
+      $lte: new Date(from.setHours(23, 59, 59, 999)), // End of the day (23:59:59)
     };
   } else {
     // Query for transactions within the range from fromDate to toDate
     query.date = {
       $gte: new Date(from.setHours(0, 0, 0, 0)), // Start of fromDate
-      $lte: new Date(to.setHours(23, 59, 59, 999)) // End of toDate
+      $lte: new Date(to.setHours(23, 59, 59, 999)), // End of toDate
     };
   }
 
@@ -66,24 +67,23 @@ export const getFilteredTransactions = asyncHandler(async (req, res) => {
   // If no transactions are found
   if (!transactions || transactions.length === 0) {
     return res.status(404).json({
-      message: 'No transactions found for the specified date range.',
+      message: "No transactions found for the specified date range.",
       success: false,
     });
   }
 
-  const formattedTransactions = transactions.map(transaction => ({
+  const formattedTransactions = transactions.map((transaction) => ({
     ...transaction,
-    date: new Date(transaction.date).toISOString().split('T')[0] // Format to YYYY-MM-DD
+    date: new Date(transaction.date).toISOString().split("T")[0], // Format to YYYY-MM-DD
   }));
 
   // Return the filtered transactions
   res.json({
-    message: 'Transactions fetched successfully.',
+    message: "Transactions fetched successfully.",
     success: true,
     data: formattedTransactions,
   });
 });
-
 
 // @desc    Get transactions by time period (today, monthly, annual)
 // @route   GET /api/transactions
@@ -138,16 +138,16 @@ export const getTransactionsByTimePeriod = asyncHandler(async (req, res) => {
 });
 
 export const addCustomTransaction = asyncHandler(async (req, res) => {
+  const { store } = req.query;
   const {
     transactionType,
     amount,
     description,
     paymentType,
-    store,
     salesPerson,
     transactionCategory,
     user,
-    date
+    date,
   } = req.body;
 
   if (
@@ -163,13 +163,19 @@ export const addCustomTransaction = asyncHandler(async (req, res) => {
     throw new Error("All fields are required.");
   }
 
-  const salesPersonDoc = await User.findOne({userId: salesPerson}).lean().exec()
+  const salesPersonDoc = await User.findOne({ userId: salesPerson })
+    .lean()
+    .exec();
   if (!salesPersonDoc) {
     res.status(404);
     throw new Error(`No user found for ID ${salesPerson}`);
   }
 
-  const newTransaction = await Transaction.create({...req.body, salesPerson:salesPersonDoc?.name});
+  const newTransaction = await Transaction.create({
+    ...req.body,
+    store,
+    salesPerson: salesPersonDoc?.name,
+  });
 
   await updateDailySummary(newTransaction);
 
@@ -177,21 +183,30 @@ export const addCustomTransaction = asyncHandler(async (req, res) => {
     throw new Error("Internal server error");
   }
 
-  if (transactionCategory === "Salary" || transactionCategory === "Salary Advance") {
+  if (
+    transactionCategory === "Salary" ||
+    transactionCategory === "Salary Advance"
+  ) {
     if (!user) {
-        throw new Error("Employee details not provided!")
+      throw new Error("Employee details not provided!");
     }
-
   }
 
-  const month = (new Date(date) || new Date)
+  const month = new Date(date) || new Date();
 
-  if (transactionCategory === "Salary" || transactionCategory === 'Salary Advance') {
-      const addSalary = await updateMonthlySummaryWithSalary(user, month.toISOString().slice(0, 7), transactionCategory, amount );
-      if (!addSalary) {
-        throw new Error ("Salary updating failed!")
-      }
-
+  if (
+    transactionCategory === "Salary" ||
+    transactionCategory === "Salary Advance"
+  ) {
+    const addSalary = await updateMonthlySummaryWithSalary(
+      user,
+      month.toISOString().slice(0, 7),
+      transactionCategory,
+      amount
+    );
+    if (!addSalary) {
+      throw new Error("Salary updating failed!");
+    }
   }
 
   res.json({
@@ -308,72 +323,73 @@ export const deleteCustomTransaction = asyncHandler(async (req, res) => {
 
 // Controller to get a single day's summary
 export const getDayEndRecord = asyncHandler(async (req, res) => {
-    const { date, store } = req.body;
-  
-    // Validate that a date is provided
-    if (!date || !store) {
-      return res.status(400).json({
-        message: 'Date is required.',
-        success: false,
-      });
-    }
-  
-    // Convert date to ISO format without time (e.g., '2024-09-15')
-    const transactionDate = new Date(date).toISOString().split('T')[0];
-  
-    // Find the daily summary for the given date
-    const dailySummary = await DailySummary.findOne({
-      date: transactionDate,
-    }).lean().exec();
-  
-    // If no summary found for the date, return an error
-    if (!dailySummary) {
-      return res.status(404).json({
-        message: `No summary found for the date ${transactionDate}.`,
-        success: false,
-      });
-    }
-  
-    // Return the daily summary
-    res.json({
-      message: 'Daily summary fetched successfully.',
-      success: true,
-      data: dailySummary,
+  const { date, store } = req.body;
+
+  // Validate that a date is provided
+  if (!date || !store) {
+    return res.status(400).json({
+      message: "Date is required.",
+      success: false,
     });
+  }
+
+  // Convert date to ISO format without time (e.g., '2024-09-15')
+  const transactionDate = new Date(date).toISOString().split("T")[0];
+
+  // Find the daily summary for the given date
+  const dailySummary = await DailySummary.findOne({
+    date: transactionDate,
+  })
+    .lean()
+    .exec();
+
+  // If no summary found for the date, return an error
+  if (!dailySummary) {
+    return res.status(404).json({
+      message: `No summary found for the date ${transactionDate}.`,
+      success: false,
+    });
+  }
+
+  // Return the daily summary
+  res.json({
+    message: "Daily summary fetched successfully.",
+    success: true,
+    data: dailySummary,
   });
+});
 
 export const getAllDayEndRecords = asyncHandler(async (req, res) => {
+  const { store } = req.params;
 
-    const {store} = req.params
+  if (!store) {
+    throw new Error("Store is required!");
+  }
 
-    if (!store) {
-        throw new Error ("Store is required!")
-    }
-  
-    // Find the daily summary for the given date
-    const dailySummary = await DailySummary.find({store}).lean();
-  
-    // If no summary found for the date, return an error
-    if (!dailySummary) {
-      return res.status(404).json({
-        message: `No summary found`,
-        success: false,
-      });
-    }
+  // Find the daily summary for the given date
+  const dailySummary = await DailySummary.find({ store }).lean();
 
-     // Format the 'date' field to return only the YYYY-MM-DD part (ISO format)
+  // If no summary found for the date, return an error
+  if (!dailySummary) {
+    return res.status(404).json({
+      message: `No summary found`,
+      success: false,
+    });
+  }
+
+  // Format the 'date' field to return only the YYYY-MM-DD part (ISO format)
   const formattedDailySummary = dailySummary.map((summary) => ({
     ...summary,
-    date: new Date(summary.date).toISOString().split('T')[0], // Format date as YYYY-MM-DD
+    date: new Date(summary.date).toISOString().split("T")[0], // Format date as YYYY-MM-DD
   }));
-  
-    // Return the daily summary
-    res.json({
-      message: 'Daily summary fetched successfully.',
-      success: true,
-      data: formattedDailySummary,
-    });
+
+  // Return the daily summary
+  res.json({
+    message: "Daily summary fetched successfully.",
+    success: true,
+    data: formattedDailySummary,
   });
+});
 
 export const updateCashInHand = asyncHandler(async (req, res) => {
   const { date, countedCash, store } = req.body;
@@ -392,7 +408,7 @@ export const updateCashInHand = asyncHandler(async (req, res) => {
   // Find the daily summary for the given date
   let dailySummary = await DailySummary.findOne({
     date: transactionDate,
-    store
+    store,
   }).exec();
 
   // If no summary found for the date, return an error
@@ -419,5 +435,3 @@ export const updateCashInHand = asyncHandler(async (req, res) => {
     data: dailySummary,
   });
 });
-
-

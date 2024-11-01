@@ -48,6 +48,7 @@ const AddTransactionCategory = ({ handleClose, materialId }: AddMaterialFormProp
       if (response.success) {
         toast.success('Transaction Category Added.');
         reset();
+        dispatch(setLoading(false));
         handleFormClose();
       }
     } catch (error) {

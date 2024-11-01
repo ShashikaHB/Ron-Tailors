@@ -16,16 +16,25 @@ type Props<T extends FieldValues> = {
 
 const RHFDatePicker = <T extends FieldValues>({ name, label, ...props }: Props<T>) => {
   const { control } = useFormContext<T>();
+
   return (
     <Controller
       control={control}
       name={name}
-      render={({ field: { value, ...rest } }) => (
+      render={({ field }) => (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DatePicker
-            label={label} // Use the label prop
-            value={value ?? null} // Handle null values for controlled component
-            {...rest}
+            label={label}
+            value={field.value ?? null}
+            onChange={(date) => {
+              if (date) {
+                // Set the date to midnight UTC
+                const utcMidnight = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0));
+                field.onChange(utcMidnight);
+              } else {
+                field.onChange(null);
+              }
+            }}
             {...props}
             slotProps={{ textField: { size: 'small' } }}
           />

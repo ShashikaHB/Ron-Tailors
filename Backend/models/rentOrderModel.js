@@ -123,21 +123,23 @@ const rentOrderSchema = new mongoose.Schema({
   },
 });
 
+// Add a unique auto-incremented sequence per store
 rentOrderSchema.plugin(AutoIncrement, {
-  inc_field: "rentOrderSeq",
-  id: "rentOrders",
-  start_seq: 100,
-});
-
-rentOrderSchema.post("save", function (doc, next) {
-  if (!doc.rentOrderId) {
-    // Update the rentOrderId after the sequence has been generated
-    doc.rentOrderId = `${doc.store}${doc.rentOrderSeq}`;
-    doc.save().then(() => next());
-  } else {
-    next();
-  }
-});
+    inc_field: "rentOrderSeq",
+    id: (doc) => `rentOrder_${doc.store}_counter`, // Unique counter per store
+    reference_fields: ["store"],
+    start_seq: 100,
+  });
+  
+  rentOrderSchema.post("save", function (doc, next) {
+    if (!doc.rentOrderId) {
+      // Set the rentOrderId with store prefix and sequence
+      doc.rentOrderId = `${doc.store}${doc.rentOrderSeq}-R`;
+      doc.save().then(() => next());
+    } else {
+      next();
+    }
+  });
 
 //Export the model
 export const RentOrder = mongoose.model("RentOrder", rentOrderSchema);

@@ -16,6 +16,8 @@ const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, o
   prepareHeaders: (headers, { getState }) => {
     const state = getState() as RootState;
     const token = state.auth.accessToken;
+    const { store } = state.common;
+
     if (token) {
       headers.set('authorization', `Bearer ${token}`);
     }
@@ -24,6 +26,16 @@ const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, o
 });
 
 const baseQueryWithReAuth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, object, FetchBaseQueryMeta> = async (args, api, extraOptions) => {
+  const state = api.getState() as RootState;
+  const { store } = state.common; // store retrieved from the state
+
+  // Modify args to include `store` as a query parameter
+  if (typeof args === 'string') {
+    args = `${args}${args.includes('?') ? '&' : '?'}store=${store}`;
+  } else if (args.url) {
+    args.url = `${args.url}${args.url.includes('?') ? '&' : '?'}store=${store}`;
+  }
+
   let result = await baseQuery(args, api, extraOptions);
 
   const errorMessage = (result.error?.data as { message?: string })?.message || 'An error occurred!';

@@ -62,7 +62,7 @@ const RentBook = () => {
         return (
           <div>
             <div>{rentOrderId}</div>
-            {linkedSalesOrderId && <div> Order: {linkedSalesOrderId}</div>}
+            {linkedSalesOrderId && <div style={{ color: 'purple', fontWeight: 'bolder' }}> Order: {linkedSalesOrderId}</div>}
           </div>
         );
       },
@@ -71,16 +71,16 @@ const RentBook = () => {
     { headerName: 'Order Details', field: 'rentOrderDetails', cellRenderer: RentOrderDetailsRenderer, autoHeight: true, minWidth: 300 },
     { headerName: 'Rent Date', field: 'rentDate', valueFormatter: (params) => format(params.value as Date, 'yyyy-MM-dd'), minWidth: 100 },
     { headerName: 'Return Date', field: 'returnDate', valueFormatter: (params) => format(params.value as Date, 'yyyy-MM-dd'), minWidth: 100 },
-    {
-      headerName: 'Order Status',
-      field: 'orderStatus',
-      cellStyle: (params) => {
-        if (params.value === 'Completed') {
-          return { color: 'green', fontWeight: 'bold' }; // Completed orders in green
-        }
-        return { color: 'red', fontWeight: 'bold' }; // Other orders in black
-      },
-    },
+    // {
+    //   headerName: 'Order Status',
+    //   field: 'orderStatus',
+    //   cellStyle: (params) => {
+    //     if (params.value === 'Completed') {
+    //       return { color: 'green', fontWeight: 'bold' }; // Completed orders in green
+    //     }
+    //     return { color: 'red', fontWeight: 'bold' }; // Other orders in black
+    //   },
+    // },
     {
       headerName: 'Actions',
       field: 'action',

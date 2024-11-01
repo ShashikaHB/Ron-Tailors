@@ -3,15 +3,11 @@ import asyncHandler from "express-async-handler";
 import { User } from "../models/userModel.js";
 import { Customer } from "../models/customerModel.js";
 import { Transaction } from "../models/transactionModel.js";
-import { sendSMS } from '../notificationSMS/smsNotification.js';
+import { sendSMS } from "../notificationSMS/smsNotification.js";
 
 export const createReadyMadeItemOrder = asyncHandler(async (req, res) => {
-  const {
-    salesPerson,
-    customer: { name, mobile },
-    itemType,
-    paymentType,
-  } = req.body;
+  const { store } = req.query;
+  const { salesPerson, itemType, paymentType } = req.body;
   const salesPersonDoc = await User.findOne({ userId: salesPerson })
     .lean()
     .exec();
@@ -20,15 +16,9 @@ export const createReadyMadeItemOrder = asyncHandler(async (req, res) => {
     throw new Error(`No user found for ID ${salesPerson}`);
   }
 
-  let customer = undefined;
-  customer = await Customer.findOne({ mobile }).lean().exec();
-  if (!customer) {
-    customer = await Customer.create({ name, mobile });
-  }
-
   const newReadyMadeItem = await ReadyMadeItem.create({
     ...req.body,
-    customer: customer._id,
+    store,
     salesPerson: salesPersonDoc._id,
   });
 
@@ -38,13 +28,13 @@ export const createReadyMadeItemOrder = asyncHandler(async (req, res) => {
     transactionCategory: "Ready Made Order",
     paymentType: paymentType,
     salesPerson: salesPersonDoc.name,
-    store: req.body?.store,
+    store: store,
     amount: newReadyMadeItem.price,
-    description: `Rent Order: ${newReadyMadeItem.readyMadeOrderId}`,
+    description: `Ready Made Order: ${newReadyMadeItem.readyMadeOrderId}`,
   });
 
-  const messageBody = `Hi ${name}. Thank you for your purchase of ${itemType}`;
-    await sendSMS(messageBody, mobile);
+//   const messageBody = `Thank you for your purchase of ${itemType}`;
+//   await sendSMS(messageBody, mobile);
 
   res.json({
     message: "New ReadyMade item created",

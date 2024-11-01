@@ -164,7 +164,7 @@ export const getPreviousMeasurements = asyncHandler(async (req, res) => {
 });
 
 export const getMeasurementData = asyncHandler(async (req, res) => {
-    const { startDate, endDate, itemType } = req.query;
+    const { startDate, endDate, itemType, store } = req.query;
   
     if (!startDate || !endDate || !itemType) {
       return res.status(400).json({
@@ -180,7 +180,7 @@ export const getMeasurementData = asyncHandler(async (req, res) => {
   
     // Step 1: Fetch all sales orders within the date range without filtering on itemType yet.
     const orders = await SalesOrder.find({
-      orderDate: { $gte: start, $lte: end },
+      orderDate: { $gte: start, $lte: end }, store
     })
       .populate({
         path: "orderDetails.products",

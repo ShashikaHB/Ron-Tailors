@@ -195,20 +195,17 @@ export const updateMonthlySummaryWithSalary = async (
   category,
   amount
 ) => {
+  const user = await User.findOne({ userId });
 
-
-    const user = await User.findOne({userId});
-
-
-  const monthlySummary = await MonthlySummary.findOne({
+  let monthlySummary = await MonthlySummary.findOne({
     user: user._id,
     month,
   });
 
   if (!monthlySummary) {
-    monthlySummary = new MonthlySummary({
-      user: userId,
-      month: currentMonth,
+    monthlySummary = await MonthlySummary.create({
+      user: user._id,
+      month,
     });
   }
 

@@ -19,7 +19,7 @@ interface ActionButtonPropTypes extends ICellRendererParams {
 const ActionButtonNew = (props: ActionButtonPropTypes) => {
   const { handleEdit, handleDelete, openPrint, idType, data, isOrderBook, isAccount } = props;
 
-  const hideDeleteForCategories = ['Sales Order', 'Rent Order', 'Ready Made Order', 'Salary'];
+  const hideDeleteForCategories = ['Sales Order', 'Rent Order', 'Ready Made Order', 'Salary', 'Salary Advance'];
 
   const id = data?.[idType];
   const handlePrint = () => {

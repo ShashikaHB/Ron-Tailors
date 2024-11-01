@@ -145,21 +145,23 @@ const salesOrderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Add a unique auto-incremented sequence per store
 salesOrderSchema.plugin(AutoIncrement, {
-  inc_field: "salesOrderSeq",
-  id: "salesOrders",
-  start_seq: 1000,
-});
-
-salesOrderSchema.post("save", function (doc, next) {
-  if (!doc.salesOrderId) {
-    // Update the salesOrderId after the sequence has been generated
-    doc.salesOrderId = `${doc.store}${doc?.salesOrderSeq}`;
-    doc.save().then(() => next());
-  } else {
-    next();
-  }
-});
+    inc_field: "salesOrderSeq",
+    id: (doc) => `salesOrder_${doc.store}_counter`, // Unique counter per store
+    reference_fields: ["store"],
+    start_seq: 1000,
+  });
+  
+  salesOrderSchema.post("save", function (doc, next) {
+    if (!doc.salesOrderId) {
+      // Set the salesOrderId with store prefix and sequence
+      doc.salesOrderId = `${doc.store}${doc.salesOrderSeq}`;
+      doc.save().then(() => next());
+    } else {
+      next();
+    }
+  });
 
 //Export the model
 export const SalesOrder = mongoose.model("SaleOrder", salesOrderSchema);

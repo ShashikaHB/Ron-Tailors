@@ -50,7 +50,12 @@ const rentItemSchema = new mongoose.Schema({
   isNewRentOut: {
     type: Boolean,
     default: false
-  }
+  },
+  store: {
+    enum: ["RW", "KE"],
+    type: String,
+    required: [true, "Store Location is required."],
+  },
 });
 
 // rentItemSchema.plugin(AutoIncrement, {

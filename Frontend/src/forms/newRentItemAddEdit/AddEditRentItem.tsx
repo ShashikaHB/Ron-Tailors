@@ -90,7 +90,9 @@ const AddEditRentItemForm = ({ handleClose, rentItemId }: AddMaterialFormProps) 
   useEffect(() => {
     if (singleRentItem) {
       reset(singleRentItem);
-      setValue('newRentOutId', singleRentItem.rentItemId);
+      if (singleRentItem.isNewRentOut) {
+        setValue('newRentOutId', singleRentItem.rentItemId);
+      }
     }
   }, [singleRentItem, reset]);
 
@@ -159,9 +161,9 @@ const AddEditRentItemForm = ({ handleClose, rentItemId }: AddMaterialFormProps) 
                   Clear
                 </button>
               )}
-              <button className="secondary-button" onClick={handleValidateData} type="button">
+              {/* <button className="secondary-button" onClick={handleValidateData} type="button">
                 validate
-              </button>
+              </button> */}
               <button className="primary-button" type="submit" onClick={() => console.log('btn clicked')}>
                 {variant === 'create' ? 'Add ' : 'Edit '}
               </button>

@@ -6,7 +6,7 @@
  */
 import { ColDef } from 'ag-grid-community';
 import { useCallback, useEffect, useState } from 'react';
-import { FormControl, MenuItem, Modal, Select, TextField } from '@mui/material';
+import { Modal, TextField } from '@mui/material';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useGetFilteredTransactionsQuery } from '../redux/features/transaction/transactionApiSlice'; // Updated API call hook
@@ -15,7 +15,6 @@ import AddTransaction from '../forms/transactionAddEdit/AddTransaction';
 import { defaultTransactionValues, transactionSchema, TransactionSchema } from '../forms/formSchemas/transactionSchema';
 import SimpleDatePicker from '../components/customFormComponents/simpleDatePicker/SimpleDatePicker';
 import Stores from '../enums/Stores';
-import stores from '../consts/stores';
 import { useAppDispatch } from '../redux/reduxHooks/reduxHooks';
 import { setLoading } from '../redux/features/common/commonSlice';
 
@@ -35,7 +34,6 @@ const CashBook = () => {
   } = useGetFilteredTransactionsQuery({
     fromDate: selectedFromDate?.toISOString(),
     toDate: selectedToDate?.toISOString(),
-    store: selectedStore,
   });
 
   useEffect(() => {
@@ -167,17 +165,6 @@ const CashBook = () => {
           </div>
           <div className="col-3">
             <SimpleDatePicker label="To Date" onDateChange={handleToDateChange} />
-          </div>
-          <div className="col-3">
-            <FormControl sx={{ m: 1, maxWidth: 165 }} size="small">
-              <Select value={selectedStore} onChange={handleStoreChange}>
-                {stores.map((option) => (
-                  <MenuItem key={option.value} value={option.value} disabled={!option.value}>
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
           </div>
         </div>
       </div>

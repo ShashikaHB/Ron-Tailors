@@ -24,7 +24,19 @@ const readyMadeItemSchema = new mongoose.Schema({
   },
   itemType: {
     type: String,
-    enum: ["Shirt", "Trouser", "Coat", "Hanky", "Tie", "Belt", "Bow"],
+    enum: [
+      "Shirt",
+      "Trouser",
+      "Coat",
+      "Hanky",
+      "Tie",
+      "Belt",
+      "Bow",
+      "Full Suit",
+      "Ready Made Coat",
+      "CuffLink with Tie Pin",
+      "Shoes"
+    ],
     required: [true, "Item Type is required."],
   },
   paymentType: {
@@ -40,20 +52,20 @@ const readyMadeItemSchema = new mongoose.Schema({
 });
 
 readyMadeItemSchema.plugin(AutoIncrement, {
-    inc_field: "readyMadeOrderSeq",
-    id: "readyMadeOrders",
-    start_seq: 100,
-  });
-  
-  readyMadeItemSchema.post("save", function (doc, next) {
-    if (!doc.readyMadeOrderId) {
-      // Update the readyMadeOrderId after the sequence has been generated
-      doc.readyMadeOrderId = `${doc.store}${doc.readyMadeOrderSeq}`;
-      doc.save().then(() => next());
-    } else {
-      next();
-    }
-  });
+  inc_field: "readyMadeOrderSeq",
+  id: "readyMadeOrders",
+  start_seq: 100,
+});
+
+readyMadeItemSchema.post("save", function (doc, next) {
+  if (!doc.readyMadeOrderId) {
+    // Update the readyMadeOrderId after the sequence has been generated
+    doc.readyMadeOrderId = `${doc.store}${doc.readyMadeOrderSeq}-M`;
+    doc.save().then(() => next());
+  } else {
+    next();
+  }
+});
 
 //Export the model
 export const ReadyMadeItem = mongoose.model(
