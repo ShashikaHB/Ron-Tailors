@@ -75,7 +75,7 @@ const UserRegistrationForm = () => {
 
   const handleOtpSend = async (mobile?: string) => {
     try {
-      const otpSend = await sendOtp(mobile ?? tempUserData?.mobile).unwrap();
+      const otpSend = await sendOtp({ mobile: mobile ?? tempUserData?.mobile }).unwrap();
       if (otpSend) {
         toast.success('OTP Send!');
         dispatch(setOtpMode(true));

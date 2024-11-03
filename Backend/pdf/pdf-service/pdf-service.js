@@ -5,7 +5,7 @@ const formatDescription = (description, items) => {
   return `Description: ${description}\nItems: ${itemsString}`;
 };
 const formatDescriptionForRent = (details) => {
-  return `Description: ${details.description}\nColor: ${details.color} | Size: ${details.size}\nNotes: ${details.notes}`;
+  return `Barcode: ${details.rentItemId}\nDescription: ${details.description}\nColor: ${details.color} | Size: ${details.size}\nNotes: ${details.notes}`;
 };
 
 const formatRentOrderDataForBook = (rentOrders) => {

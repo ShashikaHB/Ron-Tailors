@@ -56,7 +56,7 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   const orderData = {
     ...req.body,
-    customer: customer._id,
+    customer: customer._id, 
     salesPerson: salesPersonDoc._id,
     store,
   };
@@ -81,7 +81,7 @@ export const createOrder = asyncHandler(async (req, res) => {
   for (const detail of rentOrderDetails) {
     await RentItem.findOneAndUpdate(
       { rentItemId: detail.rentItemId },
-      { status: "Not Returned" }
+      { status: "Rented" }
     );
   }
 

@@ -192,7 +192,7 @@ export const getMeasurementData = asyncHandler(async (req, res) => {
             select: "name mobile", // Only select relevant fields from customer
           },
         },
-      })
+      }).populate("customer")
       .lean(); // Lean makes sure we get plain JavaScript objects instead of Mongoose documents
   
     // Debugging log to check if orders are fetched
