@@ -39,7 +39,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
       }),
     }),
     verifyOtp: builder.mutation<{ mobile: string; otp: string }, any>({
-      query: (otpData: { mobile: string; otp: string; name?: string }) => ({
+      query: (otpData: { mobile: string; otp: string; name?: string; isUser: boolean }) => ({
         url: '/auth/verifyOtp',
         method: 'POST',
         body: { ...otpData },

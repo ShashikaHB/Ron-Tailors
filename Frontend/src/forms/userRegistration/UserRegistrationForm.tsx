@@ -8,6 +8,7 @@ import { SubmitHandler, useFormContext } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useEffect, useState } from 'react';
+import { Box, CircularProgress } from '@mui/material';
 import { UserRegistrationSchema } from '../formSchemas/userRegistrationSchema';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
 import { Roles } from '../../enums/Roles';
@@ -87,7 +88,7 @@ const UserRegistrationForm = () => {
 
   const handleOtpVerification = async () => {
     try {
-      const otpVerified = await verifyOtp({ mobile: tempUserData?.mobile, otp: otp.join() }).unwrap();
+      const otpVerified = await verifyOtp({ mobile: tempUserData?.mobile, otp: otp.join(), isUser: true }).unwrap();
       if (otpVerified) {
         const userData = await registerUser(tempUserData).unwrap();
         dispatch(
@@ -127,9 +128,15 @@ const UserRegistrationForm = () => {
             <RHFDropDown<UserRegistrationSchema> label="Role" name="role" options={roles} />
           </div>
           <div className="w-100 mt-5">
-            <button type="submit" className="primary-button w-100">
-              Sign Up
-            </button>
+            {!sendingOtp ? (
+              <button type="submit" className="primary-button w-100">
+                Sign Up
+              </button>
+            ) : (
+              <Box sx={{ display: 'flex', color: 'black', justifyContent: 'center' }}>
+                <CircularProgress color="inherit" />
+              </Box>
+            )}
           </div>
         </form>
       )}

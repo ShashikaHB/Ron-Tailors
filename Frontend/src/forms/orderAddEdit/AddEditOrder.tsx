@@ -368,6 +368,7 @@ const AddEditOrder = () => {
     } else if (name && mobile) {
       const response = await createCustomer({ name, mobile }).unwrap();
       dispatch(setSelectedCustomerId(response.customerId));
+      toast.success('Customer is selected!');
     } else {
       toast.error('Name or Mobile not filled!');
     }
@@ -384,6 +385,10 @@ const AddEditOrder = () => {
 
     console.log(result);
   };
+
+  useEffect(() => {
+    dispatch(setSelectedCustomerId(null));
+  }, []);
 
   useEffect(() => {
     if (salesOrderId) {
@@ -477,6 +482,7 @@ const AddEditOrder = () => {
           const baseUrl = import.meta.env.VITE_BASE_URL;
           const invoiceUrl = `${baseUrl}/api/v1/invoice/salesOrder/${orderId}`;
           toast.success('New order Added!');
+          dispatch(removeSelectedCustomerId());
           handleOrderFormReset();
           if (newWindow) {
             newWindow.location.href = invoiceUrl;

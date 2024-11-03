@@ -281,7 +281,7 @@ export const sendOtp = asyncHandler(async (req, res) => {
 });
 
 export const verifyOtp = asyncHandler(async (req, res) => {
-  const { mobile, name, otp } = req.body;
+  const { mobile, name, otp, isUser } = req.body;
 
   if (!otp || !mobile) {
     res.status(404);
@@ -295,6 +295,21 @@ export const verifyOtp = asyncHandler(async (req, res) => {
   }
 
   let newCustomer = {};
+  let newUser = {};
+
+  if (isUser) {
+    const duplicates = await User.findOne({mobile})
+
+    if (duplicates) {
+        throw new Error("User already exists!")
+      }
+      if (name) {
+        const newUser = await User.create(req.body);
+        if (!newUser) {
+          throw new Error("Cannot find created Customer");
+        }
+      }
+  }
 
   const duplicates = await Customer.findOne({mobile})
 
@@ -303,7 +318,7 @@ export const verifyOtp = asyncHandler(async (req, res) => {
   }
 
   if (name) {
-    newCustomer = await Customer.create(req.body);
+    const newCustomer = await Customer.create(req.body);
     if (!newCustomer) {
       throw new Error("Cannot find created Customer");
     }
