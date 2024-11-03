@@ -4,6 +4,7 @@
  * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
+import { RolesAdmin } from '../enums/Roles';
 import { Option } from '../types/common';
 import { User } from '../types/user';
 
@@ -11,7 +12,7 @@ const attendanceMarkingRoles = ['Sales Person', 'Altering', 'Ironing', 'Cleaning
 
 const getUserRoleBasedOptions = (users: User[], role?: string): Option[] => {
   if (!users || users.length === 0) return [];
-  const filteredUsers = role ? users.filter((user) => user.role === role) : users; // If role is empty, return all users
+  const filteredUsers = role ? users.filter((user) => user.role === role || user.role === RolesAdmin.Admin) : users; // If role is empty, return all users
   const options = filteredUsers.map((user) => ({
     value: user.userId,
     label: user.name,
