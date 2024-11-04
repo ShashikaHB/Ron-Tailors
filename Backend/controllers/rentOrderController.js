@@ -70,6 +70,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     paymentType: paymentType,
     salesPerson: salesPersonDoc.name,
     store,
+    date: new Date(),
     amount: newOrder.advPayment,
     description: `Rent Order: ${newOrder.rentOrderId}`,
   });

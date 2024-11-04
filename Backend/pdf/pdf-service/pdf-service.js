@@ -20,7 +20,7 @@ export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
 
   // Set up the document for 80mm width
   const doc = new PDFDocument({
-    size: [227, 500], // 80mm width, variable height
+    size: [227, 1000], // 80mm width, variable height
     margins: { top: 10, bottom: 10, left: 20, right: 20 },
   });
 
@@ -149,7 +149,7 @@ export const buildRentPdf = (dataCallBack, endCallBack, data) => {
 
   // Set the page size to 80mm width and a reasonable height
   const doc = new PDFDocument({
-    size: [227, 500], // Width: 80mm, Height: Dynamic
+    size: [227, 1000], // Width: 80mm, Height: Dynamic
     margins: { top: 10, bottom: 10, left: 20, right: 20 }, // Narrow margins
   });
 
