@@ -265,6 +265,7 @@ export const searchProduct = asyncHandler(async (req, res) => {
 export const updateProductStatus = asyncHandler(async (req, res) => {
   const { productId } = req.params;
   const { status } = req.body;
+  const {store} = req.query
 
   if (!status || !productId) {
     res.status(400);
@@ -372,7 +373,7 @@ export const updateProductStatus = asyncHandler(async (req, res) => {
     // Fetch the SalesOrder containing this product
     const salesOrder = await SalesOrder.findOne({
       "orderDetails.products": product._id,
-    }).populate("customer");
+    }).populate("customer").populate("salesPerson");
     if (!salesOrder) {
       res.status(404);
       throw new Error("Sales order containing this product not found.");
@@ -384,6 +385,7 @@ export const updateProductStatus = asyncHandler(async (req, res) => {
       color: product.color,
       size: product.size,
       description: `New RentOut: ${product.itemType}`,
+      store: store,
       itemCategory: product.itemCategory,
       itemType: product.itemType,
       status: "Rented", // Set as rented
@@ -407,6 +409,7 @@ export const updateProductStatus = asyncHandler(async (req, res) => {
           amount: product.rentPrice || 0, // Set rent price
         },
       ],
+      salesPerson: salesOrder.salesPerson._id,
       totalPrice: product.rentPrice || 0,
       subTotal: product.rentPrice || 0,
       paymentType: salesOrder.paymentType
