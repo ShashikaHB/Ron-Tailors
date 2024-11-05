@@ -74,7 +74,7 @@ export const getFilteredTransactions = asyncHandler(async (req, res) => {
 
   const formattedTransactions = transactions.map((transaction) => ({
     ...transaction,
-    date: new Date(transaction.date).toISOString().split("T")[0], // Format to YYYY-MM-DD
+    date: new Date(transaction.createdAt).toISOString().split("T")[0], // Format to YYYY-MM-DD
   }));
 
   // Return the filtered transactions
