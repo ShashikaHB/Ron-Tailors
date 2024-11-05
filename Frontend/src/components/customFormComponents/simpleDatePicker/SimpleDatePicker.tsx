@@ -8,6 +8,7 @@ import React, { useEffect, useState } from 'react';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { format } from 'date-fns';
 
 type SimpleDatePickerProps = {
   onDateChange: (date: Date) => void;
@@ -40,7 +41,14 @@ const SimpleDatePicker: React.FC<SimpleDatePickerProps> = ({ onDateChange, label
         views={views || ['year', 'month', 'day']} // Use the passed views or default to full date
         defaultValue={new Date()}
         onChange={handleDateChange} // Capture the selected date
-        slotProps={{ textField: { size: 'small' } }}
+        slotProps={{
+          textField: {
+            size: 'small',
+            InputProps: {
+              inputComponent: (props) => <input {...props} value={format(selectedDate, 'yyyy/MM/dd')} />,
+            },
+          },
+        }}
         disabled={disabled}
       />
     </LocalizationProvider>

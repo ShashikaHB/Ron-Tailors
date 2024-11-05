@@ -49,13 +49,13 @@ export const getFilteredTransactions = asyncHandler(async (req, res) => {
   // If fromDate and toDate are the same (ignoring the time part)
   if (from.toDateString() === to.toDateString()) {
     // Query for transactions that occurred on that specific day (between 00:00:00 and 23:59:59)
-    query.date = {
+    query.createdAt = {
       $gte: new Date(from.setHours(0, 0, 0, 0)), // Start of the day (00:00:00)
       $lte: new Date(from.setHours(23, 59, 59, 999)), // End of the day (23:59:59)
     };
   } else {
     // Query for transactions within the range from fromDate to toDate
-    query.date = {
+    query.createdAt = {
       $gte: new Date(from.setHours(0, 0, 0, 0)), // Start of fromDate
       $lte: new Date(to.setHours(23, 59, 59, 999)), // End of toDate
     };
@@ -323,7 +323,8 @@ export const deleteCustomTransaction = asyncHandler(async (req, res) => {
 
 // Controller to get a single day's summary
 export const getDayEndRecord = asyncHandler(async (req, res) => {
-  const { date, store } = req.body;
+  const { date } = req.body;
+  const {store} = req.query
 
   // Validate that a date is provided
   if (!date || !store) {
@@ -360,7 +361,7 @@ export const getDayEndRecord = asyncHandler(async (req, res) => {
 });
 
 export const getAllDayEndRecords = asyncHandler(async (req, res) => {
-  const { store } = req.params;
+  const { store } = req.query;
 
   if (!store) {
     throw new Error("Store is required!");
@@ -392,7 +393,9 @@ export const getAllDayEndRecords = asyncHandler(async (req, res) => {
 });
 
 export const updateCashInHand = asyncHandler(async (req, res) => {
-  const { date, countedCash, store } = req.body;
+  const { date, countedCash } = req.body;
+  const {store} = req.query
+
 
   // Validate inputs
   if (!date || countedCash === undefined) {

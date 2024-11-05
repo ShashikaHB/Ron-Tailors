@@ -8,6 +8,7 @@ import { Controller, FieldValues, Path, useFormContext } from 'react-hook-form';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { DatePicker, DatePickerProps } from '@mui/x-date-pickers/DatePicker';
+import { format } from 'date-fns';
 
 type Props<T extends FieldValues> = {
   name: Path<T>;
@@ -36,7 +37,14 @@ const RHFDatePicker = <T extends FieldValues>({ name, label, ...props }: Props<T
               }
             }}
             {...props}
-            slotProps={{ textField: { size: 'small' } }}
+            slotProps={{
+              textField: {
+                size: 'small',
+                InputProps: {
+                  inputComponent: (inputProps) => <input {...inputProps} value={field.value ? format(field.value, 'yyyy/MM/dd') : ''} />,
+                },
+              },
+            }}
           />
         </LocalizationProvider>
       )}

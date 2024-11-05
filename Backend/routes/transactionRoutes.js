@@ -17,12 +17,12 @@ const router = express.Router();
 router.get('/', getAllTransactions);
 router.post('/filteredTransactions', getFilteredTransactions)
 router.post('/', addCustomTransaction);
+router.get('/filterByTime/:timePeriod', getTransactionsByTimePeriod);
+router.get('/dayend', getAllDayEndRecords)
+router.post('/dayend', getDayEndRecord);
+router.post('/dayend/update', updateCashInHand)
 router.get('/:transactionId', getSingleCustomTransaction);
 router.patch('/:transactionId', editCustomTransaction);
 router.delete('/:transactionId', deleteCustomTransaction);
-router.get('/filterByTime/:timePeriod', getTransactionsByTimePeriod);
-router.get('/dayend/:store', getAllDayEndRecords)
-router.post('/dayend', getDayEndRecord);
-router.post('/dayend/update', updateCashInHand)
 
 export default router;

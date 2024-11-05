@@ -70,8 +70,8 @@ export const transactionApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ['TransactionCategory'],
     }),
     getAllDayEndRecords: builder.query({
-      query: (store) => ({
-        url: `/transaction/dayend/${store}`,
+      query: () => ({
+        url: `/transaction/dayend`,
         method: 'GET',
       }),
       providesTags: ['DayEnd'],

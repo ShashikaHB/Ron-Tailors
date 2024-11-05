@@ -7,11 +7,9 @@
 import { RiCloseLargeLine } from '@remixicon/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { FormControl, MenuItem, Select, TextField } from '@mui/material';
+import { TextField } from '@mui/material';
 import { useGetSingleDayEndRecordsQuery, useUpdateCashInHandMutation } from '../../redux/features/transaction/transactionApiSlice';
 import SimpleDatePicker from '../../components/customFormComponents/simpleDatePicker/SimpleDatePicker';
-import stores from '../../consts/stores';
-import Stores from '../../enums/Stores';
 import { useAppDispatch } from '../../redux/reduxHooks/reduxHooks';
 import { setLoading } from '../../redux/features/common/commonSlice';
 
@@ -22,18 +20,13 @@ type AddDayEndProps = {
 const AddDayEnd = ({ handleClose }: AddDayEndProps) => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
-  const [selectedStore, setSelectedStore] = useState<any>(Stores.Kegalle);
   const [countedCash, setCountedCash] = useState<any>(0);
 
   const dispatch = useAppDispatch();
 
-  const { data: dailySummaryData, isLoading: loadingDayRecord } = useGetSingleDayEndRecordsQuery({ selectedDate, selectedStore });
+  const { data: dailySummaryData, isLoading: loadingDayRecord } = useGetSingleDayEndRecordsQuery({ selectedDate });
 
   const [addDayEnd, { isLoading: dayEndLoading }] = useUpdateCashInHandMutation();
-
-  const handleStoreChange = (event: any) => {
-    setSelectedStore(event.target.value as string);
-  };
 
   const handleFormClose = (): void => {
     handleClose();
@@ -46,7 +39,7 @@ const AddDayEnd = ({ handleClose }: AddDayEndProps) => {
   };
 
   const handleCashInHandUpdate = async () => {
-    const response = await addDayEnd({ date: selectedDate, countedCash, store: selectedStore });
+    const response = await addDayEnd({ date: selectedDate, countedCash });
 
     if (response) {
       toast.success('Daily summary updated successfully!');
@@ -79,19 +72,6 @@ const AddDayEnd = ({ handleClose }: AddDayEndProps) => {
           <div className="d-flex flex-column gap-3">
             <div className="inputGroup">
               <SimpleDatePicker label="From Date" onDateChange={handleDateChange} />
-            </div>
-            <div className="row">
-              <div className="col-12">
-                <FormControl size="small">
-                  <Select value={selectedStore} onChange={handleStoreChange}>
-                    {stores.map((option) => (
-                      <MenuItem key={option.value} value={option.value} disabled={!option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </div>
             </div>
             <div className="row g-0 gap-2">
               <div className="col">

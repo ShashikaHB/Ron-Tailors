@@ -320,6 +320,14 @@ export const updateOrder = asyncHandler(async (req, res) => {
     throw new Error(`RentOrder with ID ${orderId} not found.`);
   }
 
+    // Update the status of each rent item in the order to 'Not Returned'
+    for (const detail of rentOrder.rentOrderDetails) {
+        await RentItem.findOneAndUpdate(
+          { rentItemId: detail.rentItemId },
+          { status: "Rented" }
+        );
+      }
+
   res.json({
     message: "SalesOrder updated successfully.",
     success: true,
