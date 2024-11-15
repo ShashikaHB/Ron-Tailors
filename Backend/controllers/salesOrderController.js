@@ -134,6 +134,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     transactionType: "Income",
     transactionCategory: "Sales Order",
     paymentType: paymentType,
+    isInitialTransaction: true,
     salesPerson: salesPersonDoc.name,
     store,
     amount: newOrder.advPayment,
@@ -192,8 +193,8 @@ export const getAllOrders = asyncHandler(async (req, res) => {
     })
   );
 
-   // Sort orders by extracting the numeric part of salesOrderId
-   const sortedOrders = ordersWithProductFields.sort((a, b) => {
+  // Sort orders by extracting the numeric part of salesOrderId
+  const sortedOrders = ordersWithProductFields.sort((a, b) => {
     const aId = parseInt(a.salesOrderId.replace(/\D/g, ""), 10);
     const bId = parseInt(b.salesOrderId.replace(/\D/g, ""), 10);
     return bId - aId;
@@ -317,6 +318,15 @@ export const updateSalesOrder = asyncHandler(async (req, res) => {
     }
   );
 
+  // Create a credit transaction
+  const newTransaction = await Transaction.findOneAndUpdate(
+    { description: `Sales Order: ${salesOrder.salesOrderId}`, isInitialTransaction: true },
+    {
+      paymentType: paymentType,
+      amount: updateOrder.advPayment,
+    }
+  );
+
   res.json({
     message: "Sales order updated successfully.",
     success: true,
@@ -392,19 +402,23 @@ export const updateSalesOrRentOrder = asyncHandler(async (req, res) => {
   // Check if it's a Sales Order or Rent Order based on the orderId prefix
   if (orderId.startsWith("RW") || orderId.startsWith("KE")) {
     // Check in SalesOrder
-    order = await SalesOrder.findOne({ salesOrderId: orderId }).populate({
+    order = await SalesOrder.findOne({ salesOrderId: orderId })
+      .populate({
         path: "customer",
         select: "-_id -createdAt -updatedAt -__v",
-      }).exec();
+      })
+      .exec();
     orderType = "Sales Order";
   }
 
   if (!order) {
     // If no SalesOrder is found, check in RentOrder
-    order = await RentOrder.findOne({ rentOrderId: orderId }).populate({
+    order = await RentOrder.findOne({ rentOrderId: orderId })
+      .populate({
         path: "customer",
         select: "-_id -createdAt -updatedAt -__v",
-      }).exec();
+      })
+      .exec();
     orderType = "Rent Order";
   }
 

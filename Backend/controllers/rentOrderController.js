@@ -54,9 +54,16 @@ export const createOrder = asyncHandler(async (req, res) => {
     throw new Error(`No user found for ID ${salesPerson}`);
   }
 
+  // Loop through each order and populate rentOrderDetails with rentItem status
+
+const updatedRentOrderDetails = rentOrderDetails.map((detail)=> ({
+    ...detail, status: 'Rented'
+}))
+
   const orderData = {
     ...req.body,
-    customer: customer._id, 
+    rentOrderDetails: updatedRentOrderDetails,
+    customer: customer._id,
     salesPerson: salesPersonDoc._id,
     store,
   };
@@ -68,6 +75,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     transactionType: "Income",
     transactionCategory: "Rent Order",
     paymentType: paymentType,
+    isInitialTransaction: true,
     salesPerson: salesPersonDoc.name,
     store,
     date: new Date(),
@@ -87,7 +95,7 @@ export const createOrder = asyncHandler(async (req, res) => {
   }
 
   res.json({
-    message: "New order created successfully.",
+    message: "New rent order created successfully.",
     success: true,
     data: newOrder,
   });
@@ -115,20 +123,20 @@ export const getAllOrders = asyncHandler(async (req, res) => {
     throw new Error("no orders found!");
   }
 
-  // Loop through each order and populate rentOrderDetails with rentItem status
-  for (let order of orders) {
-    for (let detail of order.rentOrderDetails) {
-      const rentItem = await RentItem.findOne({ rentItemId: detail.rentItemId })
-        .select("status")
-        .lean();
+//   // Loop through each order and populate rentOrderDetails with rentItem status
+//   for (let order of orders) {
+//     for (let detail of order.rentOrderDetails) {
+//       const rentItem = await RentItem.findOne({ rentItemId: detail.rentItemId })
+//         .select("status")
+//         .lean();
 
-      if (rentItem) {
-        detail.status = rentItem.status;
-      } else {
-        detail.status = "Unknown"; // Handle cases where rent item might not be found
-      }
-    }
-  }
+//       if (rentItem) {
+//         detail.status = rentItem.status;
+//       } else {
+//         detail.status = "Unknown"; // Handle cases where rent item might not be found
+//       }
+//     }
+//   }
 
   // Sort orders by extracting the numeric part of salesOrderId
   const sortedOrders = orders.sort((a, b) => {
@@ -194,17 +202,17 @@ export const searchSingleOrder = asyncHandler(async (req, res) => {
     throw new Error("No orders found!");
   }
 
-  for (let detail of rentOrder.rentOrderDetails) {
-    const rentItem = await RentItem.findOne({ rentItemId: detail.rentItemId })
-      .select("status")
-      .lean();
+//   for (let detail of rentOrder.rentOrderDetails) {
+//     const rentItem = await RentItem.findOne({ rentItemId: detail.rentItemId })
+//       .select("status")
+//       .lean();
 
-    if (rentItem) {
-      detail.status = rentItem.status;
-    } else {
-      detail.status = "Unknown"; // Handle cases where rent item might not be found
-    }
-  }
+//     if (rentItem) {
+//       detail.status = rentItem.status;
+//     } else {
+//       detail.status = "Unknown"; // Handle cases where rent item might not be found
+//     }
+//   }
 
   res.json({
     message: "Rent Order and related rent items found successfully!",
@@ -240,15 +248,18 @@ export const rentReturn = asyncHandler(async (req, res) => {
   }
 
   for (let detail of rentOrder.rentOrderDetails) {
-    const rentItem = await RentItem.findOne({ rentItemId: detail.rentItemId })
-      .select("status")
-      .lean();
-
-    if (rentItem) {
-      detail.status = rentItem.status;
-    } else {
-      detail.status = "Unknown"; // Handle cases where rent item might not be found
+    if (detail.rentItemId === rentItemId) {
+        detail.status = 'Available'
     }
+    // const rentItem = await RentItem.findOne({ rentItemId: detail.rentItemId })
+    //   .select("status")
+    //   .lean();
+
+    // if (rentItem) {
+    //   detail.status = rentItem.status;
+    // } else {
+    //   detail.status = "Unknown"; // Handle cases where rent item might not be found
+    // }
   }
 
   // Check if all items in the rent order have status 'Available'
@@ -276,6 +287,9 @@ export const updateOrder = asyncHandler(async (req, res) => {
   const {
     customer: { name, mobile },
     salesPerson,
+    rentOrderDetails,
+    paymentType,
+    advPayment
   } = req.body;
 
   if (!rentOrderId) {
@@ -294,8 +308,14 @@ export const updateOrder = asyncHandler(async (req, res) => {
   }
   const salesPersonDoc = await getDocId(User, "userId", salesPerson);
 
+  const updatedRentOrderDetails = rentOrderDetails.map((detail)=> ({
+    ...detail, status: 'Rented'
+}))
+
+
   const updateData = {
     ...req.body,
+    rentOrderDetails: updatedRentOrderDetails,
     customer: customer._id,
     salesPerson: salesPersonDoc,
   };
@@ -320,16 +340,25 @@ export const updateOrder = asyncHandler(async (req, res) => {
     throw new Error(`RentOrder with ID ${orderId} not found.`);
   }
 
-    // Update the status of each rent item in the order to 'Not Returned'
-    for (const detail of rentOrder.rentOrderDetails) {
-        await RentItem.findOneAndUpdate(
-          { rentItemId: detail.rentItemId },
-          { status: "Rented" }
-        );
-      }
+  // Create a credit transaction
+  const newTransaction = await Transaction.findOneAndUpdate(
+    { description: `Rent Order: ${rentOrderId}`, isInitialTransaction: true },
+    {
+      paymentType: paymentType,
+      amount: advPayment,
+    }
+  );
+
+  // Update the status of each rent item in the order to 'Not Returned'
+  for (const detail of rentOrder.rentOrderDetails) {
+    await RentItem.findOneAndUpdate(
+      { rentItemId: detail.rentItemId },
+      { status: "Rented" }
+    );
+  }
 
   res.json({
-    message: "SalesOrder updated successfully.",
+    message: "Rent Order updated successfully.",
     success: true,
     data: updatedOrder,
   });

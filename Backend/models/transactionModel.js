@@ -19,6 +19,10 @@ const transactionSchema = new mongoose.Schema(
         enum: ['Cash', 'Card', 'Bank Transfer'],
         required: [true, 'Payment type is required.'],
       },
+    isInitialTransaction: {
+        type: Boolean,
+        default: false
+    },
     date: {
         type: Date,
         default: ()=> new Date()

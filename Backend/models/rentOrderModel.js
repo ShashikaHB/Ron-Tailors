@@ -78,6 +78,11 @@ const rentOrderSchema = new mongoose.Schema({
         ],
         required: [true, "Item Type is required."],
       },
+      status: {
+        type: String,
+        enum: ["Rented", "Available"],
+        default: "Available",
+      },
       handLength: { type: String },
       notes: { type: String },
       amount: { type: Number },
