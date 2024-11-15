@@ -239,7 +239,7 @@ export const rentReturn = asyncHandler(async (req, res) => {
 
   // Find the rent order that includes this rent item
   const rentOrder = await RentOrder.findOne({
-    "rentOrderDetails.rentItemId": rentItemId,
+    "rentOrderDetails.rentItemId": rentItemId, "rentOrderDetails.status": "Rented"
   });
 
   if (!rentOrder) {
