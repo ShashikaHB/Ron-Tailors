@@ -267,7 +267,12 @@ export const updateSalesOrder = asyncHandler(async (req, res) => {
   }
 
   let customer = undefined;
-  customer = await Customer.findOne({ mobile }).lean().exec();
+  customer = await Customer.findOne({ mobile })
+  if (customer.name !== name) {
+    customer.name = name
+
+    await customer.save()
+  }
   if (!customer) {
     customer = await Customer.create({ name, mobile });
   }

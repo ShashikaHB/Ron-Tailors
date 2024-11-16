@@ -238,32 +238,33 @@ export const rentReturn = asyncHandler(async (req, res) => {
   await rentItem.save();
 
   // Find the rent order that includes this rent item
-  const rentOrder = await RentOrder.findOne({
+  const rentOrder = await RentOrder.find({
     "rentOrderDetails.rentItemId": rentItemId, "rentOrderDetails.status": "Rented"
   });
 
-  if (!rentOrder) {
+  if (!rentOrder.length > 0) {
     res.status(404);
     throw new Error(`No rent order found for rent item ID ${rentItemId}`);
   }
 
-  for (let detail of rentOrder.rentOrderDetails) {
-    if (detail.rentItemId === rentItemId) {
-        detail.status = 'Available'
-    }
-    // const rentItem = await RentItem.findOne({ rentItemId: detail.rentItemId })
-    //   .select("status")
-    //   .lean();
+  for (let order of rentOrder) { // [Todo- remove this after the previous orders are updated.]
+    for (let detail of order.rentOrderDetails) {
+        if (detail.rentItemId === rentItemId) {
+            detail.status = 'Available'
+        }
+        // const rentItem = await RentItem.findOne({ rentItemId: detail.rentItemId })
+        //   .select("status")
+        //   .lean();
+    
+        // if (rentItem) {
+        //   detail.status = rentItem.status;
+        // } else {
+        //   detail.status = "Unknown"; // Handle cases where rent item might not be found
+        // }
+      }
 
-    // if (rentItem) {
-    //   detail.status = rentItem.status;
-    // } else {
-    //   detail.status = "Unknown"; // Handle cases where rent item might not be found
-    // }
-  }
-
-  // Check if all items in the rent order have status 'Available'
-  const allItemsReturned = rentOrder.rentOrderDetails.every(
+        // Check if all items in the rent order have status 'Available'
+  const allItemsReturned = order.rentOrderDetails.every(
     (item) =>
       item.rentItemId === rentItemId || // Include the updated item
       item.status === "Available"
@@ -271,9 +272,13 @@ export const rentReturn = asyncHandler(async (req, res) => {
 
   // If all items are available, mark the rent order as 'Completed'
   if (allItemsReturned) {
-    rentOrder.orderStatus = "Completed";
-    await rentOrder.save();
+    order.orderStatus = "Completed";
+    await order.save();
   }
+  }
+  
+
+
 
   res.json({
     message: `Rent return successful!`,
@@ -302,7 +307,12 @@ export const updateOrder = asyncHandler(async (req, res) => {
     throw new Error("No rent order Found!");
   }
   let customer = undefined;
-  customer = await Customer.findOne({ mobile }).lean().exec();
+  customer = await Customer.findOne({ mobile });
+  if (customer.name !== name) {
+    customer.name = name
+
+    await customer.save()
+  }
   if (!customer) {
     customer = await Customer.create({ name, mobile });
   }
