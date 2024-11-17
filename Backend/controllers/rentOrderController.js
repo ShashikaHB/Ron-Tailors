@@ -56,9 +56,10 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   // Loop through each order and populate rentOrderDetails with rentItem status
 
-const updatedRentOrderDetails = rentOrderDetails.map((detail)=> ({
-    ...detail, status: 'Rented'
-}))
+  const updatedRentOrderDetails = rentOrderDetails.map((detail) => ({
+    ...detail,
+    status: "Rented",
+  }));
 
   const orderData = {
     ...req.body,
@@ -123,20 +124,20 @@ export const getAllOrders = asyncHandler(async (req, res) => {
     throw new Error("no orders found!");
   }
 
-//   // Loop through each order and populate rentOrderDetails with rentItem status
-//   for (let order of orders) {
-//     for (let detail of order.rentOrderDetails) {
-//       const rentItem = await RentItem.findOne({ rentItemId: detail.rentItemId })
-//         .select("status")
-//         .lean();
+  //   // Loop through each order and populate rentOrderDetails with rentItem status
+  //   for (let order of orders) {
+  //     for (let detail of order.rentOrderDetails) {
+  //       const rentItem = await RentItem.findOne({ rentItemId: detail.rentItemId })
+  //         .select("status")
+  //         .lean();
 
-//       if (rentItem) {
-//         detail.status = rentItem.status;
-//       } else {
-//         detail.status = "Unknown"; // Handle cases where rent item might not be found
-//       }
-//     }
-//   }
+  //       if (rentItem) {
+  //         detail.status = rentItem.status;
+  //       } else {
+  //         detail.status = "Unknown"; // Handle cases where rent item might not be found
+  //       }
+  //     }
+  //   }
 
   // Sort orders by extracting the numeric part of salesOrderId
   const sortedOrders = orders.sort((a, b) => {
@@ -202,17 +203,17 @@ export const searchSingleOrder = asyncHandler(async (req, res) => {
     throw new Error("No orders found!");
   }
 
-//   for (let detail of rentOrder.rentOrderDetails) {
-//     const rentItem = await RentItem.findOne({ rentItemId: detail.rentItemId })
-//       .select("status")
-//       .lean();
+  //   for (let detail of rentOrder.rentOrderDetails) {
+  //     const rentItem = await RentItem.findOne({ rentItemId: detail.rentItemId })
+  //       .select("status")
+  //       .lean();
 
-//     if (rentItem) {
-//       detail.status = rentItem.status;
-//     } else {
-//       detail.status = "Unknown"; // Handle cases where rent item might not be found
-//     }
-//   }
+  //     if (rentItem) {
+  //       detail.status = rentItem.status;
+  //     } else {
+  //       detail.status = "Unknown"; // Handle cases where rent item might not be found
+  //     }
+  //   }
 
   res.json({
     message: "Rent Order and related rent items found successfully!",
@@ -239,7 +240,8 @@ export const rentReturn = asyncHandler(async (req, res) => {
 
   // Find the rent order that includes this rent item
   const rentOrder = await RentOrder.find({
-    "rentOrderDetails.rentItemId": rentItemId, "rentOrderDetails.status": "Rented"
+    "rentOrderDetails.rentItemId": rentItemId,
+    "rentOrderDetails.status": "Rented",
   });
 
   if (!rentOrder.length > 0) {
@@ -247,38 +249,38 @@ export const rentReturn = asyncHandler(async (req, res) => {
     throw new Error(`No rent order found for rent item ID ${rentItemId}`);
   }
 
-  for (let order of rentOrder) { // [Todo- remove this after the previous orders are updated.]
+  for (let order of rentOrder) {
+    // [Todo- remove this after the previous orders are updated.]
     for (let detail of order.rentOrderDetails) {
-        if (detail.rentItemId === rentItemId) {
-            detail.status = 'Available'
-        }
-        // const rentItem = await RentItem.findOne({ rentItemId: detail.rentItemId })
-        //   .select("status")
-        //   .lean();
-    
-        // if (rentItem) {
-        //   detail.status = rentItem.status;
-        // } else {
-        //   detail.status = "Unknown"; // Handle cases where rent item might not be found
-        // }
+      if (detail.rentItemId === rentItemId) {
+        detail.status = "Available";
       }
+      // const rentItem = await RentItem.findOne({ rentItemId: detail.rentItemId })
+      //   .select("status")
+      //   .lean();
 
-        // Check if all items in the rent order have status 'Available'
-  const allItemsReturned = order.rentOrderDetails.every(
-    (item) =>
-      item.rentItemId === rentItemId || // Include the updated item
-      item.status === "Available"
-  );
+      // if (rentItem) {
+      //   detail.status = rentItem.status;
+      // } else {
+      //   detail.status = "Unknown"; // Handle cases where rent item might not be found
+      // }
+    }
 
-  // If all items are available, mark the rent order as 'Completed'
-  if (allItemsReturned) {
-    order.orderStatus = "Completed";
     await order.save();
-  }
-  }
-  
 
+    // Check if all items in the rent order have status 'Available'
+    const allItemsReturned = order.rentOrderDetails.every(
+      (item) =>
+        item.rentItemId === rentItemId || // Include the updated item
+        item.status === "Available"
+    );
 
+    // If all items are available, mark the rent order as 'Completed'
+    if (allItemsReturned) {
+      order.orderStatus = "Completed";
+      await order.save();
+    }
+  }
 
   res.json({
     message: `Rent return successful!`,
@@ -294,7 +296,7 @@ export const updateOrder = asyncHandler(async (req, res) => {
     salesPerson,
     rentOrderDetails,
     paymentType,
-    advPayment
+    advPayment,
   } = req.body;
 
   if (!rentOrderId) {
@@ -309,19 +311,19 @@ export const updateOrder = asyncHandler(async (req, res) => {
   let customer = undefined;
   customer = await Customer.findOne({ mobile });
   if (customer.name !== name) {
-    customer.name = name
+    customer.name = name;
 
-    await customer.save()
+    await customer.save();
   }
   if (!customer) {
     customer = await Customer.create({ name, mobile });
   }
   const salesPersonDoc = await getDocId(User, "userId", salesPerson);
 
-  const updatedRentOrderDetails = rentOrderDetails.map((detail)=> ({
-    ...detail, status: 'Rented'
-}))
-
+  const updatedRentOrderDetails = rentOrderDetails.map((detail) => ({
+    ...detail,
+    status: "Rented",
+  }));
 
   const updateData = {
     ...req.body,
