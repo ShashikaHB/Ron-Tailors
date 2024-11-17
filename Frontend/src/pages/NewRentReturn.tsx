@@ -15,7 +15,7 @@ import { useAppDispatch } from '../redux/reduxHooks/reduxHooks';
 import { setLoading } from '../redux/features/common/commonSlice';
 
 const NewRentReturn = () => {
-  const [triggerSearchRentOrder, { data, isLoading: searchRentOrder }] = useLazySearchRentOrderByItemQuery({});
+  const [triggerSearchRentOrder, { data, isLoading: searchRentOrder, isError }] = useLazySearchRentOrderByItemQuery({});
   const [returnRent, { data: rentReturnData, isLoading: rentReturnLoading }] = useRentReturnMutation();
   const [rentItemSearchQuery, setRentItemSearchQuery] = useState('');
   const [rentOrderData, setRentOrderData] = useState(null);
@@ -23,7 +23,8 @@ const NewRentReturn = () => {
   const dispatch = useAppDispatch();
 
   const handleReset = () => {
-    setRentOrderData(null);
+    // setRentOrderData(null);
+    triggerSearchRentOrder(rentItemSearchQuery);
     setRentItemSearchQuery('');
   };
 
@@ -55,10 +56,16 @@ const NewRentReturn = () => {
   useEffect(() => {
     if (data) {
       setRentOrderData(data);
-    } else {
+    } else if (rentItemSearchQuery !== '') {
       handleReset();
     }
   }, [data]);
+
+  useEffect(() => {
+    if (isError) {
+      setRentOrderData(null);
+    }
+  }, [isError]);
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
