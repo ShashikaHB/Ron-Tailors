@@ -142,13 +142,22 @@ export const createOrder = asyncHandler(async (req, res) => {
   });
 
   await updateDailySummary(newTransaction);
-  const messageBody = `Hi ${name}. Your Order Id is ${newOrder.salesOrderId}. Your order balance is ${newOrder?.balance}. Thank you come again.`;
-  await sendSMS(messageBody, mobile);
+  
+// Send SMS and handle the result
+const messageBody = `Hi ${name}. Your Order Id is ${newOrder.salesOrderId}. Your order balance is ${newOrder?.balance}. Thank you, come again.`;
+const smsResult = await sendSMS(messageBody, mobile);
+
+let smsStatus = 'Success';
+if (!smsResult.success) {
+  smsStatus = 'Failed';
+  console.error('SMS sending failed:', smsResult.error);
+}
 
   res.json({
     message: "New order created successfully.",
     success: true,
     data: newOrder,
+    smsStatus
   });
 });
 

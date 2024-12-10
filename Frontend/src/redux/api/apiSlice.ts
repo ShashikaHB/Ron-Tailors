@@ -39,6 +39,11 @@ const baseQueryWithReAuth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
   let result = await baseQuery(args, api, extraOptions);
 
   const errorMessage = (result.error?.data as { message?: string })?.message || 'An error occurred!';
+  const smsFailed = result.data?.smsStatus === 'Failed';
+
+  if (smsFailed) {
+    toast.error('Failed to send SMS to customer');
+  }
 
   if (result.error) {
     toast.error(errorMessage);

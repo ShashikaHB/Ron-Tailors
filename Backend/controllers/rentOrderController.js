@@ -84,9 +84,6 @@ export const createOrder = asyncHandler(async (req, res) => {
     description: `Rent Order: ${newOrder.rentOrderId}`,
   });
 
-  const messageBody = `Hi ${name}. Your Order Id is ${newOrder.rentOrderId}. Your order balance is ${newOrder?.balance}. Thank you come again.`;
-  await sendSMS(messageBody, mobile);
-
   // Update the status of each rent item in the order to 'Not Returned'
   for (const detail of rentOrderDetails) {
     await RentItem.findOneAndUpdate(
@@ -95,10 +92,21 @@ export const createOrder = asyncHandler(async (req, res) => {
     );
   }
 
+  // Send SMS and handle the result
+  const messageBody = `Hi ${name}. Your Order Id is ${newOrder.rentOrderId}. Your order balance is ${newOrder?.balance}. Thank you come again.`
+  const smsResult = await sendSMS(messageBody, mobile);
+  
+  let smsStatus = 'Success';
+  if (!smsResult.success) {
+    smsStatus = 'Failed';
+    console.error('SMS sending failed:', smsResult.error);
+  }
+
   res.json({
     message: "New rent order created successfully.",
     success: true,
     data: newOrder,
+    smsStatus
   });
 });
 
@@ -186,7 +194,7 @@ export const searchSingleOrder = asyncHandler(async (req, res) => {
 
   const rentOrder = await RentOrder.findOne({
     "rentOrderDetails.rentItemId": rentItemId,
-    orderStatus: { $ne: "Completed" },
+    // orderStatus: { $ne: "Completed" },
   })
     .select("-_id -__v")
     .populate({

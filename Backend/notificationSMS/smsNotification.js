@@ -20,8 +20,8 @@ export const sendSMS = async (messageBody, recipientNumber) => {
         message: messageBody,
       },
     });
-    return response.data;
+     return { success: true, data: response.data };
   } catch (error) {
-    throw new Error(`Failed to send SMS: ${error.message}`);
+    return { success: false, error: error.message };
   }
 };
