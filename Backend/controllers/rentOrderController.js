@@ -194,7 +194,7 @@ export const searchSingleOrder = asyncHandler(async (req, res) => {
 
   const rentOrder = await RentOrder.findOne({
     "rentOrderDetails.rentItemId": rentItemId,
-    // orderStatus: { $ne: "Completed" },
+    orderStatus: { $ne: "Completed" },
   })
     .select("-_id -__v")
     .populate({
