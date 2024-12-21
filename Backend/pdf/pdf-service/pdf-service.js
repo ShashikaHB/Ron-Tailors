@@ -429,13 +429,14 @@ export const buildMeasurementPdf = (dataCallBack, endCallBack, measurement) => {
     estimatedReleaseDate,
     isNecessary,
     orderId,
+    description
   } = measurement;
 
   // Adjusted font sizes for POS printer and concise layout
   doc
     .fontSize(11)
     .font("Helvetica-Bold")
-    .text(`${orderId}  |  ${customer.name} |   ${itemType}`, {
+    .text(`${orderId}  |  ${customer.name}  |  ${description} | ${itemType}`, {
       align: "left",
     });
   doc.moveDown(0.5);

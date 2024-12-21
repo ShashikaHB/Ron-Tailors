@@ -192,6 +192,7 @@ export const measurementPrint = asyncHandler(async (req, res) => {
     estimatedReleaseDate,
     isNecessary,
     orderId,
+    description
   } = req.query;
 
   // Reconstruct the measurement object
@@ -207,6 +208,7 @@ export const measurementPrint = asyncHandler(async (req, res) => {
     estimatedReleaseDate,
     isNecessary: isNecessary === "true", // Convert string "true"/"false" to boolean
     orderId,
+    description
   };
   const stream = res.writeHead(200, {
     "Content-Type": "application/pdf",

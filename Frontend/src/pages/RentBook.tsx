@@ -115,7 +115,8 @@ const RentBook = () => {
         (item) =>
           item?.rentOrderId.toString().toLowerCase().includes(lowercasedFilter) ||
           item?.customer?.name.toLowerCase().includes(lowercasedFilter) ||
-          item?.customer?.mobile.toLowerCase().includes(lowercasedFilter)
+          item?.customer?.mobile.toLowerCase().includes(lowercasedFilter) ||
+          item?.rentOrderDetails?.some((detail) => detail.rentItemId?.toString().toLowerCase().includes(lowercasedFilter))
       );
       setRowData(filteredRowData);
     } else {

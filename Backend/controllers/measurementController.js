@@ -205,7 +205,7 @@ export const getMeasurementData = asyncHandler(async (req, res) => {
       order.orderDetails.forEach((detail) => {
         detail.products.forEach((product) => {
           if (product.itemType === itemType && product.measurement) {
-            measurements.push({...product.measurement, orderId: order.salesOrderId}); // Push the measurement to the result
+            measurements.push({...product.measurement, orderId: order.salesOrderId, description: detail.description}); // Push the measurement to the result
           }
         });
       });
