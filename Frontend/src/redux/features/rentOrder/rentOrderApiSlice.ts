@@ -21,10 +21,22 @@ export const rentOutApiSlice = apiSlice.injectEndpoints({
       },
     }),
     getAllRentOrders: builder.query<ApiGetRentOrder[], void>({
-      query: () => ({
-        url: `/rentOrder`,
-        method: 'GET',
-      }),
+      query: (params) => {
+        const queryParts = [];
+        if (params?.rentDate) {
+          queryParts.push(`rentDate=${params.rentDate}`);
+        }
+        if (params?.isNewRentOut !== undefined) {
+          queryParts.push(`isNewRentOut=${params.isNewRentOut}`);
+        }
+
+        const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : '';
+
+        return {
+          url: `/rentOrder${queryString}`,
+          method: 'GET',
+        };
+      },
       providesTags: ['RentOrder'],
       transformResponse: (res: ApiResponse<ApiGetRentOrder[]>): any => {
         return res.data;

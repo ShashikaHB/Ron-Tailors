@@ -34,6 +34,7 @@ import MonthlySummary from '../pages/MonthlySummary';
 import SignLayout from '../pageLayouts/SignLayout';
 import MeasurementPrintPage from '../pages/MeasurementPrintPage';
 import StoreSelector from '../pages/StoreSelector';
+import NewRentOutBook from '../pages/NewRentOutBook';
 
 const router = createBrowserRouter([
   {
@@ -69,6 +70,10 @@ const router = createBrowserRouter([
           {
             path: 'rentBook',
             element: <RentBook />,
+          },
+          {
+            path: 'newRentOutBook',
+            element: <NewRentOutBook />,
           },
           {
             path: 'salesOrderBook',

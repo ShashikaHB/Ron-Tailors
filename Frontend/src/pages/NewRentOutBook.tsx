@@ -22,7 +22,7 @@ import PrintShopBill from '../forms/printshopbill/PrintShopBill';
 import PrintRentBook from '../forms/printRentBook/PrintRentBook';
 import SimpleDatePicker from '../components/customFormComponents/simpleDatePicker/SimpleDatePicker';
 
-const RentBook = () => {
+const NewRentOutBook = () => {
   const [rentDate, setRentDate] = useState<Date>(new Date());
   const [isInitialRender, setIsInitialRender] = useState(true); // Track initial render
 
@@ -31,7 +31,7 @@ const RentBook = () => {
     isError: rentOrderError,
     isLoading: allRentOrdersLoading,
     refetch,
-  } = useGetAllRentOrdersQuery(rentDate && !isInitialRender ? { rentDate: rentDate.toLocaleDateString('en-CA') } : {});
+  } = useGetAllRentOrdersQuery(rentDate && !isInitialRender ? { rentDate: rentDate.toLocaleDateString('en-CA'), isNewRentOut: true } : { isNewRentOut: true });
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
@@ -197,4 +197,4 @@ const RentBook = () => {
   );
 };
 
-export default RentBook;
+export default NewRentOutBook;

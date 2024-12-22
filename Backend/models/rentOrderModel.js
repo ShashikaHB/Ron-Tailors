@@ -126,6 +126,10 @@ const rentOrderSchema = new mongoose.Schema({
     enum: ["Completed", "Advanced", "Incomplete"],
     default: "Incomplete",
   },
+  isNewRentOut: {
+    type: Boolean,
+    default: false
+  },
 });
 
 // Add a unique auto-incremented sequence per store

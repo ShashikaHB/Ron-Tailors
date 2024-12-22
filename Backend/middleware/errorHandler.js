@@ -1,4 +1,4 @@
-import { logEvents } from "./logger.js";
+import logger from "../utils/logger.js";
 
 export const errorConstants = {
   VALIDATION_ERROR: 400,
@@ -18,11 +18,16 @@ export const notFound = (req, res, next) => {
 // Error Handler
 
 export const errorHandler = (err, req, res, next) => {
-  logEvents(
-    `${err.name}: ${err.message}\t${req.method}\t${req.url}\t${req.headers.origin}`,
-    "errLog.log"
-  );
-  console.log(err.stack);
+   // Log the error with Winston
+   logger.error({
+    message: err.message,
+    name: err.name,
+    stack: err.stack, // Include the stack trace for debugging
+    method: req.method,
+    url: req.originalUrl,
+    origin: req.headers.origin || "unknown",
+  });
+
   const statuscode = res.statusCode === 200 ? 500 : res.statusCode;
 
   res.status(statuscode);

@@ -93,6 +93,9 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   const newOrder = await SalesOrder.create(orderData);
 
+  console.log('Saved orderDetails in DB:', JSON.stringify(newOrder.orderDetails, null, 2));
+
+
   // Loop through each order and populate rentOrderDetails with rentItem status
 
   const updatedRentOrderDetails = rentOrderDetails.map((detail) => ({
@@ -273,10 +276,15 @@ export const updateSalesOrder = asyncHandler(async (req, res) => {
     throw new Error("OrderId is not provided!");
   }
 
+  console.log('Incoming updated orderDetails:', JSON.stringify(orderDetails, null, 2));
+
   const salesOrder = await SalesOrder.findOne({ salesOrderId }).lean().exec();
   if (!salesOrder) {
     throw new Error("No sales order found");
   }
+
+  console.log('Existing orderDetails in DB:', JSON.stringify(salesOrder.orderDetails, null, 2));
+
 
   let customer = undefined;
   customer = await Customer.findOne({ mobile });
@@ -334,6 +342,8 @@ export const updateSalesOrder = asyncHandler(async (req, res) => {
       new: true,
     }
   );
+
+  console.log('Updated orderDetails in DB:', JSON.stringify(updateOrder.orderDetails, null, 2));
 
   // Create a credit transaction
   const newTransaction = await Transaction.findOneAndUpdate(

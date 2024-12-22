@@ -55,6 +55,10 @@ export const sideBarConfig: SideBarConfig[] = [
         path: '/secured/rentBook',
       },
       {
+        title: 'New Rent Out',
+        path: '/secured/newRentOutBook',
+      },
+      {
         title: 'Return Rent',
         path: '/secured/rentReturn',
       },

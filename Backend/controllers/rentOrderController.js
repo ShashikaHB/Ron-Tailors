@@ -93,20 +93,20 @@ export const createOrder = asyncHandler(async (req, res) => {
   }
 
   // Send SMS and handle the result
-  const messageBody = `Hi ${name}. Your Order Id is ${newOrder.rentOrderId}. Your order balance is ${newOrder?.balance}. Thank you come again.`
+  const messageBody = `Hi ${name}. Your Order Id is ${newOrder.rentOrderId}. Your order balance is ${newOrder?.balance}. Thank you come again.`;
   const smsResult = await sendSMS(messageBody, mobile);
-  
-  let smsStatus = 'Success';
+
+  let smsStatus = "Success";
   if (!smsResult.success) {
-    smsStatus = 'Failed';
-    console.error('SMS sending failed:', smsResult.error);
+    smsStatus = "Failed";
+    console.error("SMS sending failed:", smsResult.error);
   }
 
   res.json({
     message: "New rent order created successfully.",
     success: true,
     data: newOrder,
-    smsStatus
+    smsStatus,
   });
 });
 
@@ -114,9 +114,25 @@ export const createOrder = asyncHandler(async (req, res) => {
 // @route   GET /api/orders
 // @access  Public
 export const getAllOrders = asyncHandler(async (req, res) => {
-  const { store } = req.query;
+  const { store, rentDate, isNewRentOut } = req.query;
 
-  const orders = await RentOrder.find({ store })
+  // Initialize filter object
+  const filter = { store };
+
+  // Add `rentDate` filter if provided
+  if (rentDate) {
+    const date = new Date(rentDate);
+    const startOfDay = new Date(date.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(date.setHours(23, 59, 59, 999));
+    filter.rentDate = { $gte: startOfDay, $lte: endOfDay };
+  }
+
+  // Add `isNewRentOut` filter if provided
+  if (isNewRentOut !== undefined) {
+    filter.isNewRentOut = isNewRentOut === "true"; // Convert to boolean
+  }
+
+  const orders = await RentOrder.find(filter)
     .select("-_id -__v")
     .populate({
       path: "customer",

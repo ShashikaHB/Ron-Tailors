@@ -10,6 +10,7 @@ import { deductMaterialUnits } from "./materialController.js";
 import { RentOrder } from "../models/rentOrderModel.js";
 import { RentItem } from "../models/rentItemModel.js";
 import { SalesOrder } from "../models/salesOrderModel.js";
+import { createRentOrderAndItem, deleteRentOrderAndItem } from "../utils/newRentOut.js";
 
 // @desc    Create a new product
 // @route   POST /api/products
@@ -31,7 +32,7 @@ export const createProduct = asyncHandler(async (req, res) => {
   res.json({
     message: "New product created Successfully.",
     success: true,
-    data: {productId: newProduct.productId, productType: newProduct.itemType},
+    data: { productId: newProduct.productId, productType: newProduct.itemType },
   });
 });
 
@@ -131,6 +132,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
     tailor: tailorId,
     measurer: measurerId,
     materials,
+    isNewRentOut,
     ...rest
   } = req.body;
 
@@ -173,6 +175,18 @@ export const updateProduct = asyncHandler(async (req, res) => {
     await deductMaterialUnits(materials); // Deduct units from materials
   }
 
+  // Handle isNewRentOut logic
+  if (isNewRentOut !== undefined && isNewRentOut !== product.isNewRentOut) {
+    const salesOrder = await SalesOrder.findOne({ "orderDetails.products": product._id }).populate("customer").populate("salesPerson");
+    if (isNewRentOut) {
+      if (status === "Tailoring Done") {
+        await createRentOrderAndItem(product, salesOrder, req.query.store);
+      }
+    } else {
+      await deleteRentOrderAndItem(product, salesOrder.salesOrderId);
+    }
+  }
+
   // Update product fields only if provided
   if (status) product.status = status;
   if (measurement) product.measurement = measurement._id;
@@ -180,6 +194,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
   if (tailor) product.tailor = tailor._id;
   if (measurer) product.measurer = measurer._id;
   if (materialsData.length > 0) product.materials = materialsData;
+  if (isNewRentOut) product.isNewRentOut = isNewRentOut;
 
   Object.assign(product, rest);
 
@@ -265,7 +280,7 @@ export const searchProduct = asyncHandler(async (req, res) => {
 export const updateProductStatus = asyncHandler(async (req, res) => {
   const { productId } = req.params;
   const { status } = req.body;
-  const {store} = req.query
+  const { store } = req.query;
 
   if (!status || !productId) {
     res.status(400);
@@ -373,47 +388,16 @@ export const updateProductStatus = asyncHandler(async (req, res) => {
     // Fetch the SalesOrder containing this product
     const salesOrder = await SalesOrder.findOne({
       "orderDetails.products": product._id,
-    }).populate("customer").populate("salesPerson");
+    })
+      .populate("customer")
+      .populate("salesPerson");
+
     if (!salesOrder) {
       res.status(404);
       throw new Error("Sales order containing this product not found.");
     }
 
-    // Create a new RentItem
-    const rentItem = await RentItem.create({
-      rentItemId: `${salesOrder.salesOrderId}-${product.itemType}`,
-      color: product.color,
-      size: product.size,
-      description: `New RentOut: ${product.itemType}`,
-      store: store,
-      itemCategory: product.itemCategory,
-      itemType: product.itemType,
-      status: "Rented", // Set as rented
-      isNewRentOut: true
-    });
-
-    // Create a new RentOrder with customer details from the SalesOrder
-    const rentOrder = await RentOrder.create({
-      customer: salesOrder.customer,
-      store: salesOrder.store,
-      rentDate: new Date(), // Set current date as the rent date
-      returnDate: new Date(), // You can modify return date based on logic
-      rentOrderDetails: [
-        {
-          description: `New RentOut: ${product.itemType}`,
-          color: product.color,
-          size: product.size,
-          rentItemId: rentItem.rentItemId,
-          itemCategory: product.itemCategory,
-          itemType: product.itemType,
-          amount: product.rentPrice || 0, // Set rent price
-        },
-      ],
-      salesPerson: salesOrder.salesPerson._id,
-      totalPrice: product.rentPrice || 0,
-      subTotal: product.rentPrice || 0,
-      paymentType: salesOrder.paymentType
-    });
+    await createRentOrderAndItem(product, salesOrder, store);
   }
 
   const currentMonth = new Date().toISOString().slice(0, 7);

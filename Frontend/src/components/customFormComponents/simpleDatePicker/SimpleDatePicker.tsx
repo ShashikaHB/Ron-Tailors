@@ -29,8 +29,13 @@ const SimpleDatePicker: React.FC<SimpleDatePickerProps> = ({ onDateChange, label
   }, [date]);
 
   const handleDateChange = (newDate: Date | null) => {
-    setSelectedDate(newDate as Date); // Store the selected date in the state
-    onDateChange(newDate as Date); // Pass the selected date to the parent
+    if (!newDate) return;
+
+    const normalizedDate = new Date(newDate.setHours(0, 0, 0, 0));
+
+    // Always trigger the callback, even for the same date
+    setSelectedDate(normalizedDate);
+    onDateChange(normalizedDate);
   };
 
   return (
