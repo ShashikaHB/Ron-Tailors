@@ -68,7 +68,7 @@ export const orderApiSlice = apiSlice.injectEndpoints({
           body: { ...salesOrderData },
         };
       },
-      invalidatesTags: (result, error, args) => (result ? [{ type: 'SalesOrder', id: args.salesOrderId }, { type: 'SalesOrder' }] : []),
+      invalidatesTags: (result, error, args) => (result ? [{ type: 'SalesOrder', id: args.salesOrderId }, { type: 'SalesOrder' }, { type: 'RentOrder' }] : []),
     }),
     addReadyMadeItemOrder: builder.mutation<ApiResponse<string>, any>({
       query: (data: any) => {

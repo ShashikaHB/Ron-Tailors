@@ -19,7 +19,7 @@ const MeasurementPrintPage = () => {
     }));
     // Additional functionality for button click can go here
 
-    const { itemType, customer, orderId, measurements, style, remarks, estimatedReleaseDate, isNecessary, description } = measurement;
+    const { itemType, customer, orderId, measurements, style, remarks, estimatedReleaseDate, isNecessary, description, measurementId } = measurement;
 
     const urlParams = new URLSearchParams({
       orderId,
@@ -32,6 +32,7 @@ const MeasurementPrintPage = () => {
       estimatedReleaseDate: new Date(estimatedReleaseDate).toISOString(),
       isNecessary: isNecessary ? 'true' : 'false',
       description,
+      measurementId,
     });
 
     const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -68,7 +69,7 @@ const MeasurementPrintPage = () => {
   return (
     <div>
       {data.map((measurement, index) => {
-        const { customer, itemType, measurements, style, remarks, estimatedReleaseDate, isNecessary, orderId, description } = measurement;
+        const { customer, itemType, measurements, style, remarks, estimatedReleaseDate, isNecessary, orderId, description, isPrinted } = measurement;
         const filteredMeasurements = measurements.filter((value) => value !== '').join('    ');
 
         return (
@@ -87,7 +88,7 @@ const MeasurementPrintPage = () => {
             <button
               type="button"
               onClick={() => handleButtonClick(index, { ...measurement, measurements: filteredMeasurements })}
-              style={styles.printButton(clickedButtons[index])}
+              style={styles.printButton(clickedButtons[index] || isPrinted)}
             >
               Print Measurement
             </button>

@@ -64,11 +64,11 @@ const baseOrderSchema = z.object({
           })
         )
         .optional(),
-      amount: z.number().min(1),
+      amount: z.number(),
     })
   ),
-  totalPrice: z.coerce.number().min(1, 'Total price is required.'),
-  subTotal: z.coerce.number().min(1, 'Sub Total is required.'),
+  totalPrice: z.coerce.number(),
+  subTotal: z.coerce.number(),
   discount: z.coerce.number().optional(),
   advPayment: z.coerce
     .number()

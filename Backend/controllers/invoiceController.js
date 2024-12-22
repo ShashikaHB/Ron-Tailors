@@ -12,6 +12,7 @@ import {
 import { SalesOrder } from "../models/salesOrderModel.js";
 import { RentOrder } from "../models/rentOrderModel.js";
 import { ReadyMadeItem } from "../models/readyMadeItemModel.js";
+import { Measurement } from "../models/measurementModel.js";
 
 export const getSalesInvoice = asyncHandler(async (req, res) => {
   const { salesOrderId } = req.params;
@@ -192,7 +193,8 @@ export const measurementPrint = asyncHandler(async (req, res) => {
     estimatedReleaseDate,
     isNecessary,
     orderId,
-    description
+    description,
+    measurementId,
   } = req.query;
 
   // Reconstruct the measurement object
@@ -208,11 +210,22 @@ export const measurementPrint = asyncHandler(async (req, res) => {
     estimatedReleaseDate,
     isNecessary: isNecessary === "true", // Convert string "true"/"false" to boolean
     orderId,
-    description
+    description,
   };
   const stream = res.writeHead(200, {
     "Content-Type": "application/pdf",
   });
+
+  const measurementObj = await Measurement.findOne({ measurementId });
+
+  // Check if the 'isPrinted' field exists, and if not, add it
+  if (typeof measurementObj.isPrinted === "undefined") {
+    measurementObj.isPrinted = true; // Add the field and set it to true
+  } else {
+    measurementObj.isPrinted = true; // Update to true if it already exists
+  }
+
+  await measurementObj.save(); // save the printed to the db.
 
   buildMeasurementPdf(
     (chunk) => stream.write(chunk),

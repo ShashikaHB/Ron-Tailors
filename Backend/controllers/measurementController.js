@@ -195,9 +195,6 @@ export const getMeasurementData = asyncHandler(async (req, res) => {
       }).populate("customer")
       .lean(); // Lean makes sure we get plain JavaScript objects instead of Mongoose documents
   
-    // Debugging log to check if orders are fetched
-    console.log("Orders Fetched: ", orders);
-  
     // Step 2: Manually filter the products to get measurements for the given itemType.
     const measurements = [];
   

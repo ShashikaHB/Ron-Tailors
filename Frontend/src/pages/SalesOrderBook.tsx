@@ -77,7 +77,7 @@ const SalesOrderBook = () => {
       cellRenderer: SalesOrderDetailsRenderer,
       cellRendererParams: { handleOpenMeasurement, handleOpenProductEdit },
       autoHeight: true,
-      minWidth: 300,
+      minWidth: 400,
     },
     {
       headerName: 'FitOn Rounds',

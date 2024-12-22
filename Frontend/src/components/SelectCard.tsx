@@ -5,7 +5,7 @@
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
 import { memo } from 'react';
-import { Link, useNavigation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 interface SelectCardProps {
   title: string;
@@ -15,9 +15,10 @@ interface SelectCardProps {
 }
 
 const SelectCard = ({ title, subtitle, image, link }: SelectCardProps) => {
-  const navigate = useNavigation();
+  const navigate = useNavigate();
   return (
-    <div className="select-card d-flex flex-row" onClick={() => navigate(link)}>
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+    <div className="select-card d-flex flex-row" onClick={() => link && navigate(link)}>
       <div className="select-card-body d-flex flex-column">
         <div className="select-card-header">{title}</div>
         <div className="select-card-body-text">{subtitle}</div>

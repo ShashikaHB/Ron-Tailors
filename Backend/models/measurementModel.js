@@ -50,6 +50,10 @@ const measurementSchema = new mongoose.Schema({
     required: [true, "Item Type is required."],
   },
   measurements: [{ type: String }],
+  isPrinted: {
+    type: Boolean,
+    default: false
+  }
 });
 
 measurementSchema.plugin(AutoIncrement, {

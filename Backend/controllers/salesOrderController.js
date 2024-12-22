@@ -24,8 +24,6 @@ export const createOrder = asyncHandler(async (req, res) => {
     deliveryDate,
     salesPerson,
     orderDetails,
-    totalPrice,
-    subTotal,
     paymentType,
   } = req.body;
 
@@ -37,8 +35,6 @@ export const createOrder = asyncHandler(async (req, res) => {
     !deliveryDate ||
     !salesPerson ||
     !orderDetails ||
-    !totalPrice ||
-    !subTotal ||
     !paymentType
   ) {
     res.status(400);
@@ -97,6 +93,13 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   const newOrder = await SalesOrder.create(orderData);
 
+  // Loop through each order and populate rentOrderDetails with rentItem status
+
+  const updatedRentOrderDetails = rentOrderDetails.map((detail) => ({
+    ...detail,
+    status: "Rented",
+  }));
+
   if (rentOrderDetails.length > 0) {
     const rentOrderData = {
       ...req.body,
@@ -107,7 +110,7 @@ export const createOrder = asyncHandler(async (req, res) => {
       balance: 0,
       stakeOption: "No",
       store,
-      rentOrderDetails,
+      rentOrderDetails: updatedRentOrderDetails,
       linkedSalesOrderId: newOrder.salesOrderId,
       suitType: "Wedding",
       rentDate: new Date(orderDate),
@@ -134,7 +137,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     transactionType: "Income",
     transactionCategory: "Sales Order",
     paymentType: paymentType,
-    isInitialTransaction: true,
+    isInitialTransaction: true, // Used to find the initial transaction to update the transaction.
     salesPerson: salesPersonDoc.name,
     store,
     amount: newOrder.advPayment,
@@ -142,22 +145,22 @@ export const createOrder = asyncHandler(async (req, res) => {
   });
 
   await updateDailySummary(newTransaction);
-  
-// Send SMS and handle the result
-const messageBody = `Hi ${name}. Your Order Id is ${newOrder.salesOrderId}. Your order balance is ${newOrder?.balance}. Thank you, come again.`;
-const smsResult = await sendSMS(messageBody, mobile);
 
-let smsStatus = 'Success';
-if (!smsResult.success) {
-  smsStatus = 'Failed';
-  console.error('SMS sending failed:', smsResult.error);
-}
+  // Send SMS and handle the result
+  const messageBody = `Hi ${name}. Your Order Id is ${newOrder.salesOrderId}. Your order balance is ${newOrder?.balance}. Thank you, come again.`;
+  const smsResult = await sendSMS(messageBody, mobile);
+
+  let smsStatus = "Success";
+  if (!smsResult.success) {
+    smsStatus = "Failed";
+    console.error("SMS sending failed:", smsResult.error);
+  }
 
   res.json({
     message: "New order created successfully.",
     success: true,
     data: newOrder,
-    smsStatus
+    smsStatus,
   });
 });
 
@@ -276,11 +279,11 @@ export const updateSalesOrder = asyncHandler(async (req, res) => {
   }
 
   let customer = undefined;
-  customer = await Customer.findOne({ mobile })
+  customer = await Customer.findOne({ mobile });
   if (customer.name !== name) {
-    customer.name = name
+    customer.name = name;
 
-    await customer.save()
+    await customer.save();
   }
   if (!customer) {
     customer = await Customer.create({ name, mobile });
@@ -309,7 +312,7 @@ export const updateSalesOrder = asyncHandler(async (req, res) => {
         description: detail.description,
         category: detail?.category,
         products: productsData,
-        rentItems: rentOrderDetails,
+        rentItems: detail?.rentItems,
         amount: detail.amount,
       };
     })
@@ -334,12 +337,52 @@ export const updateSalesOrder = asyncHandler(async (req, res) => {
 
   // Create a credit transaction
   const newTransaction = await Transaction.findOneAndUpdate(
-    { description: `Sales Order: ${salesOrder.salesOrderId}`, isInitialTransaction: true },
+    {
+      description: `Sales Order: ${salesOrder.salesOrderId}`,
+      isInitialTransaction: true,
+    },
     {
       paymentType: paymentType,
       amount: updateOrder.advPayment,
     }
   );
+
+  const updatedRentOrderDetails = rentOrderDetails?.map((detail) => ({
+    ...detail,
+    status: "Rented",
+  }));
+
+  const linkedRentOrder = await RentOrder.findOne({
+    linkedSalesOrderId: salesOrderId,
+  });
+
+  if (rentOrderDetails.length > 0 && linkedRentOrder) {
+    const removedRentItems = linkedRentOrder.rentOrderDetails.filter(
+      (existingItem) =>
+        !updatedRentOrderDetails.some(
+          (updatedItem) => updatedItem.rentItemId === existingItem.rentItemId
+        )
+    );
+    if (removedRentItems.length > 0) { // Make the removed rent items available again.
+      for (const removedItem of removedRentItems) {
+        await RentItem.findOneAndUpdate(
+          { rentItemId: removedItem.rentItemId },
+          { status: "Available" }
+        );
+      }
+    }
+    linkedRentOrder.rentOrderDetails = updatedRentOrderDetails;
+    await linkedRentOrder.save();
+  } else if (linkedRentOrder) {
+    // Update the status of each rent item in the order to 'Available' before deleting
+    for (const detail of linkedRentOrder.rentOrderDetails) {
+      await RentItem.findOneAndUpdate(
+        { rentItemId: detail.rentItemId },
+        { status: "Available" }
+      );
+    }
+    await RentOrder.findByIdAndDelete(linkedRentOrder._id);
+  }
 
   res.json({
     message: "Sales order updated successfully.",
