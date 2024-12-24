@@ -27,6 +27,7 @@ import { authMiddleWare } from "./middleware/authMiddleWare.js";
 import { logger } from "./middleware/logger.js";
 import { corsOptions } from "./config/cors/corsOptions.js";
 import { sendSMS } from "./notificationSMS/smsNotification.js";
+import requestLogger from "./middleware/loggerMiddleWare.js";
 
 // Initialize app instance
 const app = express();
@@ -37,15 +38,16 @@ dotenv.config();
 // DB connection
 connectDB();
 
-// Initialize logger instance
-app.use(logger);
-
 // Middlewares
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(cors(corsOptions));
 app.use(cookieParser()); // This is used to add the refresh token to http only cookie
 app.use(bodyParser.urlencoded({ extended: false }));
+
+// Initialize logger instance
+app.use(requestLogger); // Apply the logging middleware
+
 
 // Routers
 app.use("/api/v1/auth", authRouter);
