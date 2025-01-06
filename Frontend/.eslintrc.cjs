@@ -43,6 +43,7 @@ module.exports = {
   ],
   rules: {
     // Extend any overrides from the above extended lint packages here.
+    '@typescript-eslint/no-use-before-define': 'off',
     'react/jsx-props-no-spreading': 'off',
     'import/no-extraneous-dependencies': [
       'error',
@@ -79,6 +80,5 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off', // Disabled rule for no-explicit-any
     'react/no-array-index-key': 'off',
     'no-use-before-define': 'off',
-    '@typescript-eslint/no-use-before-define': 'error',
   },
 };

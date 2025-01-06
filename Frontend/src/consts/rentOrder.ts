@@ -5,6 +5,7 @@
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
 import { SuitTypes } from '../enums/RentOrderTypes';
+import StakeOptions from '../enums/StakeOptions';
 
 export const suitSelectOptions = [
   {
@@ -18,5 +19,20 @@ export const suitSelectOptions = [
   {
     value: SuitTypes.Normal,
     label: 'Normal',
+  },
+];
+
+export const stakeOptions = [
+  {
+    value: StakeOptions.No,
+    label: 'Select a stake option',
+  },
+  {
+    value: StakeOptions.NIC,
+    label: 'NIC',
+  },
+  {
+    value: StakeOptions.Deposit,
+    label: 'Deposit',
   },
 ];

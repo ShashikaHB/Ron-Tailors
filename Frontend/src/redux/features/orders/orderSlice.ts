@@ -17,6 +17,7 @@ const initialState: any = {
   selectedRentItemId: null,
   selectedCustomerId: null,
   selectedStore: null,
+  saleOrder: null,
 };
 
 const orderSlice = createSlice({
@@ -57,12 +58,16 @@ const orderSlice = createSlice({
     resetOderProducts: (state) => {
       state.orderProducts = [];
     },
+    setOrderForm: (state, action: PayloadAction<any>) => {
+      state.saleOrder = action.payload;
+    },
   },
 });
 
 export const selectOrderItems = (state: RootState) => state.orders.orderProducts;
 export const selectedRentItemId = (state: RootState) => state.orders.selectedRentItemId;
 export const selectCustomerId = (state: RootState) => state.orders.selectedCustomerId;
+export const selectSavedSaleOrder = (state: RootState) => state.orders?.saleOrder;
 
 export const {
   setOrderProducts,
@@ -73,6 +78,7 @@ export const {
   setOrderProductsBulk,
   setSelectedCustomerId,
   removeSelectedCustomerId,
+  setOrderForm,
 } = orderSlice.actions;
 
 export default orderSlice.reducer;

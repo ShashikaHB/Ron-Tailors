@@ -5,5 +5,4 @@ export const allowedOrigins = [
   "https://ron-tailors.netlify.app",
   "https://ron-tailors-official.netlify.app",
   "https://ron-tailors.lk"
-
 ];

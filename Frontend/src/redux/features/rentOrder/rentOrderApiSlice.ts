@@ -51,7 +51,7 @@ export const rentOutApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res: ApiResponse<any>) => {
         return { ...res.data };
       },
-      invalidatesTags: ['RentOrder'],
+      invalidatesTags: ['RentOrder', 'RentItem'],
     }),
     searchRentOrderByItem: builder.query<any, string>({
       query: (rentItemId: string) => ({
@@ -71,7 +71,16 @@ export const rentOutApiSlice = apiSlice.injectEndpoints({
           body: { ...rentOrderData },
         };
       },
-      invalidatesTags: (result, error, args) => (result ? [{ type: 'RentOrder', id: args.rentOrderId }, { type: 'RentOrder' }] : []),
+      invalidatesTags: (result, error, args) => (result ? [{ type: 'RentOrder', id: args.rentOrderId }, { type: 'RentOrder' }, { type: 'RentItem' }] : []),
+    }),
+    deleteRentOrder: builder.mutation<ApiResponse<any>, any>({
+      query: (rentOrderId: any) => {
+        return {
+          url: `/rentOrder/${rentOrderId}`,
+          method: 'DELETE',
+        };
+      },
+      invalidatesTags: (result, error, args) => (result ? [{ type: 'RentOrder', id: args.rentOrderId }, { type: 'RentOrder' }, { type: 'RentItem' }] : []),
     }),
     rentReturn: builder.mutation<ApiResponse<any>, string>({
       query: (rentOrderId: string) => ({
@@ -90,4 +99,5 @@ export const {
   useGetAllRentOrdersQuery,
   useRentReturnMutation,
   useUpdateSingleRentOrderMutation,
+  useDeleteRentOrderMutation,
 } = rentOutApiSlice;

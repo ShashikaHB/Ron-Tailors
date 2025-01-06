@@ -1,15 +1,16 @@
 import mongoose from "mongoose";
 
 import mongooseSequence from "mongoose-sequence";
+import { ItemCategories, ItemTypes, OrderStatuses, PaymentTypes, RentItemStatuses, StakeOptions, StoreLocations, SuitTypes } from "../enums/common.js";
 
 const AutoIncrement = mongooseSequence(mongoose);
 
 // Declare the Schema of the Mongo model
 const rentOrderSchema = new mongoose.Schema({
   customer: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Customer",
-  },
+    type: Number,
+    required: [true, "Customer Id is required."]
+},
   rentOrderId: {
     type: String,
     unique: true,
@@ -18,7 +19,7 @@ const rentOrderSchema = new mongoose.Schema({
     type: String,
   },
   store: {
-    enum: ["RW", "KE"],
+    enum: StoreLocations,
     type: String,
     required: [true, "Store Location is required."],
   },
@@ -31,12 +32,11 @@ const rentOrderSchema = new mongoose.Schema({
     required: [true, "Return Date is required."],
   },
   salesPerson: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  },
+    type: Number,
+    required: [true, "Sales Person Id is required."]},
   suitType: {
     type: String,
-    enum: ["Wedding", "Normal"],
+    enum: SuitTypes,
     default:"Wedding"
   },
   rentOrderDetails: [
@@ -53,39 +53,24 @@ const rentOrderSchema = new mongoose.Schema({
       },
       itemCategory: {
         type: String,
-        enum: ["General", "Full Suit", "National Suit", "Rent Full Suit"],
+        enum: ItemCategories,
         default: "Rent Full Suit",
       },
       itemType: {
         type: String,
-        enum: [
-          "Coat",
-          "National Coat",
-          "West Coat",
-          "Shirt",
-          "Trouser",
-          "Designed Trouser",
-          "Designed Shirt",
-          "National Shirt",
-          "Rent Coat",
-          "Rent West Coat",
-          "Sarong",
-          "Tie",
-          "Bow",
-          "Cravat",
-          "Hanky",
-          "Chain",
-        ],
+        enum: ItemTypes,
         required: [true, "Item Type is required."],
       },
       status: {
         type: String,
-        enum: ["Rented", "Available"],
+        enum: RentItemStatuses,
         default: "Available",
+      },
+      amount: {
+        type: Number,
       },
       handLength: { type: String },
       notes: { type: String },
-      amount: { type: Number },
     },
   ],
 
@@ -108,12 +93,12 @@ const rentOrderSchema = new mongoose.Schema({
   },
   paymentType: {
     type: String,
-    enum: ["Cash", "Card", "Bank Transfer"],
+    enum: PaymentTypes,
     required: [true, "Payment Type is required."],
   },
   stakeOption: {
     type: String,
-    enum: ["NIC", "Deposit", "No"],
+    enum: StakeOptions,
   },
   stakeAmount: {
     type: Number,
@@ -123,14 +108,40 @@ const rentOrderSchema = new mongoose.Schema({
   },
   orderStatus: {
     type: String,
-    enum: ["Completed", "Advanced", "Incomplete"],
-    default: "Incomplete",
+    enum: OrderStatuses,
+    default: "Pending",
   },
   isNewRentOut: {
     type: Boolean,
     default: false
   },
-});
+},{
+    timestamps: true, // Enable timestamps
+    toJSON: {
+      virtuals: true,
+      transform: function (doc, ret) {
+        delete ret._id;
+        delete ret.id;
+        delete ret.createdAt;
+        delete ret.updatedAt;
+        delete ret.__v;
+        delete ret.rentOrderSeq;
+        return ret;
+      },
+    },
+    toObject: {
+      virtuals: true,
+      transform: function (doc, ret) {
+        delete ret._id;
+        delete ret.id;
+        delete ret.createdAt;
+        delete ret.updatedAt;
+        delete ret.__v;
+        delete ret.rentOrderSeq;
+        return ret;
+      },
+    },
+  });
 
 // Add a unique auto-incremented sequence per store
 rentOrderSchema.plugin(AutoIncrement, {

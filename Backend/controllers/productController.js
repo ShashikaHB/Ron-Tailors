@@ -10,7 +10,11 @@ import { deductMaterialUnits } from "./materialController.js";
 import { RentOrder } from "../models/rentOrderModel.js";
 import { RentItem } from "../models/rentItemModel.js";
 import { SalesOrder } from "../models/salesOrderModel.js";
-import { createRentOrderAndItem, deleteRentOrderAndItem } from "../utils/newRentOut.js";
+import {
+  createRentOrderAndItem,
+  deleteRentOrderAndItem,
+} from "../utils/newRentOut.js";
+import { getPopulatedSalesOrders } from "../services/salesOrderService.js";
 
 // @desc    Create a new product
 // @route   POST /api/products
@@ -177,7 +181,12 @@ export const updateProduct = asyncHandler(async (req, res) => {
 
   // Handle isNewRentOut logic
   if (isNewRentOut !== undefined && isNewRentOut !== product.isNewRentOut) {
-    const salesOrder = await SalesOrder.findOne({ "orderDetails.products": product._id }).populate("customer").populate("salesPerson");
+    const filter = { "orderDetails.products": product.productId };
+    // const salesOrder = await SalesOrder.findOne({ "orderDetails.products": product }).populate("customer").populate("salesPerson");
+    const salesOrder = await getPopulatedSalesOrders({
+      filter,
+      options: { updateProduct: true },
+    });
     if (isNewRentOut) {
       if (status === "Tailoring Done") {
         await createRentOrderAndItem(product, salesOrder, req.query.store);
@@ -194,7 +203,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
   if (tailor) product.tailor = tailor._id;
   if (measurer) product.measurer = measurer._id;
   if (materialsData.length > 0) product.materials = materialsData;
-  if (isNewRentOut) product.isNewRentOut = isNewRentOut;
+  if (isNewRentOut !== undefined) product.isNewRentOut = isNewRentOut;
 
   Object.assign(product, rest);
 

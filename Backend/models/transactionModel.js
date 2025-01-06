@@ -25,7 +25,7 @@ const transactionSchema = new mongoose.Schema(
     },
     date: {
         type: Date,
-        default: ()=> new Date()
+        default: ()=> new Date().toISOString()
     },
     store: {
         enum: ["RW", "KE"],

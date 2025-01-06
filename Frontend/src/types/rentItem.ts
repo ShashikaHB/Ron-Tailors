@@ -16,6 +16,8 @@ export type RentItemDetails = {
   handLength: string;
   notes: string;
   amount?: number;
+  rentDate?: Date;
+  returnDate?: Date;
   itemType: ProductType;
   status?: string;
   isNewRentOut?: boolean;
@@ -26,6 +28,8 @@ export type RentItem = {
   size: number | undefined;
   itemType: ProductType;
   description: string;
+  rentDate?: Date;
+  returnDate?: Date;
 };
 
 export type CreateRentItem = {

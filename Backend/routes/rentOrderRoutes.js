@@ -1,20 +1,22 @@
 import express from "express";
 import {
-  createOrder,
-  getAllOrders,
-  updateOrder,
   searchSingleOrder,
   getSingleRentOrder,
-  rentReturn
+  rentReturn,
+  createRentOrder,
+  updateRentOrder,
+  getAllRentOrders,
+  deleteRentOrders
 } from "../controllers/rentOrderController.js";
 
 const router = express.Router();
 
-router.get("/", getAllOrders);
-router.post("/", createOrder);
+router.get("/", getAllRentOrders);
+router.post("/", createRentOrder);
 router.get("/:rentOrderId", getSingleRentOrder);
-router.patch("/:rentOrderId", updateOrder);
+router.patch("/:rentOrderId", updateRentOrder);
 router.post("/rentReturn/:rentItemId", rentReturn);
 router.get("/searchItem/:rentItemId", searchSingleOrder);
+router.delete("/:rentOrderId", deleteRentOrders)
 
 export default router;

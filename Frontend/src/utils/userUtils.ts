@@ -12,7 +12,7 @@ const attendanceMarkingRoles = ['Sales Person', 'Altering', 'Ironing', 'Cleaning
 
 const getUserRoleBasedOptions = (users: User[], role?: string): Option[] => {
   if (!users || users.length === 0) return [];
-  const filteredUsers = role ? users.filter((user) => user.role === role || user.role === RolesAdmin.Admin) : users; // If role is empty, return all users
+  const filteredUsers = role ? users.filter((user) => user.role === role || (role === RolesAdmin.SalesPerson && user.role === RolesAdmin.Admin)) : users; // If role is empty, return all users
   const options = filteredUsers.map((user) => ({
     value: user.userId,
     label: user.name,

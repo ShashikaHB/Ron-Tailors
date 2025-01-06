@@ -13,18 +13,26 @@ import { SalesOrder } from "../models/salesOrderModel.js";
 import { RentOrder } from "../models/rentOrderModel.js";
 import { ReadyMadeItem } from "../models/readyMadeItemModel.js";
 import { Measurement } from "../models/measurementModel.js";
+import { getPopulatedRentOrders } from "../services/rentOrderService.js";
+import { getPopulatedSalesOrders } from "../services/salesOrderService.js";
 
 export const getSalesInvoice = asyncHandler(async (req, res) => {
   const { salesOrderId } = req.params;
 
-  const orderData = await SalesOrder.findOne({ salesOrderId })
-    .lean()
-    .populate("customer")
-    .populate({
-      path: "orderDetails.products",
-      model: "Product",
-    })
-    .exec();
+  //   const orderData = await SalesOrder.findOne({ salesOrderId })
+  //     .lean()
+  //     .populate("customer")
+  //     .populate({
+  //       path: "orderDetails.products",
+  //       model: "Product",
+  //     })
+  //     .exec();
+
+  const filter = {
+    salesOrderId,
+  };
+
+  const orderData = await getPopulatedSalesOrders({ filter });
 
   const data = {
     customer: {
@@ -73,10 +81,14 @@ export const getSalesInvoice = asyncHandler(async (req, res) => {
 export const getRentInvoice = asyncHandler(async (req, res) => {
   const { rentOrderId } = req.params;
 
-  const orderData = await RentOrder.findOne({ rentOrderId: rentOrderId })
-    .lean()
-    .populate("customer")
-    .exec();
+  //   const orderData = await RentOrder.findOne({ rentOrderId: rentOrderId })
+  //     .lean()
+  //     .populate("customer")
+  //     .exec();
+
+  const filter = { rentOrderId };
+
+  const orderData = await getPopulatedRentOrders({ filter });
 
   const data = {
     customer: {
@@ -113,11 +125,15 @@ export const getRentInvoice = asyncHandler(async (req, res) => {
 });
 export const getRentShopInvoice = asyncHandler(async (req, res) => {
   const { rentOrderId } = req.params;
+  const { rentItemId } = req.query;
 
-  const orderData = await RentOrder.findOne({ rentOrderId: rentOrderId })
-    .lean()
-    .populate("customer")
-    .exec();
+  const filter = {
+    rentOrderId,
+  };
+
+  const options = { rentItemId };
+
+  const orderData = await getPopulatedRentOrders({ filter, options });
 
   const data = {
     customer: {
@@ -248,19 +264,16 @@ export const orderBookPrint = asyncHandler(async (req, res) => {
   const startOfDay = new Date(`${dateOnly}T00:00:00.000Z`); // Start of day in UTC
   const endOfDay = new Date(`${dateOnly}T23:59:59.999Z`); // End of day in UTC
 
-  // Query orders that fall within the start and end of the day
-  const orders = await SalesOrder.find({
+  const filter = {
     deliveryDate: {
       $gte: startOfDay, // Greater than or equal to the start of the day
       $lt: endOfDay, // Less than the end of the day
     },
     store,
-  })
-    .populate({
-      path: "orderDetails.products",
-    })
-    .populate({ path: "customer" })
-    .lean();
+  }
+  
+const orders = await getPopulatedSalesOrders({filter})
+
   let items = [];
 
   const formattedData = orders.map((order) => {
@@ -314,19 +327,21 @@ export const rentOrderBookPrint = asyncHandler(async (req, res) => {
   const startOfDay = new Date(`${dateOnly}T00:00:00.000Z`); // Start of day in UTC
   const endOfDay = new Date(`${dateOnly}T23:59:59.999Z`); // End of day in UTC
   // Query orders that fall within the start and end of the day
-  const rentOrders = await RentOrder.find({
+
+  const filter = {
     rentDate: {
       $gte: startOfDay, // Greater than or equal to the start of the day
       $lt: endOfDay, // Less than the end of the day
     },
     store,
-  })
-    .populate({ path: "customer" })
-    .lean();
+  }
+
+  const rentOrders = await getPopulatedRentOrders({filter})
 
   const stream = res.writeHead(200, {
     "Content-Type": "application/pdf",
   });
+
   buildRentOrderBookPdf(
     (chunk) => stream.write(chunk),
     () => stream.end(),

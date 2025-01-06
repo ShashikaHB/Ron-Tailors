@@ -13,9 +13,10 @@ import { Modal, TextField } from '@mui/material';
 import { DevTool } from '@hookform/devtools';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import MemoizedTable from '../components/agGridTable/Table';
 import CustomerRenderer from '../components/agGridTable/customComponents/CustomerRenderer';
-import { useGetAllSalesOrdersQuery } from '../redux/features/orders/orderApiSlice';
+import { useDeleteSalesOrderMutation, useGetAllSalesOrdersQuery } from '../redux/features/orders/orderApiSlice';
 import SalesOrderDetailsRenderer from '../components/agGridTable/customComponents/SalesOrderDetailsRenderer';
 import ActionButtonNew from '../components/agGridTable/customComponents/ActionButtonNew';
 import AddEditProduct from '../forms/productAddEdit/AddEditProduct';
@@ -30,6 +31,8 @@ import PrintOrderBook from '../forms/printOrderBook/PrintOrderBook';
 
 const SalesOrderBook = () => {
   const { data: salesOrders, isError: salesOrderError, isLoading: loadingSalesBook } = useGetAllSalesOrdersQuery('');
+
+  const [deleteOrder, { data, isLoading: isDeleting }] = useDeleteSalesOrderMutation();
 
   const dispatch = useAppDispatch();
 
@@ -50,6 +53,14 @@ const SalesOrderBook = () => {
 
   const handleOpen = (id: string) => {
     nagivate(`/secured/addSalesOrder/${id}`);
+  };
+
+  const handleDeleteSalesOrder = async (id: string) => {
+    const response = await deleteOrder(id).unwrap();
+
+    if (response) {
+      toast.success('Sales Order Deleted Successfully');
+    }
   };
 
   const [openProducts, setOpenProducts] = useState(false);
@@ -95,6 +106,7 @@ const SalesOrderBook = () => {
       cellRendererParams: {
         handleEdit: handleOpen,
         idType: 'salesOrderId',
+        handleDelete: handleDeleteSalesOrder,
         isOrderBook: true,
       },
     },
@@ -138,6 +150,10 @@ const SalesOrderBook = () => {
     dispatch(setLoading(loadingSalesBook));
   }, [loadingSalesBook]);
 
+  useEffect(() => {
+    dispatch(setLoading(isDeleting));
+  }, [isDeleting]);
+
   return (
     <div className="h-100 d-flex flex-column gap-3">
       <div className="d-flex justify-content-between align-items-end">
@@ -157,7 +173,7 @@ const SalesOrderBook = () => {
             Print Measurement
           </button>
           <button type="button" className="primary-button" onClick={() => handleNavigateToRentOrder()}>
-            +Add new Sales Order
+            + Add new Sales Order
           </button>
         </div>
       </div>

@@ -8,10 +8,16 @@ import ReactDOM from 'react-dom/client';
 import './styles/main.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+import { disableReactDevTools } from '@fvilers/disable-react-devtools';
+
 import { Provider } from 'react-redux';
 import { store } from './redux/store/store';
 
 import App from './App';
+
+if (process.env.NODE_ENV === 'production') {
+  disableReactDevTools();
+}
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <Provider store={store}>

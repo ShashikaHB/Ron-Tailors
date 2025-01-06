@@ -8,15 +8,16 @@ import { RiCheckLine } from '@remixicon/react';
 import { memo } from 'react';
 import { useAppDispatch } from '../../../redux/reduxHooks/reduxHooks';
 import { setProductId } from '../../../redux/features/common/commonSlice';
-import { setSelectedRentItemId } from '../../../redux/features/orders/orderSlice';
 
 type ProductRendererProps = {
   data: any;
   handleOpenMeasurement: (id: number, isRent?: boolean) => void;
+  handleOpenRentOrder: (id: string) => void;
   handleRemove: (id: number) => void;
+  handlePrintRentItem: (id: string) => void;
 };
 
-const ProductRenderer = ({ data, handleOpenMeasurement, handleRemove }: ProductRendererProps) => {
+const ProductRenderer = ({ data, handleOpenMeasurement, handleRemove, handleOpenRentOrder, handlePrintRentItem }: ProductRendererProps) => {
   const { description, products, category, rentItems } = data;
 
   const dispatch = useAppDispatch();
@@ -38,7 +39,7 @@ const ProductRenderer = ({ data, handleOpenMeasurement, handleRemove }: ProductR
               }}
               className="d-flex gap-4"
             >
-              <span style={{ marginRight: '10px' }}>{product.productType}</span>
+              <span style={{ marginRight: '10px' }}>{product.itemType}</span>
               <div className="d-flex gap-2">
                 <button
                   type="button"
@@ -72,22 +73,23 @@ const ProductRenderer = ({ data, handleOpenMeasurement, handleRemove }: ProductR
               }}
               className="d-flex gap-4"
             >
-              <span style={{ marginRight: '10px' }}>{product.productType || product.itemType}</span>
+              <span style={{ marginRight: '10px' }}>{product.itemType}</span>
               <div className="d-flex gap-2">
                 <button
                   type="button"
                   aria-label="close-btn"
                   className="icon-button"
                   onClick={() => {
-                    handleOpenMeasurement(product.rentItemId, true);
-                    dispatch(setSelectedRentItemId(product.rentItemId));
+                    handleOpenRentOrder(product.rentItemId);
                   }}
                 >
                   R
                 </button>
                 {product.description && (
                   <div className="check-btn">
-                    <RiCheckLine size={24} />
+                    <button type="button" aria-label="close-btn" className="icon-button" onClick={() => handlePrintRentItem(product.rentItemId)}>
+                      P
+                    </button>
                   </div>
                 )}
               </div>

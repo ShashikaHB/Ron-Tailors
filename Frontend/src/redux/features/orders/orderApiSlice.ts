@@ -35,7 +35,10 @@ export const orderApiSlice = apiSlice.injectEndpoints({
         if (!res.success) {
           return [];
         }
-        return { ...res.data, variant: 'edit' };
+        return {
+          ...res.data,
+          variant: 'edit',
+        };
       },
     }),
     addNewOrder: builder.mutation({
@@ -49,7 +52,13 @@ export const orderApiSlice = apiSlice.injectEndpoints({
         if (!res.success) {
           toast.error('Order creation failed.');
         }
-        return { ...res.data };
+        return {
+          ...res.data,
+          variant: 'edit',
+          weddingDate: res.data.weddingDate && new Date(res.data.weddingDate),
+          orderDate: res.data.orderDate && new Date(res.data.orderDate),
+          deliveryDate: res.data.deliveryDate && new Date(res.data.deliveryDate),
+        };
       },
       invalidatesTags: ['SalesOrder', 'Transactions', 'DayEnd', 'RentOrder'],
     }),
@@ -58,7 +67,10 @@ export const orderApiSlice = apiSlice.injectEndpoints({
         url: `/customer/searchCustomer?searchQuery=${customerQuery}`,
         method: 'GET',
       }),
-      transformResponse: (res: ApiResponse<CustomerSchema>): CustomerSchema => handleApiResponse(res, 'Customer search successful!'),
+      transformResponse: (res: ApiResponse<CustomerSchema>): CustomerSchema => {
+        const data = handleApiResponse(res, 'Customer search successful!');
+        return { ...data, variant: 'edit', customerId: data.customerId };
+      },
     }),
     updateSalesOrder: builder.mutation<ApiResponse<string>, any>({
       query: (salesOrderData: any) => {
@@ -69,6 +81,16 @@ export const orderApiSlice = apiSlice.injectEndpoints({
         };
       },
       invalidatesTags: (result, error, args) => (result ? [{ type: 'SalesOrder', id: args.salesOrderId }, { type: 'SalesOrder' }, { type: 'RentOrder' }] : []),
+    }),
+    deleteSalesOrder: builder.mutation<ApiResponse<string>, any>({
+      query: (salesOrderId: any) => {
+        return {
+          url: `/salesOrder/${salesOrderId}`,
+          method: 'DELETE',
+        };
+      },
+      invalidatesTags: (result, error, args) =>
+        result ? [{ type: 'SalesOrder', id: args.salesOrderId }, { type: 'SalesOrder' }, { type: 'RentOrder' }, { type: 'RentItem' }] : [],
     }),
     addReadyMadeItemOrder: builder.mutation<ApiResponse<string>, any>({
       query: (data: any) => {
@@ -125,4 +147,5 @@ export const {
   useLazyGetSalesOrRentOrderForPaymentQuery,
   useUpdateSalesOrRentPaymentMutation,
   useUpdateFitOnDataMutation,
+  useDeleteSalesOrderMutation,
 } = orderApiSlice;

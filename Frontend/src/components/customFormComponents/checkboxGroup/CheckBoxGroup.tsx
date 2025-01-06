@@ -32,7 +32,7 @@ const CheckBoxGroup = ({ options, handleCheckBoxSelect }: CheckBoxGroupProps) =>
 };
 
 // CheckBoxWithInput component for rendering checkbox + input fields
-export const CheckBoxWithInput = ({ option, handleCheckBoxChange, handleInputChange, disableCheckboxes }) => {
+export const CheckBoxWithInput = ({ option, handleCheckBoxChange, disableCheckboxes }) => {
   return (
     <div className="mb-1 checkbox-container">
       <FormControlLabel

@@ -14,6 +14,10 @@ import { updateDailySummary } from "../utils/updateDailySummary.js";
 import { RentOrder } from "../models/rentOrderModel.js";
 import { sendSMS } from "../notificationSMS/smsNotification.js";
 import { RentItem } from "../models/rentItemModel.js";
+import { addOrFetchCustomer } from "../utils/customer.js";
+import { addOrEditTransaction } from "../utils/transaction.js";
+import { getPopulatedSalesOrders } from "../services/salesOrderService.js";
+import { deleteRentOrder } from "../utils/rentOrder.js";
 
 export const createOrder = asyncHandler(async (req, res) => {
   const { store } = req.query;
@@ -23,238 +27,52 @@ export const createOrder = asyncHandler(async (req, res) => {
     orderDate,
     deliveryDate,
     salesPerson,
-    orderDetails,
-    paymentType,
   } = req.body;
 
   // Check for required fields
-  if (
-    !mobile ||
-    !name ||
-    !orderDate ||
-    !deliveryDate ||
-    !salesPerson ||
-    !orderDetails ||
-    !paymentType
-  ) {
+  if (!mobile || !name || !orderDate || !deliveryDate || !salesPerson) {
     res.status(400);
     throw new Error("Required fields are not provided.");
   }
-  let customer = undefined;
-  customer = await Customer.findOne({ mobile }).lean().exec();
-  if (!customer) {
-    customer = await Customer.create({ name, mobile });
-  }
+  const customer = await addOrFetchCustomer({ name, mobile });
 
   const salesPersonDoc = await User.findOne({ userId: salesPerson })
     .lean()
     .exec();
+
   if (!salesPersonDoc) {
-    res.status(404);
-    throw new Error(`No user found for ID ${salesPerson}`);
+    throw new Error("No sales person found");
   }
-
-  let rentOrderDetails = [];
-
-  // Loop through the orderDetails array and replace productId with the corresponding _id
-  const orderDetailsData = await Promise.all(
-    orderDetails.map(async (detail) => {
-      const productsData = await Promise.all(
-        detail?.products.map(async (productId) => {
-          const product = await getDocId(Product, "productId", productId);
-          if (!product) {
-            throw new Error(`No product found for ID ${productId}`);
-          }
-          return product._id; // Return only the _id of the product
-        })
-      );
-
-      if (detail.category === "Rent Full Suit") {
-        rentOrderDetails = [...rentOrderDetails, ...detail?.rentItems];
-      }
-
-      return {
-        description: detail.description,
-        category: detail?.category,
-        products: productsData,
-        rentItems: detail.rentItems,
-        amount: detail.amount,
-      };
-    })
-  );
 
   const orderData = {
     ...req.body,
     store,
-    customer: customer._id,
-    salesPerson: salesPersonDoc._id,
-    orderDetails: orderDetailsData,
+    customer: customer.customerId,
+    salesPerson: salesPerson,
+    orderDetails: [],
+    totalPrice: 0,
+    subTotal: 0,
+    discount: 0,
+    advPayment: 0,
+    balance: 0,
   };
 
   const newOrder = await SalesOrder.create(orderData);
 
-  console.log('Saved orderDetails in DB:', JSON.stringify(newOrder.orderDetails, null, 2));
+  // // Send SMS and handle the result
+  // const messageBody = `Hi ${name}. Your Order Id is ${newOrder.salesOrderId} and OrderTotal is ${subTotal}. Your order balance is ${newOrder?.balance}. Thank you, come again.`;
+  // const smsResult = await sendSMS(messageBody, mobile);
 
-
-  // Loop through each order and populate rentOrderDetails with rentItem status
-
-  const updatedRentOrderDetails = rentOrderDetails.map((detail) => ({
-    ...detail,
-    status: "Rented",
-  }));
-
-  if (rentOrderDetails.length > 0) {
-    const rentOrderData = {
-      ...req.body,
-      totalPrice: 0,
-      subTotal: 0,
-      discount: 0,
-      advPayment: 0,
-      balance: 0,
-      stakeOption: "No",
-      store,
-      rentOrderDetails: updatedRentOrderDetails,
-      linkedSalesOrderId: newOrder.salesOrderId,
-      suitType: "Wedding",
-      rentDate: new Date(orderDate),
-      returnDate: new Date(deliveryDate).setDate(
-        new Date(deliveryDate).getDate() + 5
-      ),
-      customer: customer._id,
-      salesPerson: salesPersonDoc._id,
-    };
-
-    const newRentOrder = await RentOrder.create(rentOrderData);
-
-    // Update the status of each rent item in the order to 'Not Returned'
-    for (const detail of rentOrderDetails) {
-      await RentItem.findOneAndUpdate(
-        { rentItemId: detail.rentItemId },
-        { status: "Rented" }
-      );
-    }
-  }
-
-  // Create a credit transaction
-  const newTransaction = await Transaction.create({
-    transactionType: "Income",
-    transactionCategory: "Sales Order",
-    paymentType: paymentType,
-    isInitialTransaction: true, // Used to find the initial transaction to update the transaction.
-    salesPerson: salesPersonDoc.name,
-    store,
-    amount: newOrder.advPayment,
-    description: `Sales Order: ${newOrder.salesOrderId}`,
-  });
-
-  await updateDailySummary(newTransaction);
-
-  // Send SMS and handle the result
-  const messageBody = `Hi ${name}. Your Order Id is ${newOrder.salesOrderId}. Your order balance is ${newOrder?.balance}. Thank you, come again.`;
-  const smsResult = await sendSMS(messageBody, mobile);
-
-  let smsStatus = "Success";
-  if (!smsResult.success) {
-    smsStatus = "Failed";
-    console.error("SMS sending failed:", smsResult.error);
-  }
+  // let smsStatus = "Success";
+  // if (!smsResult.success) {
+  //   smsStatus = "Failed";
+  //   console.error("SMS sending failed:", smsResult.error);
+  // }
 
   res.json({
     message: "New order created successfully.",
     success: true,
-    data: newOrder,
-    smsStatus,
-  });
-});
-
-// @desc    Get all orders
-// @route   GET /api/orders
-// @access  Public
-export const getAllOrders = asyncHandler(async (req, res) => {
-  const { store } = req.query;
-
-  const orders = await SalesOrder.find({ store })
-    .populate({
-      path: "customer",
-      select: "-_id -createdAt -updatedAt -__v",
-    })
-    .populate(
-      "salesPerson",
-      "-createdAt -updatedAt -password -_id -__v -refreshToken"
-    )
-    .lean();
-
-  const ordersWithProductFields = await Promise.all(
-    orders.map(async (order) => {
-      const orderDetails = await Promise.all(
-        order.orderDetails.map(async (detail) => {
-          const products = await Promise.all(
-            detail.products.map(async (product) => {
-              const productFields = await getProductFields(product._id);
-              return productFields;
-            })
-          );
-          return {
-            ...detail,
-            products,
-          };
-        })
-      );
-
-      return {
-        ...order,
-        orderDetails,
-      };
-    })
-  );
-
-  // Sort orders by extracting the numeric part of salesOrderId
-  const sortedOrders = ordersWithProductFields.sort((a, b) => {
-    const aId = parseInt(a.salesOrderId.replace(/\D/g, ""), 10);
-    const bId = parseInt(b.salesOrderId.replace(/\D/g, ""), 10);
-    return bId - aId;
-  });
-
-  res.json({
-    message: "All Orders Fetched Successfully.",
-    success: true,
-    data: sortedOrders,
-  });
-});
-
-export const getSingleSalesOrder = asyncHandler(async (req, res) => {
-  const { salesOrderId } = req?.params;
-
-  const salesOrder = await SalesOrder.findOne({ salesOrderId })
-    .populate({
-      path: "customer",
-      select: "-_id -createdAt -updatedAt -__v",
-    })
-    .populate(
-      "salesPerson",
-      "-createdAt -updatedAt -password -_id -__v -refreshToken"
-    )
-    .lean();
-
-  const orderWithProductFields = await Promise.all(
-    salesOrder.orderDetails.map(async (detail) => {
-      const products = await Promise.all(
-        detail.products.map(async (product) => {
-          const productFields = await getProductFields(product._id);
-          return productFields;
-        })
-      );
-      return {
-        ...detail,
-        products,
-      };
-    })
-  );
-
-  res.json({
-    message: "Sales Order Fetched Successfully.",
-    success: true,
-    data: { ...salesOrder, orderDetails: orderWithProductFields },
+    data: { ...newOrder.toObject(), customer },
   });
 });
 
@@ -268,69 +86,36 @@ export const updateSalesOrder = asyncHandler(async (req, res) => {
     totalPrice,
     subTotal,
     paymentType,
+    advPayment,
   } = req.body;
 
   const { salesOrderId } = req?.params;
+  const { store } = req.query;
 
   if (!salesOrderId) {
     throw new Error("OrderId is not provided!");
   }
 
-  console.log('Incoming updated orderDetails:', JSON.stringify(orderDetails, null, 2));
-
   const salesOrder = await SalesOrder.findOne({ salesOrderId }).lean().exec();
   if (!salesOrder) {
-    throw new Error("No sales order found");
+    throw new Error(`No sales order found with ID: ${salesOrderId}`);
   }
 
-  console.log('Existing orderDetails in DB:', JSON.stringify(salesOrder.orderDetails, null, 2));
+  const salesPersonRecord = await User.findOne({ userId: salesPerson })
+    .lean()
+    .exec();
 
-
-  let customer = undefined;
-  customer = await Customer.findOne({ mobile });
-  if (customer.name !== name) {
-    customer.name = name;
-
-    await customer.save();
+  if (!salesPersonRecord) {
+    throw new Error("No sales person found");
   }
-  if (!customer) {
-    customer = await Customer.create({ name, mobile });
-  }
-  const salesPersonDoc = await getDocId(User, "userId", salesPerson);
 
-  let rentOrderDetails = [];
-
-  // Loop through the orderDetails array and replace productId with the corresponding _id
-  const orderDetailsData = await Promise.all(
-    orderDetails.map(async (detail) => {
-      const productsData = await Promise.all(
-        detail.products.map(async (productId) => {
-          const product = await getDocId(Product, "productId", productId);
-          if (!product) {
-            throw new Error(`No product found for ID ${productId}`);
-          }
-          return product._id; // Return only the _id of the product
-        })
-      );
-      if (detail.category === "Rent Full Suit") {
-        rentOrderDetails = [...rentOrderDetails, ...detail?.rentItems];
-      }
-
-      return {
-        description: detail.description,
-        category: detail?.category,
-        products: productsData,
-        rentItems: detail?.rentItems,
-        amount: detail.amount,
-      };
-    })
-  );
+  let customer = addOrFetchCustomer({ name, mobile });
 
   const orderData = {
     ...req.body,
-    customer: customer._id,
-    salesPerson: salesPersonDoc,
-    orderDetails: orderDetailsData,
+    customer: customer.customerId,
+    salesPerson,
+    orderDetails,
   };
 
   const updateOrder = await SalesOrder.findByIdAndUpdate(
@@ -343,61 +128,131 @@ export const updateSalesOrder = asyncHandler(async (req, res) => {
     }
   );
 
-  console.log('Updated orderDetails in DB:', JSON.stringify(updateOrder.orderDetails, null, 2));
+  // Send SMS and handle the result
+  const messageBody = `Hi ${name}. Your Order Id is ${updateOrder.salesOrderId} and OrderTotal is ${subTotal}. Your order balance is ${updateOrder?.balance}. Thank you, come again.`;
+  const smsResult = await sendSMS(messageBody, mobile);
 
-  // Create a credit transaction
-  const newTransaction = await Transaction.findOneAndUpdate(
-    {
-      description: `Sales Order: ${salesOrder.salesOrderId}`,
-      isInitialTransaction: true,
-    },
-    {
-      paymentType: paymentType,
-      amount: updateOrder.advPayment,
-    }
-  );
-
-  const updatedRentOrderDetails = rentOrderDetails?.map((detail) => ({
-    ...detail,
-    status: "Rented",
-  }));
-
-  const linkedRentOrder = await RentOrder.findOne({
-    linkedSalesOrderId: salesOrderId,
-  });
-
-  if (rentOrderDetails.length > 0 && linkedRentOrder) {
-    const removedRentItems = linkedRentOrder.rentOrderDetails.filter(
-      (existingItem) =>
-        !updatedRentOrderDetails.some(
-          (updatedItem) => updatedItem.rentItemId === existingItem.rentItemId
-        )
-    );
-    if (removedRentItems.length > 0) { // Make the removed rent items available again.
-      for (const removedItem of removedRentItems) {
-        await RentItem.findOneAndUpdate(
-          { rentItemId: removedItem.rentItemId },
-          { status: "Available" }
-        );
-      }
-    }
-    linkedRentOrder.rentOrderDetails = updatedRentOrderDetails;
-    await linkedRentOrder.save();
-  } else if (linkedRentOrder) {
-    // Update the status of each rent item in the order to 'Available' before deleting
-    for (const detail of linkedRentOrder.rentOrderDetails) {
-      await RentItem.findOneAndUpdate(
-        { rentItemId: detail.rentItemId },
-        { status: "Available" }
-      );
-    }
-    await RentOrder.findByIdAndDelete(linkedRentOrder._id);
+  let smsStatus = "Success";
+  if (!smsResult.success) {
+    smsStatus = "Failed";
+    console.error("SMS sending failed:", smsResult.error);
   }
+
+  const transactionData = {
+    description: `Sales Order: ${salesOrder.salesOrderId}`,
+    transactionType: "Income",
+    transactionCategory: "Sales Order",
+    paymentType: paymentType,
+    salesPerson: salesPerson,
+    store,
+    isInitialTransaction: true,
+    amount: advPayment,
+  };
+
+  const transaction = await addOrEditTransaction(transactionData);
+
+  await updateDailySummary(transaction);
 
   res.json({
     message: "Sales order updated successfully.",
     success: true,
     data: updateOrder,
+    smsStatus
+  });
+});
+
+// @desc    Get all orders
+// @route   GET /api/orders
+// @access  Public
+export const getAllOrders = asyncHandler(async (req, res) => {
+  const { store } = req.query;
+
+  const filter = { store };
+
+  const salesOrders = await getPopulatedSalesOrders({ filter });
+
+  res.json({
+    message: "All Orders Fetched Successfully.",
+    success: true,
+    data: salesOrders,
+  });
+});
+
+export const getSingleSalesOrder = asyncHandler(async (req, res) => {
+  const { salesOrderId } = req?.params;
+
+  const filter = { salesOrderId };
+
+  const salesOrder = await getPopulatedSalesOrders({ filter });
+
+  if (!salesOrder) {
+    throw new Error("No sales order found!");
+  }
+
+  res.json({
+    message: "Sales Order Fetched Successfully.",
+    success: true,
+    data: salesOrder,
+  });
+});
+
+// export const cancelSalesOrder = asyncHandler(async (req, res) => {
+//   const { salesOrderId } = req?.params;
+
+//   const salesOrder = await SalesOrder.findOneAndDelete({ salesOrderId });
+
+//   if (!salesOrder) {
+//     throw new Error("Sales order Cancellation Failed!");
+//   }
+
+//   //   for (const detail of salesOrder.orderDetails) {
+//   //     for (const rentItem of detail.rentItems) {
+//   //       await RentItem.findOneAndUpdate(
+//   //         { rentItemId: rentItem.rentItemId },
+//   //         { status: "Available" }
+//   //       );
+//   //     }
+//   //   }
+
+//   res.json({
+//     message: "Sales Order Cancelled Successfully.",
+//     success: true,
+//   });
+// });
+
+export const deleteSalesOrder = asyncHandler(async (req, res) => {
+  const { salesOrderId } = req?.params;
+
+  const salesOrder = await SalesOrder.findOne({ salesOrderId }).lean().exec();
+
+  if (!salesOrder) {
+    throw new Error("No sales order found!");
+  }
+
+  // delete linked rentOrder
+  if (salesOrder.linkedRentOrder) {
+    const rentOrder = await RentOrder.findOne({
+      rentOrderId: salesOrder.linkedRentOrder,
+    }).lean();
+    if (rentOrder) {
+      const deletedRentOrder = await deleteRentOrder(
+        salesOrder.linkedRentOrder
+      );
+      if (!deletedRentOrder) {
+        throw new Error("Rent order deletion failed!");
+      }
+    }
+  }
+
+  const deletedSalesOrder = await SalesOrder.findOneAndDelete({ salesOrderId });
+
+  if (!deletedSalesOrder) {
+    throw new Error("Sales order Deletion Failed!");
+  }
+
+  res.json({
+    message: "Sales Order Deleted Successfully.",
+    success: true,
   });
 });
 

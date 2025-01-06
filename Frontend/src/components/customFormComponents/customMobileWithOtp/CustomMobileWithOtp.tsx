@@ -18,10 +18,11 @@ import { setSelectedCustomerId } from '../../../redux/features/orders/orderSlice
 type CustomMobileWithOtpProps<T> = {
   name: Path<T>;
   label: string;
+  disabled?: boolean;
   onVerify?: () => void;
 };
 
-const CustomMobileWithOtp = <T extends FieldValues>({ name, label, onVerify }: CustomMobileWithOtpProps<T>) => {
+const CustomMobileWithOtp = <T extends FieldValues>({ name, label, onVerify, disabled }: CustomMobileWithOtpProps<T>) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [verified, setVerified] = useState<boolean>(false);
   const [otp, setOtp] = useState(new Array(6).fill(''));
@@ -91,14 +92,14 @@ const CustomMobileWithOtp = <T extends FieldValues>({ name, label, onVerify }: C
 
   return (
     <div className="col-6 d-flex gap-2 mb-3 align-items-start">
-      <RHFTextField<T> label={label} name={name} />
+      <RHFTextField<T> label={label} name={name} disabled={disabled} />
       <button
         className="icon-button otp-add-btn"
         type="button"
         aria-label="mobile_add"
         aria-describedby={id}
         onClick={handleClick}
-        disabled={verified || sendingOtp}
+        disabled={verified || sendingOtp || disabled}
       >
         {verified ? (
           <span>

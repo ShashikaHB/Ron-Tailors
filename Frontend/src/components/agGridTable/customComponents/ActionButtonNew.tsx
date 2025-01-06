@@ -23,7 +23,7 @@ const ActionButtonNew = (props: ActionButtonPropTypes) => {
 
   const id = data?.[idType];
   const handlePrint = () => {
-    if (idType && idType === 'rentOrderId') {
+    if (idType && idType === 'rentOrderId' && openPrint) {
       openPrint(id);
     } else {
       const newWindow = window.open('', '_blank');
@@ -35,7 +35,7 @@ const ActionButtonNew = (props: ActionButtonPropTypes) => {
     }
   };
 
-  const showDeleteButton = !isAccount && !hideDeleteForCategories.includes(data?.transactionCategory);
+  const showDeleteButton = !isAccount && (!data?.transactionCategory || !hideDeleteForCategories.includes(data.transactionCategory));
 
   return (
     <div className="d-flex gap-2 mt-2">
@@ -44,7 +44,7 @@ const ActionButtonNew = (props: ActionButtonPropTypes) => {
           Edit
         </button>
       )}
-      {showDeleteButton && !isOrderBook && (
+      {showDeleteButton && handleDelete && (
         <button type="button" className="primary-button-sm" onClick={() => handleDelete(id)}>
           Delete
         </button>

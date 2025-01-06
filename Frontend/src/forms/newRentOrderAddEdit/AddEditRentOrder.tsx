@@ -10,11 +10,10 @@ import { SubmitHandler, useFormContext, useWatch } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { ColDef } from 'ag-grid-community';
-import { useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
 import RHFDropDown from '../../components/customFormComponents/customDropDown/RHFDropDown';
 import RHFDatePicker from '../../components/customFormComponents/customDatePicker/RHFDatePricker';
-import PaymentType from '../../enums/PaymentType';
 import { defaultRentOrderValues, rentOrderSchema, RentOrderSchema } from '../formSchemas/rentOrderSchema';
 import { useLazySearchCustomerQuery } from '../../redux/features/orders/orderApiSlice';
 import { useLazySearchRentItemQuery } from '../../redux/features/product/productApiSlice';
@@ -23,7 +22,12 @@ import { RentItemDetailTypes } from '../../enums/RentItemDetails';
 import MemoizedTable from '../../components/agGridTable/Table';
 import RentItemDetailsRenderer from '../../components/agGridTable/customComponents/RentItemDetailsRenderer';
 import ProductType from '../../enums/ProductType';
-import { useAddNewRentOrderMutation, useLazyGetSingleRentOrderQuery, useUpdateSingleRentOrderMutation } from '../../redux/features/rentOrder/rentOrderApiSlice';
+import {
+  useAddNewRentOrderMutation,
+  useDeleteRentOrderMutation,
+  useLazyGetSingleRentOrderQuery,
+  useUpdateSingleRentOrderMutation,
+} from '../../redux/features/rentOrder/rentOrderApiSlice';
 import SimpleActionButton from '../../components/agGridTable/customComponents/SimpleActionButton';
 import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
 import { allUsers } from '../../redux/features/auth/authSlice';
@@ -32,24 +36,11 @@ import { Roles } from '../../enums/Roles';
 import StakeOptions from '../../enums/StakeOptions';
 import { setLoading } from '../../redux/features/common/commonSlice';
 import CustomMobileWithOtp from '../../components/customFormComponents/customMobileWithOtp/CustomMobileWithOtp';
-import { SuitTypes } from '../../enums/RentOrderTypes';
 import suitTypeOptions from '../../consts/suitTypes';
 import PrintShopBill from '../printshopbill/PrintShopBill';
-
-// const salesPeople = [
-//   {
-//     value: 0,
-//     label: 'Select a Sales Person',
-//   },
-//   {
-//     value: 112,
-//     label: 'shashika',
-//   },
-//   {
-//     value: 114,
-//     label: 'Nimal',
-//   },
-// ];
+import { selectSavedSaleOrder, setOrderForm } from '../../redux/features/orders/orderSlice';
+import paymentOptions from '../../consts/paymentOptions';
+import { stakeOptions } from '../../consts/rentOrder';
 
 const initialRentItemDetails: RentItemDetails = {
   rentItemId: '0',
@@ -62,32 +53,6 @@ const initialRentItemDetails: RentItemDetails = {
   itemType: ProductType.Coat,
 };
 
-const paymentOptions = [
-  {
-    value: PaymentType.Cash,
-    label: 'Cash',
-  },
-  {
-    value: PaymentType.Card,
-    label: 'Card',
-  },
-];
-
-const stakeOptions = [
-  {
-    value: StakeOptions.No,
-    label: 'Select a stake option',
-  },
-  {
-    value: StakeOptions.NIC,
-    label: 'NIC',
-  },
-  {
-    value: StakeOptions.Deposit,
-    label: 'Deposit',
-  },
-];
-
 const NewRentOut = () => {
   const { control, unregister, watch, reset, setValue, handleSubmit, getValues, clearErrors } = useFormContext<RentOrderSchema>();
 
@@ -95,11 +60,17 @@ const NewRentOut = () => {
 
   const dispatch = useAppDispatch();
 
+  const navigate = useNavigate();
+
+  const location = useLocation();
+  const { isFromSalesOrder } = location?.state || {}; // Retrieve the state
+
   const [triggerProductSearch, { data: rentItem, isLoading: rentItemLoading }] = useLazySearchRentItemQuery();
 
   const [getRentOrderData, { data: singleRentOrderData, isLoading: rentOrderLoading }] = useLazyGetSingleRentOrderQuery();
   const [addRentOrder, { data, isLoading: addingRentOrder }] = useAddNewRentOrderMutation();
   const [updateRentOrder, { data: updateData, isLoading: updatingOrder }] = useUpdateSingleRentOrderMutation();
+  const [deleteRentOrder, { data: deleteData, isLoading: isDeleting, errors }] = useDeleteRentOrderMutation();
 
   useEffect(() => {
     dispatch(setLoading(isCustomerLoading));
@@ -118,15 +89,17 @@ const NewRentOut = () => {
 
   const [productSearchQuery, setProductSearchQuery] = useState('');
 
-  const [selectedSuitType, setSelectedSuitType] = useState(SuitTypes.Wedding);
-
   const [rentItemDetails, setRentItemDetails] = useState<RentItemDetails>(initialRentItemDetails);
 
-  const [showOtherMobile, setShowOtherMobile] = useState(false);
+  const [selectedRentItem, setSelectedRentItem] = useState({});
+
+  const savedSalesOrder = useAppSelector(selectSavedSaleOrder);
 
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(0);
   const [rowData, setRowData] = useState<RentItemDetails[]>([]);
+
+  const [rentItemResponse, setRentItemResponse] = useState();
 
   const handleClose = () => {
     setOpen(false);
@@ -150,6 +123,7 @@ const NewRentOut = () => {
   const handleRemove = (id: string) => {
     const filteredRowData = rowData.filter((row) => row.rentItemId !== id);
     setRowData(filteredRowData);
+    setRentItemResponse(null);
   };
 
   const { rentOrderId } = useParams();
@@ -189,11 +163,18 @@ const NewRentOut = () => {
       toast.success('Rent Item fetched!');
     }
   };
-  const handleSearchProduct = () => {
-    triggerProductSearch(productSearchQuery);
+  const handleSearchProduct = async () => {
+    const response = await triggerProductSearch(productSearchQuery).unwrap();
+
+    if (response) {
+      setRentItemResponse(response);
+    }
   };
 
   const handleRentItemAdd = () => {
+    if (isFromSalesOrder && rentItemDetails.rentItemId) {
+      setSelectedRentItem(rentItemDetails);
+    }
     const isDuplicate = rowData.some((item) => item.rentItemId === rentItemDetails.rentItemId);
 
     if (isDuplicate) {
@@ -204,6 +185,27 @@ const NewRentOut = () => {
     }
 
     setRowData((prev) => [...prev, rentItemDetails]);
+    // if (isFromSalesOrder) {
+    //   const updatedOrderDetails = savedSalesOrder.formData.orderDetails.map((detail) => {
+    //     if (detail.rentItems) {
+    //       return {
+    //         ...detail,
+    //         rentItems: detail.rentItems.map((item) => (item.rentItemId === savedSalesOrder.selectedItemId ? rentItemDetails : item)),
+    //       };
+    //     }
+    //     return detail;
+    //   });
+
+    //   const updatedSalesOrder = {
+    //     ...savedSalesOrder,
+    //     formData: {
+    //       ...savedSalesOrder.formData,
+    //       orderDetails: updatedOrderDetails,
+    //     },
+    //   };
+
+    //   setOrderForm(updatedSalesOrder);
+    // }
     setRentItemDetails(initialRentItemDetails);
     setProductSearchQuery('');
   };
@@ -240,10 +242,9 @@ const NewRentOut = () => {
   };
 
   const getUpdatingFormattedData = (data: any) => {
-    const salesPerson = data?.salesPerson?.userId;
     const rentDate = data?.rentDate ? new Date(data.rentDate) : null;
     const returnDate = data?.returnDate ? new Date(data.returnDate) : null;
-    return { ...data, salesPerson, rentDate, returnDate };
+    return { ...data, rentDate, returnDate };
   };
 
   const handleKeyPress = (e) => {
@@ -267,6 +268,49 @@ const NewRentOut = () => {
     }
   };
 
+  const handleRenderStakeOptions = () => {
+    if (stakeOption === StakeOptions.No) {
+      return null;
+    }
+    if (stakeOption === StakeOptions.NIC) {
+      return <RHFTextField<RentOrderSchema> label="NIC Number" name="nicNumber" />;
+    }
+    if (stakeOption === StakeOptions.Deposit) {
+      return <RHFTextField<RentOrderSchema> label="Deposit Amount" name="stakeAmount" />;
+    }
+  };
+
+  const saveAndBackToSalesOrder = (newRentOrderId: string) => {
+    if (selectedRentItem) {
+      const updatedOrderDetails = savedSalesOrder?.orderDetails?.map((order) => ({
+        ...order,
+        rentItems: order.rentItems.map((item) => (item.rentItemId === savedSalesOrder.selectedItemId ? selectedRentItem : item)),
+      }));
+
+      dispatch(
+        setOrderForm({
+          ...savedSalesOrder,
+          formData: { ...savedSalesOrder.formData, linkedRentOrder: newRentOrderId },
+          orderDetails: updatedOrderDetails,
+          selectedItemId: selectedRentItem.rentItemId,
+        })
+      );
+      navigate(`/secured/addSalesOrder/${savedSalesOrder.currentOrderId}`, { state: { isFromRentOrder: true } });
+    }
+  };
+
+  const getSaveButtonTxt = () => {
+    let btnLabel = '';
+    if (isFromSalesOrder) {
+      btnLabel = 'Save Order';
+    } else if (variant === 'create') {
+      btnLabel = 'Create Order';
+    } else if (variant === 'edit') {
+      btnLabel = 'Update Order';
+    }
+    return btnLabel;
+  };
+
   useEffect(() => {
     dispatch(setLoading(rentOrderLoading));
   }, [rentOrderLoading]);
@@ -280,10 +324,26 @@ const NewRentOut = () => {
           setRowData(response.data.rentOrderDetails);
         }
       });
+    } else if (savedSalesOrder) {
+      const formData = {
+        customer: savedSalesOrder?.formData?.customer,
+        salesPerson: savedSalesOrder?.formData?.salesPerson,
+        rentDate: savedSalesOrder?.formData?.deliveryDate,
+        variant: savedSalesOrder?.formData.linkedRentOrder ? 'edit' : 'create',
+        linkedSalesOrderId: savedSalesOrder?.currentOrderId,
+        totalPrice: 0,
+        subTotal: 0,
+        discount: 0,
+        advPayment: 0,
+        balance: 0,
+        rentOrderDetails: [],
+      };
+
+      reset(formData);
     } else {
       handleResetRentOrder();
     }
-  }, [rentOrderId, singleRentOrderData]);
+  }, [rentOrderId, savedSalesOrder]);
 
   useEffect(() => {
     if (rowData) {
@@ -311,49 +371,63 @@ const NewRentOut = () => {
   }, [customer]);
 
   useEffect(() => {
-    if (rentItem) {
+    if (rentItemResponse) {
       setRentItemDetails((prevDetails) => ({
         ...prevDetails,
-        description: rentItem.description,
-        color: rentItem.color,
-        size: rentItem.size,
-        type: rentItem.itemType,
-        rentItemId: rentItem.rentItemId,
+        description: rentItemResponse.description,
+        color: rentItemResponse.color,
+        size: rentItemResponse.size,
+        itemType: rentItemResponse.itemType,
+        rentItemId: rentItemResponse.rentItemId,
       }));
       clearErrors();
     }
-  }, [rentItem]);
+  }, [rentItemResponse]);
 
   const handleValidateData = () => {
     const formData = getValues();
 
     const result = rentOrderSchema.safeParse(formData);
-
+    console.log(formData);
     console.log(result);
+  };
+
+  const handleCancelOrder = () => {
+    if (isFromSalesOrder) {
+      navigate(`/secured/addSalesOrder/${savedSalesOrder.currentOrderId}`);
+    } else {
+      reset(defaultRentOrderValues);
+      setRowData([]);
+      setRentItemDetails(initialRentItemDetails);
+      setRentItemResponse(null);
+    }
   };
 
   const onSubmit: SubmitHandler<RentOrderSchema> = async (data) => {
     try {
+      let newOrderId;
       if (variant === 'edit') {
         const response = await updateRentOrder(data);
         if (response.error) {
           console.log(response.error);
-        } else {
-          toast.success('Order Updated!');
-          handleResetRentOrder();
-          const newOrderId = response.data.data.rentOrderId;
-          openPrint(newOrderId);
+          return;
         }
+        toast.success('Order Updated!');
+        newOrderId = response.data.data.rentOrderId;
       } else {
         const response = await addRentOrder(data);
         if (response.error) {
           console.log(response.error);
-        } else {
-          const newOrderId = response.data.rentOrderId;
-          toast.success('New Rent Order Added successfully');
-          handleResetRentOrder();
-          openPrint(newOrderId);
+          return;
         }
+        newOrderId = response.data.rentOrderId;
+        toast.success('New Rent Order Added successfully');
+      }
+      if (!isFromSalesOrder) {
+        openPrint(newOrderId);
+        handleResetRentOrder();
+      } else {
+        saveAndBackToSalesOrder(newOrderId);
       }
     } catch (error) {
       toast.error(`Material Action Failed. ${error.message}`);
@@ -374,6 +448,7 @@ const NewRentOut = () => {
                   <div className="row">
                     <div className="col-7 d-flex gap-2 mb-3 align-items-end">
                       <TextField
+                        disabled={isFromSalesOrder}
                         label="Search Customer"
                         placeholder="Search the customer by mobile or name"
                         value={customerSearchQuery}
@@ -392,13 +467,13 @@ const NewRentOut = () => {
                   </div>
                   <div className="row">
                     <div className="col-6 mb-3">
-                      <RHFTextField<RentOrderSchema> label="Name" name="customer.name" />
+                      <RHFTextField<RentOrderSchema> label="Name" name="customer.name" disabled={isFromSalesOrder} />
                     </div>
-                    <CustomMobileWithOtp<RentOrderSchema> label="Mobile" name="customer.mobile" />
-                    <CustomMobileWithOtp<RentOrderSchema> label="Secondary Mobile" name="customer.secondaryMobile" />
-                    <CustomMobileWithOtp<RentOrderSchema> label="Other Mobile" name="customer.otherMobile" />
+                    <CustomMobileWithOtp<RentOrderSchema> label="Mobile" name="customer.mobile" disabled={isFromSalesOrder} />
+                    <CustomMobileWithOtp<RentOrderSchema> label="Secondary Mobile" name="customer.secondaryMobile" disabled={isFromSalesOrder} />
+                    <CustomMobileWithOtp<RentOrderSchema> label="Other Mobile" name="customer.otherMobile" disabled={isFromSalesOrder} />
                     <div className="col-6 mb-3">
-                      <RHFDropDown<RentOrderSchema> options={salesPeople} name="salesPerson" label="Sales Person" />
+                      <RHFDropDown<RentOrderSchema> options={salesPeople} name="salesPerson" label="Sales Person" disabled={isFromSalesOrder} />
                     </div>
                     <div className="col-6 mb-3">
                       <RHFDatePicker<RentOrderSchema> name="rentDate" label="Rent Date" />
@@ -424,14 +499,14 @@ const NewRentOut = () => {
                       <RHFTextField<RentOrderSchema> label="Total" name="totalPrice" disabled />
                     </div>
                     <div className="col-6 mb-3">
-                      <RHFDropDown<RentOrderSchema> label="Payment Options" options={paymentOptions} name="paymentType" />
+                      <RHFDropDown<RentOrderSchema> label="Payment Options" options={paymentOptions} name="paymentType" disabled={isFromSalesOrder} />
                     </div>
 
                     <div className="col-6 mb-3">
-                      <RHFTextField<RentOrderSchema> label="Advance" name="advPayment" />
+                      <RHFTextField<RentOrderSchema> label="Advance" name="advPayment" disabled={isFromSalesOrder} />
                     </div>
                     <div className="col-6 mb-3">
-                      <RHFTextField<RentOrderSchema> label="Discount" name="discount" />
+                      <RHFTextField<RentOrderSchema> label="Discount" name="discount" disabled={isFromSalesOrder} />
                     </div>
                     <div className="col-6 mb-3">
                       <RHFTextField<RentOrderSchema> label="SubTotal" name="subTotal" disabled />
@@ -442,28 +517,24 @@ const NewRentOut = () => {
                     <div className="col-6 mb-3">
                       <RHFDropDown<RentOrderSchema> label="Stake Options" options={stakeOptions} name="stakeOption" />
                     </div>
-                    <div className="col-6 mb-3">
-                      {stakeOption === StakeOptions.NIC ? (
-                        <RHFTextField<RentOrderSchema> label="NIC Number" name="nicNumber" />
-                      ) : stakeOption === StakeOptions.Deposit ? (
-                        <RHFTextField<RentOrderSchema> label="Deposit Amount" name="stakeAmount" />
-                      ) : null}
-                    </div>
+                    <div className="col-6 mb-3">{handleRenderStakeOptions()}</div>
                   </div>
                   <div className="d-flex justify-content-end gap-2">
-                    <button
-                      className="secondary-button"
-                      type="button"
-                      //   onClick={handleCancelOrder}
-                    >
-                      Cancel Order
+                    <button className="secondary-button" type="button" onClick={handleCancelOrder}>
+                      {isFromSalesOrder ? 'Back to Sales Order' : 'Cancel Order'}
                     </button>
-                    {/* <button className="secondary-button" type="submit" onClick={handleValidateData}>
+                    {/* <button className="secondary-button" type="button" onClick={handleValidateData}>
                       validate Order
                     </button> */}
-                    <button className="primary-button" type="submit">
-                      {variant === 'create' ? 'Create Order ' : 'Edit Order '}
-                    </button>
+                    {isFromSalesOrder ? (
+                      <button className="primary-button" type="submit">
+                        {getSaveButtonTxt()}
+                      </button>
+                    ) : (
+                      <button className="primary-button" type="submit">
+                        {variant === 'create' ? 'Create Order ' : 'Edit Order '}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -528,6 +599,7 @@ const NewRentOut = () => {
                           label="Amount"
                           type="number"
                           value={rentItemDetails.amount}
+                          disabled={isFromSalesOrder}
                           onChange={(e) => handleAmountChange(e)}
                           onKeyDown={handleKeyPressProductAdd}
                         />
@@ -541,11 +613,12 @@ const NewRentOut = () => {
                     type="button"
                     onClick={() => {
                       setRentItemDetails(initialRentItemDetails);
+                      setRentItemResponse(null);
                     }}
                   >
                     Clear Item
                   </button>
-                  <button className="primary-button" type="button" disabled={rentItemDetails.amount === 0} onClick={handleRentItemAdd}>
+                  <button className="primary-button" type="button" onClick={handleRentItemAdd}>
                     Add Item
                   </button>
                 </div>

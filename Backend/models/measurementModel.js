@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import mongooseSequence from "mongoose-sequence";
+import { ItemCategories, ItemTypes } from "../enums/common.js";
 
 const AutoIncrement = mongooseSequence(mongoose);
 
@@ -24,29 +25,12 @@ const measurementSchema = new mongoose.Schema({
   },
   itemCategory: {
     type: String,
-    enum: ["General", "Full Suit", "National Suit", "Rent Full Suit"],
+    enum: ItemCategories,
     default: "General",
   },
   itemType: {
     type: String,
-    enum: [
-      "Coat",
-      "National Coat",
-      "West Coat",
-      "Shirt",
-      "Trouser",
-      "Designed Trouser",
-      "Designed Shirt",
-      "National Shirt",
-      "Rent Coat",
-      "Rent West Coat",
-      "Sarong",
-      "Tie",
-      "Bow",
-      "Cravat",
-      "Hanky",
-      "Chain",
-    ],
+    enum: ItemTypes,
     required: [true, "Item Type is required."],
   },
   measurements: [{ type: String }],

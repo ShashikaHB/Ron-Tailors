@@ -28,6 +28,7 @@ import { logger } from "./middleware/logger.js";
 import { corsOptions } from "./config/cors/corsOptions.js";
 import { sendSMS } from "./notificationSMS/smsNotification.js";
 import requestLogger from "./middleware/loggerMiddleWare.js";
+import { scheduleBackupJob } from "./database/dbBackup.js";
 
 // Initialize app instance
 const app = express();
@@ -38,6 +39,11 @@ dotenv.config();
 // DB connection
 connectDB();
 
+// Schedule the backup job to run at midnight daily
+// scheduleBackupJob();
+
+// Initialize logger instance
+// app.use(requestLogger); // Apply the logging middleware
 // Middlewares
 app.use(morgan("dev"));
 app.use(express.json());
@@ -45,8 +51,6 @@ app.use(cors(corsOptions));
 app.use(cookieParser()); // This is used to add the refresh token to http only cookie
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// Initialize logger instance
-app.use(requestLogger); // Apply the logging middleware
 
 
 // Routers

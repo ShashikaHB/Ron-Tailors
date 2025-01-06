@@ -1,7 +1,7 @@
 import { createLogger, format, transports } from "winston";
 import "winston-mongodb";
 
-const mongoDBConnection = process.env.MONGO_DB_URL || "mongodb://localhost:27017/logs"; // Replace with your MongoDB URI
+const mongoDBConnection = process.env.MONGO_DB_TEST_URL || "mongodb://localhost:27017/logs"; // Replace with your MongoDB URI
 
 // Define the log format
 const logFormat = format.combine(
@@ -31,8 +31,31 @@ const logger = createLogger({
       level: "info", // Minimum log level for this transport
       capped: true, // Create a capped collection for logs
       cappedMax: 1000, // Max number of documents in the collection
+      bufferMaxEntries: 100, // Maximum number of log entries to buffer
+
     }),
   ],
 });
+
+const fallbackLogs = [];
+
+logger.on("error", (error) => {
+  fallbackLogs.push({ level: "info", message: "Failed log entry" });
+  console.error("Logging error:", error.message);
+});
+
+// Retry logic (example):
+setInterval(async () => {
+  if (fallbackLogs.length > 0) {
+    try {
+      for (const log of fallbackLogs) {
+        logger.log(log); // Retry the log
+      }
+      fallbackLogs.length = 0; // Clear successfully logged entries
+    } catch (error) {
+      console.error("Retry failed:", error.message);
+    }
+  }
+}, 5000); // Retry every 5 seconds
 
 export default logger;

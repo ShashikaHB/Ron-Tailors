@@ -78,6 +78,7 @@ const baseOrderSchema = z.object({
     }),
   balance: z.coerce.number().optional(),
   paymentType: z.nativeEnum(PaymentType).default(PaymentType.Cash),
+  linkedRentOrder: z.string().optional(),
 });
 
 // Define the create schema with customer and salesPerson as numbers
@@ -116,5 +117,5 @@ export const defaultOrderValues: OrderSchema = {
   advPayment: 0,
   balance: 0,
   paymentType: PaymentType.Cash,
-  // rentOrderId is required only for 'edit' variant
+  linkedRentOrder: '',
 };

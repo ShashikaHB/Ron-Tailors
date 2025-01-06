@@ -62,6 +62,7 @@ const baseRentOrderSchema = z.object({
   stakeOption: z.nativeEnum(StakeOptions),
   stakeAmount: z.coerce.number().optional(),
   nicNumber: z.string().optional(),
+  linkedSalesOrderId: z.string().optional(),
 });
 
 // Define the create schema with customer and salesPerson as numbers
@@ -94,6 +95,7 @@ export const defaultRentOrderValues: RentOrderSchema = {
   suitType: SuitTypes.Wedding,
   salesPerson: 0,
   rentOrderDetails: [],
+  linkedSalesOrderId: '',
   totalPrice: 0,
   subTotal: 0,
   discount: 0,

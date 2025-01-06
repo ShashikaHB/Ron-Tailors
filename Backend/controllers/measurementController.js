@@ -3,6 +3,7 @@ import { Measurement } from "../models/measurementModel.js";
 import asyncHandler from "express-async-handler";
 import { getDocId } from "../utils/docIds.js";
 import { SalesOrder } from "../models/salesOrderModel.js";
+import { getPopulatedSalesOrders } from "../services/salesOrderService.js";
 
 export const createMeasurement = asyncHandler(async (req, res) => {
     const customerId = req.body.customer
@@ -177,23 +178,30 @@ export const getMeasurementData = asyncHandler(async (req, res) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
     end.setUTCHours(23, 59, 59, 999); // Ensure we capture all records for that day.
+
+    const filter = {
+        store,
+        orderDate: { $gte: start, $lte: end }
+    }
+
+    const orders = await getPopulatedSalesOrders({filter})
   
-    // Step 1: Fetch all sales orders within the date range without filtering on itemType yet.
-    const orders = await SalesOrder.find({
-      orderDate: { $gte: start, $lte: end }, store
-    })
-      .populate({
-        path: "orderDetails.products",
-        populate: {
-          path: "measurement", // Populate measurement details
-          select: "-__v -createdAt -updatedAt", // Exclude unnecessary fields
-          populate: {
-            path: "customer", // Populate customer inside measurement
-            select: "name mobile", // Only select relevant fields from customer
-          },
-        },
-      }).populate("customer")
-      .lean(); // Lean makes sure we get plain JavaScript objects instead of Mongoose documents
+    // // Step 1: Fetch all sales orders within the date range without filtering on itemType yet.
+    // const orders = await SalesOrder.find({
+    //   orderDate: { $gte: start, $lte: end }, store
+    // })
+    //   .populate({
+    //     path: "orderDetails.products",
+    //     populate: {
+    //       path: "measurement", // Populate measurement details
+    //       select: "-__v -createdAt -updatedAt", // Exclude unnecessary fields
+    //       populate: {
+    //         path: "customer", // Populate customer inside measurement
+    //         select: "name mobile", // Only select relevant fields from customer
+    //       },
+    //     },
+    //   }).populate("customer")
+    //   .lean(); // Lean makes sure we get plain JavaScript objects instead of Mongoose documents
   
     // Step 2: Manually filter the products to get measurements for the given itemType.
     const measurements = [];
@@ -202,7 +210,7 @@ export const getMeasurementData = asyncHandler(async (req, res) => {
       order.orderDetails.forEach((detail) => {
         detail.products.forEach((product) => {
           if (product.itemType === itemType && product.measurement) {
-            measurements.push({...product.measurement, orderId: order.salesOrderId, description: detail.description}); // Push the measurement to the result
+            measurements.push({...product.measurement, orderId: order.salesOrderId, description: detail.description, customer: order.customer}); // Push the measurement to the result
           }
         });
       });

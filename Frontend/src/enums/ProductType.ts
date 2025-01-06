@@ -26,6 +26,9 @@ enum ProductType {
   ReadyMadeCoat = 'Ready Made Coat',
   CuffLinkWithTie = 'CuffLink with Tie Pin',
   Shoes = 'Shoes',
+  AlterationShirt = 'Alteration Shirt',
+  AlterationTrouser = 'Alteration Trouser',
+  AlterationCoat = 'Alteration Coat',
 }
 
 export enum ProductCategory {

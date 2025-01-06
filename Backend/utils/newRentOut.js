@@ -6,7 +6,7 @@ export const createRentOrderAndItem = async (product, salesOrder, store) => {
   const rentItem = await RentItem.create({
     rentItemId: `${salesOrder.salesOrderId}-${product.itemType}-${product.productId}`,
     color: product.color,
-    size: product.size,
+    size: product.size || 0,
     description: `New RentOut: ${product.itemType}`,
     store: store,
     itemCategory: product.itemCategory,
@@ -17,9 +17,9 @@ export const createRentOrderAndItem = async (product, salesOrder, store) => {
 
   // Create RentOrder
   const rentOrder = await RentOrder.create({
-    customer: salesOrder.customer,
+    customer: salesOrder.customer.customerId,
     store: salesOrder.store,
-    rentDate: new Date(),
+    rentDate: salesOrder.deliveryDate,
     returnDate: new Date(), // Modify return date logic if needed
     rentOrderDetails: [
       {
@@ -33,7 +33,7 @@ export const createRentOrderAndItem = async (product, salesOrder, store) => {
         status: "Rented",
       },
     ],
-    salesPerson: salesOrder.salesPerson._id,
+    salesPerson: salesOrder.salesPerson,
     totalPrice: product.rentPrice || 0,
     subTotal: product.rentPrice || 0,
     paymentType: salesOrder.paymentType,

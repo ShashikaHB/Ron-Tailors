@@ -23,8 +23,6 @@ export const createMaterial = asyncHandler(async (req, res) => {
     success: true,
   });
 
-
-
 });
 
 export const getAllMaterials = asyncHandler(async (req, res) => {

@@ -4,19 +4,21 @@
  * Unauthorized access, copying, publishing, sharing, reuse of algorithms, concepts, design patterns
  * and code level demonstrations are strictly prohibited without any written approval of Shark Dev (Pvt) Ltd
  */
-import { useCallback, useEffect, useState } from 'react';
-import { capitalize, FormControl, FormGroup, FormLabel, InputLabel, MenuItem, Modal, Select, TextField } from '@mui/material';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { capitalize, FormControl, FormGroup, FormLabel, Modal, TextField } from '@mui/material';
 import { FaSearch } from 'react-icons/fa';
 import { toast } from 'sonner';
 import { FormProvider, SubmitHandler, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ICellRendererParams } from 'ag-grid-community';
+import cloneDeep from 'lodash/cloneDeep';
 import RHFTextField from '../../components/customFormComponents/customTextField/RHFTextField';
 import { defaultOrderValues, orderSchema, OrderSchema } from '../formSchemas/orderSchema';
 import {
   useAddNewOrderMutation,
+  useDeleteSalesOrderMutation,
   useLazyGetSingleSalesOrderQuery,
   useLazySearchCustomerQuery,
   useUpdateSalesOrderMutation,
@@ -27,7 +29,7 @@ import Table from '../../components/agGridTable/Table';
 import { MeasurementSchema, defaultMeasurementValues, measurementSchema } from '../formSchemas/measurementSchema';
 import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
 import { setSelectedProduct } from '../../redux/features/product/productSlice';
-import { removeSelectedCustomerId, selectCustomerId, setSelectedCustomerId } from '../../redux/features/orders/orderSlice';
+import { selectCustomerId, selectSavedSaleOrder, setOrderForm, setSelectedCustomerId } from '../../redux/features/orders/orderSlice';
 import { useAddNewProductMutation } from '../../redux/features/product/productApiSlice';
 import ProductRenderer from '../../components/agGridTable/customComponents/ProductRenderer';
 import AddEditMeasurement from '../measurementAddEdit/AddEditMeasurement';
@@ -39,25 +41,42 @@ import { productCategoryItemMap } from '../../consts/products';
 import { CheckBoxWithInput } from '../../components/customFormComponents/checkboxGroup/CheckBoxGroup';
 import ProductType, { ProductCategory } from '../../enums/ProductType';
 import { setLoading } from '../../redux/features/common/commonSlice';
-import SelectRentItem from '../selectRentItem/SelectRentItem';
 import CustomMobileWithOtp from '../../components/customFormComponents/customMobileWithOtp/CustomMobileWithOtp';
 import { ProductOptions } from '../../types/products';
 import { OrderItems } from '../../types/order';
 import SimpleActionButton from '../../components/agGridTable/customComponents/SimpleActionButton';
 import { useCreateCustomerMutation } from '../../redux/features/user/userApiSlice';
-
-const tempProductIdStart = 1;
+import { CustomerSchema } from '../formSchemas/customerSchema';
+import Dropdown from '../../components/customFormComponents/specialDropDown/DropDown';
 
 const AddEditOrder = () => {
   const { control, watch, reset, setValue, handleSubmit, clearErrors, getValues } = useFormContext<OrderSchema>();
 
   const dispatch = useAppDispatch();
 
+  const navigate = useNavigate();
+
+  const location = useLocation();
+
+  const { isFromRentOrder } = location.state || {};
+
+  const savedSalesOrder = useAppSelector(selectSavedSaleOrder);
+
   const users = useAppSelector(allUsers);
   const salesPeople = getUserRoleBasedOptions(users, Roles.SalesPerson);
 
   const name = useWatch({ control, name: 'customer.name' });
   const mobile = useWatch({ control, name: 'customer.mobile' });
+
+  // Reset customer state
+  const resetCustomer = () => {
+    setValue('customer.name', '');
+    setValue('customer.mobile', '');
+    setValue('customer.secondaryMobile', '');
+    setValue('customer.otherMobile', '');
+    dispatch(setSelectedCustomerId(null));
+    clearErrors('customer');
+  };
 
   const measurementMethods = useForm<MeasurementSchema>({
     mode: 'all',
@@ -71,6 +90,11 @@ const AddEditOrder = () => {
     checked: false,
   }));
 
+  const productCategoryDropDown = productCategoryItemMap.map((option) => ({
+    label: option.category,
+    value: option.category,
+  }));
+
   const [selectedCategory, setSelectedCategory] = useState<any>(ProductCategory.FullSuit);
   const [productOptions, setProductOptions] = useState<ProductOptions[]>(initialProductOptions);
   const [selectedItems, setSelectedItems] = useState<OrderItems[]>([]);
@@ -79,20 +103,22 @@ const AddEditOrder = () => {
   const [rentSelect, setOpenRentSelect] = useState(false);
   const [description, setDescription] = useState('');
   const [itemTotal, setItemTotal] = useState(0);
-  //   const [productOptions, setProductOptions] = useState<OptionCheckBox[]>(initialProductOptions);
-
-  const [tempProductId, setTempProductId] = useState(1); // Start with 1
+  const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
 
   const total = useWatch({ control, name: 'totalPrice' });
   const advance = useWatch({ control, name: 'advPayment' });
   const discount = useWatch({ control, name: 'discount' });
   const variant = useWatch({ control, name: 'variant' });
 
+  const [customerResponse, setCustomerResponse] = useState<CustomerSchema | null>(null);
+
   const { salesOrderId } = useParams();
 
-  const isAddItemButtonDisabled = !productOptions.some((option) => option.checked);
+  const isAddItemButtonDisabled = !productOptions.some((option) => option.checked) || !currentOrderId;
 
   const [trigger, { data: customer, isLoading: isCustomerSearching }] = useLazySearchCustomerQuery();
+  const [deleteOrder, { data: deleteData, isLoading: isDeleting }] = useDeleteSalesOrderMutation();
+
   const [updateSalesOrder, { data, isLoading: isOrderUpdating }] = useUpdateSalesOrderMutation();
   const [getSalesOrderData, { data: salesOrderData, isLoading: isSalesOrderLoading }] = useLazyGetSingleSalesOrderQuery();
   const [addProduct, { data: addProductData, isLoading: isAddingProduct }] = useAddNewProductMutation();
@@ -153,10 +179,7 @@ const AddEditOrder = () => {
     });
   };
 
-  // Handle input change (price input)
-  const handleInputChange = (id, price) => {
-    setProductOptions((prevOptions) => prevOptions.map((option) => (option.id === id ? { ...option, price } : option)));
-  };
+  const generateTempId = (value = 0) => `temp-${Date.now()}-${value}`;
 
   // Handle Add Items button click
   const handleAddItems = async () => {
@@ -172,18 +195,18 @@ const AddEditOrder = () => {
         description,
         products: [],
         amount: itemTotal,
-        isMeasurementSet: false,
       };
 
+      //   [Todo] Refactor this where productType and itemType id are same to a consistent value
       if (selectedCategory === ProductCategory.RentFullSuit) {
-        let tempId = tempProductId; // Get the current tempProductId
-
         // Separate rent items and API fetched items
+        // [Todo] Refactor this to loop only once in selectedProducts to get rentItems and products
         const rentItems = selectedProducts
           .filter((product) => product.productType === ProductType.RentCoat || product.productType === ProductType.RentWestCoat)
-          .map((product) => ({
-            rentItemId: tempId++,
-            productType: product.productType,
+          .map((product, index) => ({
+            rentItemId: generateTempId(index),
+            itemType: product.productType,
+            isDummy: true,
           }));
 
         const apiItems = selectedProducts.filter((product) => product.productType !== ProductType.RentCoat && product.productType !== ProductType.RentWestCoat);
@@ -196,7 +219,7 @@ const AddEditOrder = () => {
             }).unwrap(); // Get the API response and unwrap if necessary
             return {
               productId: response.productId as number,
-              productType: response.productType,
+              itemType: response.productType,
             };
           })
         );
@@ -207,7 +230,6 @@ const AddEditOrder = () => {
           rentItems,
           products: productDetails,
         };
-        setTempProductId(tempId); // Update tempProductId
       } else {
         const productDetails = await Promise.all(
           selectedProducts.map(async (product) => {
@@ -217,7 +239,7 @@ const AddEditOrder = () => {
             }).unwrap(); // Get the API response and unwrap if necessary
             return {
               productId: response.productId as number,
-              productType: response.productType,
+              itemType: response.productType,
             };
           })
         );
@@ -228,7 +250,7 @@ const AddEditOrder = () => {
 
       // Update selected items and clear errors and fields
       setSelectedItems([...selectedItems, newItem]);
-      clearErrors();
+      //   clearErrors();
       clearOrderItems();
     }
   };
@@ -246,7 +268,6 @@ const AddEditOrder = () => {
   };
 
   const handleMeasurementClose = useCallback(() => setOpenMeasurement(false), []);
-  const handleRentClose = useCallback(() => setOpenRentSelect(false), []);
 
   const handleOpenMeasurement = useCallback((productId: number, isRent: boolean) => {
     // if (!selectedCustomer) {
@@ -262,6 +283,39 @@ const AddEditOrder = () => {
     dispatch(setSelectedProduct(productId));
   }, []);
 
+  const selectedItemsRef = useRef([]);
+  const currentOrderIdRef = useRef(null);
+  const linkedRentOrder = useRef(null);
+
+  useEffect(() => {
+    selectedItemsRef.current = selectedItems;
+  }, [selectedItems]);
+
+  useEffect(() => {
+    currentOrderIdRef.current = currentOrderId;
+  }, [currentOrderId]);
+
+  const handleOpenRentOrder = useCallback(async (rentItemId: number) => {
+    const formData = getValues();
+    const currentSelectedItems = selectedItemsRef.current;
+    const currentOrder = currentOrderIdRef.current;
+
+    dispatch(
+      setOrderForm({
+        formData,
+        orderDetails: currentSelectedItems,
+        selectedItemId: rentItemId,
+        currentOrderId: currentOrder,
+      })
+    );
+
+    if (linkedRentOrder.current) {
+      navigate(`/secured/addRentOrder/${linkedRentOrder.current}`, { state: { isFromSalesOrder: true } });
+    } else {
+      navigate(`/secured/addRentOrder`, { state: { isFromSalesOrder: true } });
+    }
+  }, []);
+
   const handleRemove = (rowIndex: number) => {
     // Filter out the products that do not match the given productId
     const updatedItems = selectedItems.filter((item: any, index: number) => index !== rowIndex); // Remove items with no products
@@ -270,16 +324,19 @@ const AddEditOrder = () => {
     setSelectedItems(updatedItems);
   };
 
-  const transformOrderDetails = (orderDetails: any, isRowData?: boolean) => {
+  const handlePrintRentItem = (rentItemId: string) => {
+    const baseUrl = import.meta.env.VITE_BASE_URL;
+    const invoiceUrl = `${baseUrl}/api/v1/invoice/rentOrder/shop/${linkedRentOrder.current}?rentItemId=${rentItemId}`;
+    window.open(invoiceUrl, '_blank');
+  };
+
+  const transformOrderDetails = (orderDetails: any) => {
     return orderDetails.map((detail: any) => {
       return {
         category: detail.category,
         description: detail.description,
         products: detail.products.map((product: any) => {
-          if (isRowData) {
-            return { productId: product.productId, productType: product.itemType, isMeasurementAvailable: product.measurementId };
-          }
-          return product.productId;
+          return { productId: product.productId, itemType: product.itemType, isMeasurementAvailable: product?.measurement?.measurementId };
         }),
         rentItems: detail.rentItems,
         amount: detail.amount,
@@ -288,14 +345,13 @@ const AddEditOrder = () => {
   };
 
   const getUpdatingFormattedData = (data: any) => {
-    const salesPerson = data.salesPerson.userId;
-    const weddingDate = data?.weddingDate ? new Date(data.weddingDate) : null;
-    const orderDate = data?.orderDate ? new Date(data.orderDate) : null;
-    const deliveryDate = data?.deliveryDate ? new Date(data.deliveryDate) : null;
+    const weddingDate = data.weddingDate && new Date(data.weddingDate);
+    const orderDate = data.orderDate && new Date(data.orderDate);
+    const deliveryDate = data.deliveryDate && new Date(data.deliveryDate);
     const fitOnRounds = data?.fitOnRounds.map((round: any) => (round ? new Date(round) : null));
     const orderDetails = transformOrderDetails(data?.orderDetails);
-    setSelectedItems(orderDetails);
-    return { ...data, salesPerson, weddingDate, orderDate, deliveryDate, fitOnRounds, orderDetails };
+    // setSelectedItems(orderDetails);
+    return { ...data, fitOnRounds, orderDetails, weddingDate, orderDate, deliveryDate };
   };
 
   const colDefs = [
@@ -306,7 +362,9 @@ const AddEditOrder = () => {
       cellRendererParams: (params: any) => ({
         data: { ...params.data, selectedCategory },
         handleOpenMeasurement,
+        handleOpenRentOrder,
         handleRemove,
+        handlePrintRentItem,
       }),
       autoHeight: true,
       minWidth: 300,
@@ -323,8 +381,13 @@ const AddEditOrder = () => {
     },
   ];
 
-  const handleSearchCustomer = () => {
-    trigger(customerSearchQuery);
+  const handleSearchCustomer = async () => {
+    if (!name || !mobile) {
+      resetCustomer();
+      setCustomerResponse(null);
+    }
+    const response = await trigger(customerSearchQuery).unwrap();
+    setCustomerResponse(response); // Store response in local state  };
   };
 
   const clearOrderItems = () => {
@@ -334,8 +397,16 @@ const AddEditOrder = () => {
     setDescription('');
   };
 
-  const handleCancelOrder = () => {
-    reset();
+  const handleCancelOrder = async () => {
+    // [Todo] Implement cancel order functionality
+    if (currentOrderId) {
+      const response = await deleteOrder(currentOrderId).unwrap();
+
+      if (response) {
+        toast.success('Sales Order Deleted Successfully');
+      }
+    }
+    navigate('/secured/salesOrderBook');
   };
 
   const handleOrderFormReset = () => {
@@ -362,52 +433,73 @@ const AddEditOrder = () => {
     );
   };
 
-  const handleCreateCustomer = async () => {
-    if (selectedCustomer) {
-      toast.error('Customer is already selected!');
-    } else if (name && mobile) {
-      const response = await createCustomer({ name, mobile }).unwrap();
-      dispatch(setSelectedCustomerId(response.customerId));
-      toast.success('Customer is selected!');
-    } else {
-      toast.error('Name or Mobile not filled!');
-    }
+  const handleCreateSalesOrder = async () => {
+    const formData = getValues();
+
+    const order = addOrder(formData)
+      .unwrap()
+      .then((response) => {
+        if (response) {
+          setCurrentOrderId(response.salesOrderId);
+          reset(response);
+          dispatch(setSelectedCustomerId(response.customer.customerId));
+          toast.success('Order Created!');
+        }
+      });
   };
 
   useEffect(() => {
     dispatch(setLoading(salesOrderLoading));
   }, [salesOrderLoading]);
 
+  useEffect(() => {
+    dispatch(setLoading(isDeleting));
+  }, [isDeleting]);
+
   const handleValidateData = () => {
     const formData = getValues();
 
     const result = orderSchema.safeParse(formData);
-
+    console.log(formData);
     console.log(result);
   };
 
   useEffect(() => {
     dispatch(setSelectedCustomerId(null));
-  }, []);
 
-  useEffect(() => {
     if (salesOrderId) {
-      // Fetch and populate the order data for editing
-      getSalesOrderData(salesOrderId).then((response) => {
-        if (response.data) {
-          reset(getUpdatingFormattedData(response.data)); // Populate the form with fetched data
-          dispatch(setSelectedCustomerId(response.data.customer.customerId));
-          const formattedOrderDetails = transformOrderDetails(response.data.orderDetails, true);
-          setSelectedItems(formattedOrderDetails);
-        }
-      });
+      setCurrentOrderId(salesOrderId);
+
+      if (isFromRentOrder && savedSalesOrder) {
+        setSelectedItems(cloneDeep(savedSalesOrder.orderDetails));
+        reset(cloneDeep(savedSalesOrder.formData));
+        linkedRentOrder.current = savedSalesOrder?.formData.linkedRentOrder;
+      } else {
+        // Fetch and populate the order data for editing
+        getSalesOrderData(salesOrderId)
+          .unwrap()
+          .then((response) => {
+            if (response) {
+              const formattedOrderDetails = getUpdatingFormattedData(response);
+              const updatedItems = formattedOrderDetails.orderDetails.map((item) => ({
+                ...item,
+                products: (item?.products ?? []).map((product) => product.productId),
+              }));
+              reset({ ...formattedOrderDetails, orderDetails: updatedItems, linkedRentOrder: response.linkedRentOrder ?? '' }); // Populate the form with fetched data
+              linkedRentOrder.current = response.linkedRentOrder ?? '';
+
+              setSelectedItems(formattedOrderDetails.orderDetails);
+              dispatch(setSelectedCustomerId(response.customer.customerId));
+            }
+          });
+      }
     } else {
       handleOrderFormReset();
     }
   }, [salesOrderId]);
 
   useEffect(() => {
-    if (selectedItems) {
+    if (selectedItems.length > 0) {
       const totalAmount = selectedItems.reduce((sum: number, row: OrderItems) => sum + (row.amount || 0), 0);
       setValue('totalPrice', totalAmount);
 
@@ -430,67 +522,37 @@ const AddEditOrder = () => {
   }, [total, discount, advance]);
 
   useEffect(() => {
-    if (customer) {
-      setValue('customer.name', customer.name, { shouldDirty: true, shouldValidate: true });
-      setValue('customer.mobile', customer.mobile, { shouldDirty: true, shouldValidate: true });
-      setValue('customer.secondaryMobile', customer.secondaryMobile ?? '', { shouldDirty: true, shouldValidate: true });
-      setValue('customer.otherMobile', customer.otherMobile ?? '', { shouldDirty: true, shouldValidate: true });
-      dispatch(setSelectedCustomerId(customer.customerId));
+    if (customerResponse) {
+      setValue('customer.name', customerResponse.name, { shouldDirty: true, shouldValidate: true });
+      setValue('customer.mobile', customerResponse.mobile, { shouldDirty: true, shouldValidate: true });
+      setValue('customer.secondaryMobile', customerResponse.secondaryMobile ?? '', { shouldDirty: true, shouldValidate: true });
+      setValue('customer.otherMobile', customerResponse.otherMobile ?? '', { shouldDirty: true, shouldValidate: true });
+      dispatch(setSelectedCustomerId(customerResponse.customerId));
       clearErrors();
     }
-  }, [customer, customerSearchQuery, setValue, dispatch, clearErrors]);
+  }, [customerResponse, setValue, dispatch, clearErrors]);
 
   const onSubmit: SubmitHandler<OrderSchema> = async (data) => {
     try {
-      const newWindow = window.open('', '_blank');
       if (variant === 'edit') {
-        const response = await updateSalesOrder(data);
+        const response = await updateSalesOrder({ ...data, salesOrderId: currentOrderId });
         if (response.error) {
           console.log(response.error);
         } else {
           const baseUrl = import.meta.env.VITE_BASE_URL;
-          const invoiceUrl = `${baseUrl}/api/v1/invoice/salesOrder/${salesOrderId}`;
+          const invoiceUrl = `${baseUrl}/api/v1/invoice/salesOrder/${currentOrderId}`;
           toast.success('Order Updated!');
-          dispatch(removeSelectedCustomerId());
-          handleOrderFormReset();
-          if (newWindow) {
-            newWindow.location.href = invoiceUrl;
+          navigate(`/secured/salesOrderBook/`);
 
-            // Add print event listeners
-            newWindow.onbeforeprint = () => {
-              console.log('Before printing...');
-            };
+          const newWindow = window.open('', '_blank');
 
-            newWindow.onafterprint = () => {
-              console.log('After printing...');
-              // Optionally, close the window after printing
-              newWindow.close();
-            };
-
-            // Trigger print once the PDF is loaded
-            newWindow.onload = () => {
-              newWindow.print();
-            };
-          }
-        }
-      } else {
-        const response = await addOrder(data);
-        if (response.error) {
-          console.log(response.error);
-        } else {
-          const orderId = response.data.salesOrderId;
-          const baseUrl = import.meta.env.VITE_BASE_URL;
-          const invoiceUrl = `${baseUrl}/api/v1/invoice/salesOrder/${orderId}`;
-          toast.success('New order Added!');
-          dispatch(removeSelectedCustomerId());
-          handleOrderFormReset();
           if (newWindow) {
             newWindow.location.href = invoiceUrl;
           }
         }
       }
     } catch (e) {
-      toast.error(`Material Action Failed. ${e.message}`);
+      toast.error(`Sales order update Failed. ${e.message}`);
     }
   };
 
@@ -499,10 +561,11 @@ const AddEditOrder = () => {
       <div className="col-12 mb-3">
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="row">
+            {currentOrderId && <h4 style={{ textAlign: 'center', marginBottom: '15px' }}>Sales Order ID : {currentOrderId}</h4>}
             <div className="col-6">
               <div className="card h-100">
                 <div className="card-header">
-                  <h5>Customer info</h5>
+                  <h5>Customer Info</h5>
                 </div>
                 <div className="card-body">
                   <div className="row">
@@ -521,9 +584,6 @@ const AddEditOrder = () => {
                         </span>
                       </button>
                     </div>
-                    {/* <div className="col-6 d-flex gap-2 mb-3 align-items-end">
-                      <RHFDropDown<OrderSchema> options={stores} name="store" label="Store" />
-                    </div> */}
                   </div>
                   <div className="row">
                     <div className="col-6 mb-3">
@@ -545,9 +605,11 @@ const AddEditOrder = () => {
                       <RHFDatePicker<OrderSchema> name="weddingDate" label="Wedding Date" />
                     </div>
                     <div className="d-flex justify-content-end gap-2">
-                      <button className="primary-button" type="button" onClick={() => handleCreateCustomer()}>
-                        Save Customer details
-                      </button>
+                      {!currentOrderId && (
+                        <button className="primary-button" type="button" onClick={() => handleCreateSalesOrder()}>
+                          Create Sales Order
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -556,7 +618,7 @@ const AddEditOrder = () => {
             <div className="col-6">
               <div className="card h-100">
                 <div className="card-header">
-                  <h5>Billing info</h5>
+                  <h5>Billing Info</h5>
                 </div>
                 <div className="card-body">
                   <div className="row">
@@ -580,11 +642,11 @@ const AddEditOrder = () => {
                     </div>
                   </div>
                   <div className="d-flex justify-content-end gap-2">
-                    <button className="secondary-button" type="submit" onClick={handleCancelOrder}>
+                    <button className="secondary-button" type="button" onClick={handleCancelOrder}>
                       Cancel Order
                     </button>
-                    <button className="primary-button" type="submit">
-                      {variant === 'create' ? 'Create Order ' : 'Edit Order '}
+                    <button className="primary-button" type="submit" disabled={!currentOrderId}>
+                      Save Order
                     </button>
                     {/* <button className="primary-button" type="button" onClick={() => handleValidateData()}>
                       validate
@@ -602,7 +664,7 @@ const AddEditOrder = () => {
           <div className="col-6">
             <div className="card add-order-card">
               <div className="card-header">
-                <h5>Add order Items</h5>
+                <h5>Add Order Items</h5>
               </div>
               <div className="card-body d-flex flex-column">
                 <div className="row">
@@ -611,16 +673,15 @@ const AddEditOrder = () => {
                   </div>
                   <div className="col-12 d-flex gap-3 align-items-end">
                     <div className="col-5 mb-3">
-                      <FormControl sx={{ m: 1, maxWidth: 165 }} size="small">
-                        <InputLabel id="demo-simple-select-label">Category</InputLabel>
-                        <Select value={selectedCategory} onChange={handleCategoryChange}>
-                          {productCategoryItemMap.map((option) => (
-                            <MenuItem key={option.category} value={option.category}>
-                              {option.category}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
+                      <Dropdown
+                        sx={{ m: 1, maxWidth: 165 }}
+                        label="Category"
+                        options={productCategoryDropDown}
+                        value={selectedCategory}
+                        onChange={handleCategoryChange}
+                        placeholder="Select a category"
+                        size="small"
+                      />
                     </div>
                     <div className="col-5 mb-3">
                       <TextField
@@ -643,7 +704,6 @@ const AddEditOrder = () => {
                             key={option.id}
                             option={option}
                             handleCheckBoxChange={handleCheckBoxChange}
-                            handleInputChange={handleInputChange}
                             disableCheckboxes={disableCheckboxes && selectedCategory === 'General'}
                           />
                         ))}
@@ -674,11 +734,6 @@ const AddEditOrder = () => {
               <DevTool control={measurementMethods.control} />
             </div>
           </FormProvider>
-        </div>
-      </Modal>
-      <Modal open={rentSelect} onClose={handleRentClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
-        <div>
-          <SelectRentItem handleClose={handleRentClose} onRentItemSelection={updateRowDataOnRentOrder} />
         </div>
       </Modal>
     </div>

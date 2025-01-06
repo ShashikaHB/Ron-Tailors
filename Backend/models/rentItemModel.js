@@ -56,6 +56,9 @@ const rentItemSchema = new mongoose.Schema({
     type: String,
     required: [true, "Store Location is required."],
   },
+  itemHistory:[{
+    rentOrderId: String
+  }] 
 });
 
 // rentItemSchema.plugin(AutoIncrement, {

@@ -17,12 +17,15 @@ import ProductType from '../../enums/ProductType';
 import { useAppDispatch, useAppSelector } from '../../redux/reduxHooks/reduxHooks';
 import { setLoading } from '../../redux/features/common/commonSlice';
 import { selectedRentItemId } from '../../redux/features/orders/orderSlice';
+import SimpleDatePicker from '../../components/customFormComponents/simpleDatePicker/SimpleDatePicker';
 
 const initialRentItemDetails: RentItemDetails = {
-  rentItemId: 0,
+  rentItemId: '',
   color: '',
   size: undefined,
   description: '',
+  rentDate: new Date(),
+  returnDate: new Date(),
   handLength: '',
   notes: '',
   itemType: ProductType.Coat,
@@ -58,6 +61,8 @@ const SelectRentItem = ({ handleClose, onRentItemSelection }: SelectRentItemProp
         description: rentItem.description,
         color: rentItem.color,
         size: rentItem.size,
+        rentDate: new Date(rentItem?.rentDate),
+        returnDate: new Date(rentItem?.returnDate),
         itemType: rentItem.itemType,
         rentItemId: rentItem.rentItemId,
         amount: 0,
@@ -111,6 +116,13 @@ const SelectRentItem = ({ handleClose, onRentItemSelection }: SelectRentItemProp
     }
   };
 
+  const handleRentDateChange = (date: Date) => {
+    setRentItemDetails((prevDetails) => ({ ...prevDetails, rentDate: date as Date }));
+  };
+  const handleReturnDateChange = (date: Date) => {
+    setRentItemDetails((prevDetails) => ({ ...prevDetails, returnDate: date as Date }));
+  };
+
   return (
     <div className="modal-dialog modal-dialog-centered">
       <div className="modal-content">
@@ -153,6 +165,16 @@ const SelectRentItem = ({ handleClose, onRentItemSelection }: SelectRentItemProp
                     value={rentItemDetails.handLength}
                     onChange={(e) => handleRentItemDetailsChange(RentItemDetailTypes.handLength, e.target.value)}
                   />
+                </div>
+              </div>
+            </div>
+            <div className="col-12 mb-3 d-flex">
+              <div className="row gap-2 mx-0 g-0">
+                <div className="col">
+                  <SimpleDatePicker onDateChange={handleRentDateChange} label="Rent Date" />
+                </div>
+                <div className="col">
+                  <SimpleDatePicker onDateChange={handleReturnDateChange} label="Return Date" />
                 </div>
               </div>
             </div>

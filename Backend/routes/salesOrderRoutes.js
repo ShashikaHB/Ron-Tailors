@@ -1,6 +1,7 @@
 import express from "express";
 import {
   createOrder,
+  deleteSalesOrder,
   getAllOrders,
   getSalesOrderOrRentOrderForPayment,
   getSingleSalesOrder,
@@ -18,6 +19,7 @@ router.patch("/:salesOrderId", updateSalesOrder);
 router.get('/payment/:orderId', getSalesOrderOrRentOrderForPayment)
 router.post('/payment/:orderId', updateSalesOrRentOrder)
 router.post('/updateFitOn', updateFitOnRounds)
+router.delete("/:salesOrderId", deleteSalesOrder)
 
 
 export default router;

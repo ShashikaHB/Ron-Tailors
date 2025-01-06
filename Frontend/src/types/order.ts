@@ -18,10 +18,9 @@ type OrderItem = {
 export type OrderItems = {
   category: string;
   description: string;
-  products?: { productType: string; productId: number }[];
+  products?: { itemType: string; productId: number }[];
   rentItems?: any;
   amount: number;
-  isMeasurementSet: boolean;
 };
 
 export type SalesOrderDetails = {

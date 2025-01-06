@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import MemoizedTable from '../components/agGridTable/Table';
-import { useGetAllRentOrdersQuery } from '../redux/features/rentOrder/rentOrderApiSlice';
+import { useDeleteRentOrderMutation, useGetAllRentOrdersQuery } from '../redux/features/rentOrder/rentOrderApiSlice';
 import RentOrderDetailsRenderer from '../components/agGridTable/customComponents/RentOrderDetailsRenderer';
 import CustomerRenderer from '../components/agGridTable/customComponents/CustomerRenderer';
 import ActionButtonNew from '../components/agGridTable/customComponents/ActionButtonNew';
@@ -32,6 +32,8 @@ const RentBook = () => {
     isLoading: allRentOrdersLoading,
     refetch,
   } = useGetAllRentOrdersQuery(rentDate && !isInitialRender ? { rentDate: rentDate.toLocaleDateString('en-CA') } : {});
+
+  const [deleteRentOrder, { data, isLoading: isDeleting, errors }] = useDeleteRentOrderMutation();
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
@@ -44,6 +46,13 @@ const RentBook = () => {
 
   const handleOpen = (id: string) => {
     navigate(`/secured/addRentOrder/${id}`);
+  };
+  const handleDeleteRentOrder = async (id: string) => {
+    const response = await deleteRentOrder(id).unwrap();
+
+    if (response) {
+      toast.success('Rent Order Deleted Successfully');
+    }
   };
 
   const handleClose = () => {
@@ -95,6 +104,7 @@ const RentBook = () => {
       cellRenderer: ActionButtonNew,
       cellRendererParams: {
         handleEdit: handleOpen,
+        handleDelete: handleDeleteRentOrder,
         idType: 'rentOrderId',
         isOrderBook: true,
         openPrint,
@@ -131,6 +141,10 @@ const RentBook = () => {
       setRowData(rentOrders);
     }
   }, [orderSearchQuery]);
+
+  useEffect(() => {
+    dispatch(setLoading(isDeleting));
+  }, [isDeleting]);
 
   const handleNavigateToRentOrder = (rentOrderId?: number) => {
     navigate('/secured/addRentOrder');

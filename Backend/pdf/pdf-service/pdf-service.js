@@ -99,7 +99,7 @@ export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
       width: 200,
       continued: true,
     })
-    .text(`${totals.totalPrice}`, amountX, doc.y);
+    .text(`${totals.totalPrice}`, amountX + 2, doc.y);
 
   doc.moveDown(0.15);
   doc
@@ -126,7 +126,7 @@ export const buildSalesPdf = (dataCallBack, endCallBack, data) => {
   doc.moveDown(0.4);
   doc
     .text(`Balance:`, rightCenterX, doc.y, { width: 200, continued: true })
-    .text(`${totals.balance}`, amountX, doc.y);
+    .text(`${totals.balance}`, amountX + 3, doc.y);
   // Move Down and Position the Final Message
   doc.moveDown(0.3);
   doc
@@ -228,7 +228,7 @@ export const buildRentPdf = (dataCallBack, endCallBack, data) => {
       width: 200,
       continued: true,
     })
-    .text(`${totals.totalPrice}`, amountX, doc.y);
+    .text(`${totals.totalPrice}`, (amountX + 2), doc.y);
 
   doc.moveDown(0.15);
   doc
@@ -254,7 +254,7 @@ export const buildRentPdf = (dataCallBack, endCallBack, data) => {
   doc.moveDown(0.4);
   doc
     .text(`Balance:`, rightCenterX, doc.y, { width: 200, continued: true })
-    .text(`${totals.balance}`, amountX, doc.y);
+    .text(`${totals.balance}`, (amountX + 3), doc.y);
 
   // Move Down and Position the Final Message
   doc.moveDown(0.3);
@@ -294,7 +294,7 @@ export const buildRentShopPdf = (dataCallBack, endCallBack, data) => {
 
     doc.fontSize(10).font("Helvetica-Bold").text(`Rent No: ${orderNo}`);
     doc.moveDown(0.2);
-    doc.fontSize(8).font("Helvetica").text(`Barcode: ${detail.rentItemId}`);
+    doc.fontSize(8).font("Helvetica").text(`Barcode: ${detail.rentItemId} - ${detail.itemType}`);
     doc.moveDown(0.2);
 
     doc.text(`Description: ${detail.description}`);
@@ -323,6 +323,8 @@ export const buildRentShopPdf = (dataCallBack, endCallBack, data) => {
       .moveTo(doc.page.margins.left, doc.y)
       .lineTo(doc.page.width - doc.page.margins.right, doc.y)
       .stroke();
+
+    doc.moveDown(1)
   });
   doc.end();
 };
@@ -339,8 +341,7 @@ export const buildReadyMadePdf = (dataCallBack, endCallBack, data) => {
   doc.on("data", dataCallBack);
   doc.on("end", endCallBack);
 
-
-    const address =
+  const address =
     store === "KE"
       ? "No.176 A, First Floor, Kegalle."
       : "607, Colombo Road, Ranwala, Kegalle.";
@@ -429,7 +430,7 @@ export const buildMeasurementPdf = (dataCallBack, endCallBack, measurement) => {
     estimatedReleaseDate,
     isNecessary,
     orderId,
-    description
+    description,
   } = measurement;
 
   // Adjusted font sizes for POS printer and concise layout

@@ -12,7 +12,7 @@ import { CreateCustomer, GetCustomer } from './customer';
 import { User } from './user';
 
 export type RentOrderDetails = {
-  rentOrderId: number | null;
+  rentItemId: number | null;
   color: string;
   size: number | undefined;
   description: string;
