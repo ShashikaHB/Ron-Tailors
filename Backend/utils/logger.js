@@ -1,7 +1,9 @@
 import { createLogger, format, transports } from "winston";
 import "winston-mongodb";
 
-const mongoDBConnection = process.env.MONGO_DB_TEST_URL || "mongodb://localhost:27017/logs"; // Replace with your MongoDB URI
+// const mongoDBConnection = process.env.MONGO_DB_TEST_URL || "mongodb://localhost:27017/logs"; // Replace with your MongoDB URI
+
+const dbUri = `${process.env.MONGO_DB_URL}/${process.env.DB_NAME}?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Define the log format
 const logFormat = format.combine(
@@ -26,7 +28,7 @@ const logger = createLogger({
         format: errorConsoleFormat,
       }),
     new transports.MongoDB({
-      db: mongoDBConnection, // MongoDB connection URI
+      db: dbUri, // MongoDB connection URI
       collection: "RequestLogs", // Collection name for logs
       level: "info", // Minimum log level for this transport
       capped: true, // Create a capped collection for logs
