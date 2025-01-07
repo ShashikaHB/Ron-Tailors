@@ -4,6 +4,7 @@ export const allowedOrigins = [
   "https://rontailors.netlify.app",
   "https://ron-tailors.netlify.app",
   "https://ron-tailors-official.netlify.app",
-  "https://ron-tailors.lk"
+  "https://ron-tailors.lk",
+  "https://rontailors-old.netlify.app"
 
 ];
