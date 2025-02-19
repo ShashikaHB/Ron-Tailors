@@ -67,11 +67,12 @@ const StockPage = () => {
 
   const colDefs: ColDef<MaterialTableScheme>[] = [
     { headerName: 'Material Code', field: 'materialId' },
+    { headerName: 'Name', field: 'name' },
     { headerName: 'Brand', field: 'brand' },
     { headerName: 'Color', field: 'color' },
-    { headerName: 'Store', field: 'store', valueFormatter: (params) => (params?.data.store === 'KE' ? 'Kegalle' : 'Ranwala') },
-    { headerName: 'Available Units', field: 'noOfUnits' },
+    { headerName: 'Unit Cost', field: 'unitCost' },
     { headerName: 'Unit Price', field: 'unitPrice' },
+    { headerName: 'Available Units', field: 'noOfUnits' },
     {
       headerName: 'Actions',
       field: 'action',

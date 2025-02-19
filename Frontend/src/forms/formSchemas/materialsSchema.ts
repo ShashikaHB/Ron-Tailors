@@ -10,9 +10,10 @@ export const materialSchema = z.intersection(
   z.object({
     materialId: z.string().min(1, 'Material code is required.'),
     color: z.string().min(1, 'Material color is required.'),
-    unitPrice: z.coerce.number().min(1, 'Unit Price is required!'),
+    unitCost: z.coerce.number().min(1, 'Unit cost is required!'),
     noOfUnits: z.coerce.number().min(1, 'Number of units is required.'),
     brand: z.string(),
+    name: z.string(),
   }),
   z.discriminatedUnion('variant', [
     z.object({ variant: z.literal('create') }),
@@ -29,7 +30,8 @@ export const defaultMaterialValues: MaterialSchema = {
   variant: 'create',
   materialId: '',
   color: '',
-  unitPrice: 0,
+  unitCost: 0,
   noOfUnits: 0,
   brand: '', // Optional field, provide an empty string or another appropriate default value
+  name: '', // Optional field, provide an empty string or another appropriate default value
 };

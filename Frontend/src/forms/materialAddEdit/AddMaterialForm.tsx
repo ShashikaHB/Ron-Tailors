@@ -16,7 +16,7 @@ import { setLoading } from '../../redux/features/common/commonSlice';
 
 type AddMaterialFormProps = {
   handleClose: () => void;
-  materialId?: string;
+  materialId?: number | null;
 };
 
 const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
@@ -112,10 +112,11 @@ const AddMaterialForm = ({ handleClose, materialId }: AddMaterialFormProps) => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="inputGroup">
               <RHFTextField<MaterialSchema> label="Material Code" name="materialId" disabled={variant === 'edit'} />
-              <RHFTextField<MaterialSchema> label="Color" name="color" />
-              <RHFTextField<MaterialSchema> label="Unit Price" name="unitPrice" type="number" />
-              <RHFTextField<MaterialSchema> label="Available Units" name="noOfUnits" type="number" />
+              <RHFTextField<MaterialSchema> label="Name" name="name" />
               <RHFTextField<MaterialSchema> label="Brand" name="brand" />
+              <RHFTextField<MaterialSchema> label="Color" name="color" />
+              <RHFTextField<MaterialSchema> label="Unit Cost" name="unitCost" type="number" />
+              <RHFTextField<MaterialSchema> label="Available Units" name="noOfUnits" type="number" />
             </div>
             <div className="modal-footer mt-3">
               {variant === 'create' && (

@@ -11,10 +11,10 @@ export type Material = {
   materialId: string;
   color: string;
   unitPrice: number;
+  unitCost: number;
   noOfUnits: number;
-  marginPercentage: number;
   brand: string;
-  type?: string;
+  name: string;
   store: Stores;
 };
 

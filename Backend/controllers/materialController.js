@@ -79,9 +79,8 @@ export const updateMaterial = asyncHandler(async (req, res) => {
     {
       color: req?.body?.color,
       brand: req?.body?.brand,
-      unitPrice: req?.body?.unitPrice,
+      unitCost: req?.body?.unitCost,
       noOfUnits: req?.body?.noOfUnits,
-      type: req?.body?.type,
     },
     {
       new: true,

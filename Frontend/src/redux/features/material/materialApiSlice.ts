@@ -32,8 +32,8 @@ export const materialApiSlice = apiSlice.injectEndpoints({
         return res.data as Material[];
       },
     }),
-    getSingleMaterial: builder.query<GetMaterial, string>({
-      query: (id: string) => ({
+    getSingleMaterial: builder.query<GetMaterial, number>({
+      query: (id) => ({
         url: `/material/${id}`,
         method: 'GET',
       }),
@@ -56,7 +56,7 @@ export const materialApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: ['Materials'],
     }),
-    deleteNewMaterial: builder.mutation<ApiResponse, string>({
+    deleteNewMaterial: builder.mutation<ApiResponse, number>({
       query: (materialId) => ({
         url: `/material/${materialId}`,
         method: 'DELETE',
